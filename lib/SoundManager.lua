@@ -8,11 +8,6 @@ function SoundManager.setGlobalVolume(volume)
   love.audio.setVolume(volume)
 end
 
--- boolean isMuted
-function SoundManager.setIsMuted(isMuted)
-  SoundManager.isMuted = isMuted
-end
-
 -- string filename
 function SoundManager.loadSound(filename)
   if not SoundManager.sources[filename] then

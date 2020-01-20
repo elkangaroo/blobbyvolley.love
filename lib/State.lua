@@ -20,7 +20,7 @@ function State:step()
     self.currentState = LocalGameState()
   end
 
-  -- self.currentState:step_impl()
+  self.currentState:step_impl()
 
   -- check if we should switch to a new state
   if nil ~= self.stateToSwitchTo then

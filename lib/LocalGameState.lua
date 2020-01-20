@@ -13,8 +13,10 @@ setmetatable(LocalGameState, {
 function LocalGameState:__construct()
   -- leftPlayer = GameConfig.loadPlayerIdentity(LEFT_PLAYER, false) -- PlayerIdentity
   -- rightPlayer = GameConfig.loadPlayerIdentity(RIGHT_PLAYER, false) -- PlayerIdentity
-  leftPlayer = nil
-  rightPlayer = nil
+  leftPlayer = PlayerIdentity("Left Player")
+  leftPlayer.staticColor = { 0, 0, 255 }
+  rightPlayer = PlayerIdentity("Right Player")
+  rightPlayer.staticColor = { 255, 0, 0 }
 
   SoundManager.playSound("res/sfx/pfiff.wav", ROUND_START_SOUND_VOLUME)
 
@@ -26,7 +28,7 @@ function LocalGameState:__construct()
 end
 
 function LocalGameState:step_impl()
-  if self.match:isPaused() then
+  if self.match.isPaused then
     print("match is paused")
     -- displayQueryPrompt(200,
     --   TextManager::LBL_CONF_QUIT,
@@ -47,7 +49,7 @@ function LocalGameState:step_impl()
     --   if match:isPaused() then
     --     switchState(MainMenuState)
     --   else
-    --     RenderManager.redraw()
+    --     RenderManager:redraw()
     --     match:pause()
     --  end
   else
@@ -57,10 +59,10 @@ function LocalGameState:step_impl()
       winner = true
     end
 
-    presentGame()
+    self:presentGame()
   end
 
-  presentGameUI()
+  -- self:presentGameUI()
 end
 
 function LocalGameState:getStateName()

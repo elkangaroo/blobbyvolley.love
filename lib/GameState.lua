@@ -18,27 +18,23 @@ end
 
 -- helper function that draws the game
 function GameState:presentGame()
-  -- rmanager = RenderManager.getSingleton()
-  -- smanager = SoundManager.getSingleton()
-  --
-  -- rmanager.drawGame(true)
-  -- rmanager.setBlob(LEFT_PLAYER, self.match:getBlobPosition(LEFT_PLAYER), self.match:getWorld().getBlobState(LEFT_PLAYER))
-  -- rmanager.setBlob(RIGHT_PLAYER, self.match:getBlobPosition(RIGHT_PLAYER),  self.match:getWorld().getBlobState(RIGHT_PLAYER))
-  --
-  -- if self.match:getPlayer(LEFT_PLAYER).getOscillating() then
-  --   rmanager.setBlobColor(LEFT_PLAYER, rmanager.getOscillationColor())
-  -- else
-  --   rmanager.setBlobColor(LEFT_PLAYER, self.match:getPlayer(LEFT_PLAYER).getStaticColor())
-  -- end
-  --
-  -- if self.match:getPlayer(RIGHT_PLAYER).getOscillating() then
-  --   rmanager.setBlobColor(RIGHT_PLAYER, rmanager.getOscillationColor())
-  -- else
-  --   rmanager.setBlobColor(RIGHT_PLAYER, self.match:getPlayer(RIGHT_PLAYER).getStaticColor())
-  -- end
-  --
-  -- rmanager.setBall(self.match:getBallPosition(), self.match:getWorld().getBallRotation())
-  --
+  RenderManager:setBlob(LEFT_PLAYER, self.match:getBlobPosition(LEFT_PLAYER), self.match:getBlobState(LEFT_PLAYER))
+  RenderManager:setBlob(RIGHT_PLAYER, self.match:getBlobPosition(RIGHT_PLAYER), self.match:getBlobState(RIGHT_PLAYER))
+
+  if self.match:getPlayer(LEFT_PLAYER).isOscillating then
+    RenderManager:setBlobColor(LEFT_PLAYER, RenderManager:getOscillationColor())
+  else
+    RenderManager:setBlobColor(LEFT_PLAYER, self.match:getPlayer(LEFT_PLAYER).staticColor)
+  end
+
+  if self.match:getPlayer(RIGHT_PLAYER).isOscillating then
+    RenderManager:setBlobColor(RIGHT_PLAYER, RenderManager:getOscillationColor())
+  else
+    RenderManager:setBlobColor(RIGHT_PLAYER, self.match:getPlayer(RIGHT_PLAYER).staticColor)
+  end
+
+  RenderManager:setBall(self.match:getBallPosition(), self.match:getBallRotation())
+
   -- events = self.match:getEvents()
   -- for i, e in ipairs(events) do
   --   if e.event == MatchEvent.BALL_HIT_BLOB then
