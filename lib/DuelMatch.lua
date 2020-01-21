@@ -56,9 +56,10 @@ function DuelMatch:step()
   -- self.physicWorld:step(
   --   mTransformedInput[LEFT_PLAYER],
   --   mTransformedInput[RIGHT_PLAYER],
-  --   mLogic->isBallValid(),
-  --   mLogic->isGameRunning()
+  --   self.logic:isBallValid(),
+  --   self.logic:isGameRunning()
   -- )
+  self.physicWorld:step(true, true)
 
   -- for( const auto& event : mEvents )
   -- {
@@ -127,7 +128,7 @@ function DuelMatch:getBlobPosition(player)
   if player == LEFT_PLAYER or player == RIGHT_PLAYER then
     return self.physicWorld:getBlobPosition(player)
   else
-    return { x = 0.0, y = 0.0 }
+    return Vector2d(0.0, 0.0)
   end
 end
 

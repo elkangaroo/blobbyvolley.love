@@ -2,9 +2,9 @@ local RenderManager = {
   showShadow = true,
   backgroundImage = nil,
   leftBlobPosition = nil,
-  leftBlobAnimationState = 0.0,
+  leftBlobAnimationState = 0,
   rightBlobPosition = nil,
-  rightBlobAnimationState = 0.0,
+  rightBlobAnimationState = 0,
   leftBlobColor = nil,
   rightBlobColor = nil,
   ballPosition = nil,
@@ -59,7 +59,7 @@ function RenderManager:draw()
   end
 
   -- draw ball
-  ballAnimationState = self.ballRotation / math.pi / 2 * 16
+  ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
   love.graphics.draw(self.ballImages[(ballAnimationState % 16) + 1], self.ballPosition.x, self.ballPosition.y)
 
   -- draw left blob
@@ -91,21 +91,20 @@ function RenderManager:setBlobColor(player, color)
   end
 end
 
--- number player, table<Vector2> position, number animationState
+-- number player, Vector2d position, number animationState
 function RenderManager:setBlob(player, position, animationState)
-  print("player " .. player .. " at " .. position.x .. "/" .. position.y .. " is in state " .. animationState)
   if player == LEFT_PLAYER then
     self.leftBlobPosition = position
-    self.leftBlobAnimationState = animationState
+    self.leftBlobAnimationState = math.floor(animationState)
   end
 
   if player == RIGHT_PLAYER then
     self.rightBlobPosition = position
-    self.rightBlobAnimationState = animationState
+    self.rightBlobAnimationState = math.floor(animationState)
   end
 end
 
--- table<Vector2> position, number rotation
+-- Vector2d position, number rotation
 function RenderManager:setBall(position, rotation)
   self.ballPosition = position
   self.ballRotation = rotation

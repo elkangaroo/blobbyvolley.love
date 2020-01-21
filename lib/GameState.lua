@@ -38,12 +38,11 @@ function GameState:presentGame()
   -- events = self.match:getEvents()
   -- for i, e in ipairs(events) do
   --   if e.event == MatchEvent.BALL_HIT_BLOB then
-  --     smanager.playSound("sounds/bums.wav", e.intensity + BALL_HIT_PLAYER_SOUND_VOLUME)
-  --     hitPos = self.match:getBallPosition() + (self.match:getBlobPosition(e.side) - self.match:getBallPosition()).normalise().scale(31.5)
+  --     SoundManager.playSound("sounds/bums.wav", e.intensity + BALL_HIT_PLAYER_SOUND_VOLUME)
   --   end
   --
   --   if e.event == MatchEvent.PLAYER_ERROR then
-  --     smanager.playSound("sounds/pfiff.wav", ROUND_START_SOUND_VOLUME)
+  --     SoundManager.playSound("sounds/pfiff.wav", ROUND_START_SOUND_VOLUME)
   --   end
   -- end
 end

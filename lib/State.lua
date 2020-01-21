@@ -16,7 +16,7 @@ end
 
 function State:step()
   if nil == self.currentState then
-  	-- self.currentState = MainMenuState()
+    -- self.currentState = MainMenuState()
     self.currentState = LocalGameState()
   end
 

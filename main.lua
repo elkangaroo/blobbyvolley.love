@@ -1,3 +1,5 @@
+Vector2d = require("lib.Vector2d")
+
 GameConfig = require("lib.GameConfig")
 RenderManager = require("lib.RenderManager")
 SoundManager = require("lib.SoundManager")
@@ -48,6 +50,9 @@ NET_SPHERE_POSITION = 284
 STANDARD_BALL_HEIGHT = 269 + BALL_RADIUS
 BLOBBY_SPEED = 4.5 -- BLOBBY_SPEED is necessary to determine the size of the input buffer
 STANDARD_BALL_ANGULAR_VELOCITY = 0.1
+
+-- PhysicWorld.cpp
+BLOBBY_ANIMATION_SPEED = 0.5
 
 local app = {}
 app.version = 0.1
