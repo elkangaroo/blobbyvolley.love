@@ -53,7 +53,7 @@ function DuelMatch:step()
   end
 
   -- self.logic:step(self:getState())
-  self.physicWorld:step(true, true)
+  self.physicWorld:step(self.logic.isBallValid, self.isGameRunning)
   -- self.physicWorld:step(
   --   mTransformedInput[LEFT_PLAYER],
   --   mTransformedInput[RIGHT_PLAYER],
@@ -95,11 +95,38 @@ function DuelMatch:step()
     -- self.physicWorld:setBallVelocity( self.physicWorld:getBallVelocity().scale(0.6) )
   end
 
-  -- if self.logic:isBallValid() and canStartRound(self.logic:getServingPlayer()) then
-  --   resetBall( mLogic->getServingPlayer() )
-  --   self.logic:onServe()
-  --   mEvents.emplace_back( MatchEvent::RESET_BALL, NO_PLAYER, 0 )
-  -- end
+  self.logic.servingPlayer = LEFT_PLAYER
+  if self.logic.isBallValid and self:canStartRound(self.logic.servingPlayer) then
+    self:resetBall(self.logic.servingPlayer)
+    self.logic:onServe()
+    -- mEvents.emplace_back( MatchEvent::RESET_BALL, NO_PLAYER, 0 )
+  end
+end
+
+-- PlayerSide side
+function DuelMatch:canStartRound(side)
+  print("blob hit ground = " .. (self.physicWorld:blobHitGround(side) and "true" or "false"))
+
+	return self.physicWorld:blobHitGround(side)
+    and self.physicWorld.ballVelocity.y < 1.5
+    and self.physicWorld.ballVelocity.y > -1.5
+    and self.physicWorld.ballPosition.y > 430
+end
+
+-- PlayerSide side
+function DuelMatch:resetBall(side)
+	if side == LEFT_PLAYER then
+		self.physicWorld.ballPosition = Vector2d(200, STANDARD_BALL_HEIGHT)
+	elseif side == RIGHT_PLAYER then
+		self.physicWorld.ballPosition = Vector2d(600, STANDARD_BALL_HEIGHT)
+	else
+		self.physicWorld.ballPosition = Vector2d(400, 450)
+  end
+
+  print("reset ball at " .. tostring(self.physicWorld.ballPosition))
+
+	self.physicWorld.ballVelocity = Vector2d()
+	self.physicWorld.ballAngularVelocity = (side == RIGHT_PLAYER and -1 or 1) * STANDARD_BALL_ANGULAR_VELOCITY
 end
 
 -- number left, number right

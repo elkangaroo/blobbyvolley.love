@@ -89,9 +89,9 @@ function PhysicWorld:step(isBallValid, isGameRunning)
   if not isGameRunning then
     self.ballRotation = self.ballRotation - self.ballAngularVelocity
   elseif self.ballVelocity.x > 0.0 then
-    -- self.ballRotation = self.ballRotation + self.ballAngularVelocity * (self.ballVelocity:length() / 6)
+    self.ballRotation = self.ballRotation + self.ballAngularVelocity * (self.ballVelocity:length() / 6)
   else
-    -- self.ballRotation = self.ballRotation - self.ballAngularVelocity * (self.ballVelocity:length() / 6)
+    self.ballRotation = self.ballRotation - self.ballAngularVelocity * (self.ballVelocity:length() / 6)
   end
 
   -- Overflow-Protection

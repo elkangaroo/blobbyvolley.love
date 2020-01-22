@@ -34,9 +34,25 @@ function GameLogic:__construct(scoreToWin)
   }
 end
 
+function GameLogic:onServe()
+	self.isBallValid = true
+	self.isGameRunning = false
+end
+
 -- PlayerSide side
-function GameLogic:setServingPlayer(side)
-  self.servingPlayer = side
+function GameLogic:onBallHitsGround(side)
+	if not self:isGroundCollisionValid() then
+		return
+  end
+
+	self.squishGround = SQUISH_TOLERANCE
+	self.touches[other_side(side)] = 0
+
+	-- OnBallHitsGroundHandler(side)
+end
+
+function GameLogic:isGroundCollisionValid()
+	return self.squishGround <= 0 and self.isBallValid
 end
 
 function GameLogic:getLastErrorSide()
