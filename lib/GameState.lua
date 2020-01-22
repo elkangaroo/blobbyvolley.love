@@ -48,8 +48,25 @@ function GameState:presentGame()
 end
 
 -- helper function that draws the ui in the game, i.e. clock, score and player names
-function GameState:presentGameUI()
-  -- @todo
+function GameState:presentGameUi()
+  RenderManager:updateUi(function()
+    love.graphics.clear()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(RenderManager.uiFont)
+
+    -- Scores
+    text = string.format(self.match:getServingPlayer() == LEFT_PLAYER and "%02d!" or "%02d ", self.match:getScore(LEFT_PLAYER))
+    love.graphics.printf(text, 24, 24, text:len() * FONT_WIDTH_NORMAL, "left")
+    text = string.format(self.match:getServingPlayer() == RIGHT_PLAYER and "%02d!" or "%02d ", self.match:getScore(RIGHT_PLAYER))
+    love.graphics.printf(text, 800 - 24 - text:len() * FONT_WIDTH_NORMAL, 24, text:len() * FONT_WIDTH_NORMAL, "right")
+
+    -- blob name / time textfields
+    text = self.match:getPlayer(LEFT_PLAYER).name
+    love.graphics.printf(text:upper(), 12, 550, text:len() * FONT_WIDTH_NORMAL, "left")
+    text = self.match:getPlayer(RIGHT_PLAYER).name
+    love.graphics.printf(text:upper(), 800 - 12 - text:len() * FONT_WIDTH_NORMAL, 550, text:len() * FONT_WIDTH_NORMAL, "right")
+    -- love.graphics.printf(self.match:getClock():getTimeString(), 400, 24, 50, "center")
+  end)
 end
 
 function GameState:step_impl()

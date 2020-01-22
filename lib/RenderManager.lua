@@ -11,12 +11,17 @@ local RenderManager = {
   ballRotation = 0.0,
   ballImages = {},
   blobImages = {},
+  uiCanvas = nil,
+  uiFont = nil,
 }
 
 -- int xResolution, int yResolution, boolean isFullscreen
 function RenderManager:init(xResolution, yResolution, isFullscreen)
-  leftBlobColor = { 255, 0, 0 }
-  rightBlobColor = { 0, 255, 0 }
+  self.uiCanvas = love.graphics.newCanvas()
+  self.uiFont = love.graphics.newImageFont("res/gfx/font.bmp", '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.!()ßÄÖÜ\':;?,/_ -%+Ì')
+
+  self.leftBlobColor = { 1, 0, 0 }
+  self.rightBlobColor = { 0, 1, 0 }
 
   for i = 1, 16 do
     filename = string.format("res/gfx/ball%02d.bmp", i)
@@ -69,6 +74,16 @@ function RenderManager:draw()
   -- draw right blob
   -- glColor3ubv(self.rightBlobColor) -- @todo color
   love.graphics.draw(self.blobImages[(self.rightBlobAnimationState % 5) + 1], self.rightBlobPosition.x, self.rightBlobPosition.y)
+end
+
+function RenderManager:updateUi(callback)
+  self.uiCanvas:renderTo(callback)
+end
+
+function RenderManager:drawUi()
+  -- important: reset color before drawing to canvas to have colors properly displayed
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.draw(self.uiCanvas)
 end
 
 function RenderManager:refresh()

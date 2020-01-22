@@ -8,6 +8,7 @@ State = require("lib.State")
 GameState = require("lib.GameState")
 LocalGameState = require("lib.LocalGameState")
 DuelMatch = require("lib.DuelMatch")
+GameLogic = require("lib.GameLogic")
 PlayerIdentity = require("lib.PlayerIdentity")
 PhysicWorld = require("lib.PhysicWorld")
 
@@ -54,6 +55,15 @@ STANDARD_BALL_ANGULAR_VELOCITY = 0.1
 -- PhysicWorld.cpp
 BLOBBY_ANIMATION_SPEED = 0.5
 
+-- GameLogic.cpp
+SQUISH_TOLERANCE = 11
+FALLBACK_RULES_NAME = "__FALLBACK__"
+TEMP_RULES_NAME = "server_rules.lua"
+
+-- RenderManager.h
+FONT_WIDTH_NORMAL =	24
+FONT_WIDTH_SMALL = 12
+
 local app = {}
 app.version = 0.1
 
@@ -86,14 +96,16 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.setColor(1, 1, 1)
+  love.graphics.setColor(1, 1, 1, 1)
 
   RenderManager:draw()
+  RenderManager:drawUi()
   RenderManager:refresh()
 
   if "true" == GameConfig.get("showfps") then
-    love.graphics.setColor(0.3, 0.9, 1)
-    love.graphics.print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()), 2, 2)
+    -- love.graphics.setColor(0.3, 0.9, 1)
+    -- love.graphics.print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()), 2, 2)
+    print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()))
   end
 end
 

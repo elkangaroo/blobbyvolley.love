@@ -11,12 +11,8 @@ setmetatable(LocalGameState, {
 })
 
 function LocalGameState:__construct()
-  -- leftPlayer = GameConfig.loadPlayerIdentity(LEFT_PLAYER, false) -- PlayerIdentity
-  -- rightPlayer = GameConfig.loadPlayerIdentity(RIGHT_PLAYER, false) -- PlayerIdentity
-  leftPlayer = PlayerIdentity("Left Player")
-  leftPlayer.staticColor = { 0, 0, 255 }
-  rightPlayer = PlayerIdentity("Right Player")
-  rightPlayer.staticColor = { 255, 0, 0 }
+  leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
+  rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
 
   SoundManager.playSound("res/sfx/pfiff.wav", ROUND_START_SOUND_VOLUME)
 
@@ -37,7 +33,7 @@ function LocalGameState:step_impl()
     -- )
   elseif self.winner then
     print("match has a winner")
-    -- displayWinningPlayerScreen(match:winningPlayer())
+    -- displayWinningPlayerScreen(match:getWinningPlayer())
     -- if imgui.doButton(GEN_ID, Vector2(310, 340), TextManager::LBL_OK) then
     --   self:switchState(MainMenuState())
     -- end
@@ -55,14 +51,14 @@ function LocalGameState:step_impl()
   else
     match:step()
 
-    if match:winningPlayer() ~= NO_PLAYER then
+    if match:getWinningPlayer() ~= NO_PLAYER then
       winner = true
     end
 
     self:presentGame()
   end
 
-  -- self:presentGameUI()
+  self:presentGameUi()
 end
 
 function LocalGameState:getStateName()

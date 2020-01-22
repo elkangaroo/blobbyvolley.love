@@ -13,7 +13,7 @@ setmetatable(DuelMatch, {
 function DuelMatch:__construct(isRemote, rules, scoreToWin)
   scoreToWin = scoreToWin or GameConfig.get("scoretowin")
 
-  -- self.logic = createGameLogic(rules, self, scoreToWin))
+  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin)
   self.isPaused = false
   self.isRemote = isRemote
   self.players = {
@@ -36,7 +36,7 @@ end
 -- string rules, number scoreToWin
 function DuelMatch:setRules(rules, scoreToWin)
   scoreToWin = scoreToWin or GameConfig.get("scoretowin")
-  -- self.logic = createGameLogic(rules, self, scoreToWin)
+  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin)
 end
 
 function DuelMatch:step()
@@ -52,14 +52,14 @@ function DuelMatch:step()
     -- mTransformedInput[RIGHT_PLAYER] = mLogic->transformInput( mTransformedInput[RIGHT_PLAYER], RIGHT_PLAYER )
   end
 
-  -- self.logic:step(getState())
+  -- self.logic:step(self:getState())
+  self.physicWorld:step(true, true)
   -- self.physicWorld:step(
   --   mTransformedInput[LEFT_PLAYER],
   --   mTransformedInput[RIGHT_PLAYER],
   --   self.logic:isBallValid(),
   --   self.logic:isGameRunning()
   -- )
-  self.physicWorld:step(true, true)
 
   -- for( const auto& event : mEvents )
   -- {
@@ -88,9 +88,9 @@ function DuelMatch:step()
   -- }
   -- }
 
-  -- errorside = self.logic:getLastErrorSide()
-  errorside = NO_PLAYER
+  errorside = self.logic:getLastErrorSide()
   if errorside ~= NO_PLAYER then
+    print("error by player " .. errorside)
     -- mEvents.emplace_back( MatchEvent::PLAYER_ERROR, errorside, 0 )
     -- self.physicWorld:setBallVelocity( self.physicWorld:getBallVelocity().scale(0.6) )
   end
@@ -104,8 +104,8 @@ end
 
 -- number left, number right
 function DuelMatch:setScore(left, right)
-  -- self.logic:setScore(LEFT_PLAYER, left)
-  -- self.logic:setScore(RIGHT_PLAYER, right)
+  self.logic:setScore(LEFT_PLAYER, left)
+  self.logic:setScore(RIGHT_PLAYER, right)
 end
 
 function DuelMatch:pause()
@@ -118,9 +118,8 @@ function DuelMatch:unpause()
   self.isPaused = false
 end
 
-function DuelMatch:winningPlayer()
-  -- return self.logic:getWinningPlayer()
-  return NO_PLAYER
+function DuelMatch:getWinningPlayer()
+  return self.logic.winningPlayer
 end
 
 -- PlayerSide player
@@ -151,6 +150,19 @@ end
 
 function DuelMatch:getBallRotation()
   return self.physicWorld.ballRotation
+end
+
+function DuelMatch:getServingPlayer()
+  return self.logic.servingPlayer
+end
+
+-- PlayerSide player
+function DuelMatch:getScore(player)
+  return self.logic:getScore(player)
+end
+
+function DuelMatch:getClock()
+  return self.logic:getClock()
 end
 
 -- PlayerSide player

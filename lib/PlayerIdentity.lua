@@ -9,12 +9,33 @@ setmetatable(PlayerIdentity, {
   end
 })
 
--- string name
-function PlayerIdentity:__construct(name)
+-- string name, table<Color> color, boolean isOscillating, PlayerSide side
+function PlayerIdentity:__construct(name, color, isOscillating, side)
   self.name = name
-  self.staticColor = { 0, 0, 0 }
-  self.isOscillating = false
-  self.preferredSide = RIGHT_PLAYER
+  self.staticColor = color or { 0, 0, 0 }
+  self.isOscillating = isOscillating or false
+  self.preferredSide = side or RIGHT_PLAYER
+end
+
+-- PlayerSide side, boolean forceHuman
+function PlayerIdentity.createFromConfig(side, forceHuman)
+  prefix = (side == LEFT_PLAYER) and "left" or "right"
+
+	if forceHuman or "true" == GameConfig.get(prefix .. "_player_human") then
+		name = GameConfig.get(prefix .. "_player_name")
+	else
+		name = GameConfig.get(prefix .. "_script_name") .. ".lua"
+	end
+
+  color = {
+  	GameConfig.get(prefix .. "_blobby_color_r") / 255,
+  	GameConfig.get(prefix .. "_blobby_color_g") / 255,
+  	GameConfig.get(prefix .. "_blobby_color_b") / 255,
+  }
+	-- isOscillating = ("true" == GameConfig.get(prefix .. "_blobby_oscillate"))
+	-- preferredSide = GameConfig.get("network_side")
+
+	return PlayerIdentity(name, color)
 end
 
 return PlayerIdentity
