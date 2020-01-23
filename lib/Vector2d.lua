@@ -61,12 +61,12 @@ do
 
   -- get the length / magnitude
   function meta:length()
-    return math.sqrt(self.x * self.x + self.y * self.y)
+    return math.sqrt(self:lengthSq())
   end
 
   -- get the length / magnitude squared
   function meta:lengthSq()
-    return math.sqrt(self.x * self.x + self.y * self.y)
+    return self.x^2 + self.y^2
   end
 
   function meta:normalise()
