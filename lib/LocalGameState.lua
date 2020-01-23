@@ -14,10 +14,9 @@ function LocalGameState:__construct()
   leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
   rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
 
-  SoundManager.playSound("res/sfx/pfiff.wav", ROUND_START_SOUND_VOLUME)
-
-  match = DuelMatch(false, GameConfig.get("rules"))
+  local match = DuelMatch(false, GameConfig.get("rules"))
   match:setPlayers(leftPlayer, rightPlayer)
+  match:addEvent(MatchEvent.ROUND_START, NO_PLAYER)
 
   GameState.__construct(self, match)
   self.winner = false
@@ -49,9 +48,9 @@ function LocalGameState:step_impl()
     --     match:pause()
     --  end
   else
-    match:step()
+    self.match:step()
 
-    if match:getWinningPlayer() ~= NO_PLAYER then
+    if self.match:getWinningPlayer() ~= NO_PLAYER then
       winner = true
     end
 
@@ -59,6 +58,7 @@ function LocalGameState:step_impl()
   end
 
   self:presentGameUi()
+  self.match:resetEvents()
 end
 
 function LocalGameState:getStateName()

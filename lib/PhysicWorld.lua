@@ -16,7 +16,7 @@ function PhysicWorld:__construct()
   self.ballAngularVelocity = STANDARD_BALL_ANGULAR_VELOCITY
 
   self.lastHitIntensity = 0
-  self.mCallback = {}
+  self.eventCallback = function() end
 
   self.currentBlobbyAnimationSpeed = {
     [LEFT_PLAYER] = 0.0,
@@ -56,12 +56,10 @@ function PhysicWorld:step(isBallValid, isGameRunning)
   -- Collision detection
   if isBallValid then
     if self:handleBlobbyBallCollision(LEFT_PLAYER) then
-      -- mCallback( { MatchEventMatchEvent::BALL_HIT_BLOB, LEFT_PLAYER, self.lastHitIntensity} )
-      -- SoundManager.playSound("res/sfx/bums.wav", self.lastHitIntensity + BALL_HIT_PLAYER_SOUND_VOLUME)
+      self.eventCallback(MatchEvent.BALL_HIT_BLOB, LEFT_PLAYER, self.lastHitIntensity)
     end
     if self:handleBlobbyBallCollision(RIGHT_PLAYER) then
-      -- mCallback( { MatchEventMatchEvent::BALL_HIT_BLOB, RIGHT_PLAYER, self.lastHitIntensity} )
-      -- SoundManager.playSound("res/sfx/bums.wav", self.lastHitIntensity + BALL_HIT_PLAYER_SOUND_VOLUME)
+      self.eventCallback(MatchEvent.BALL_HIT_BLOB, RIGHT_PLAYER, self.lastHitIntensity)
     end
   end
 
@@ -149,7 +147,7 @@ end
 -- PlayerSide player
 function PhysicWorld:handleBlobbyBallCollision(player)
   if true then
-    -- return false
+    -- return false -- jump up and down :D
   end
 
   circlepos = self.blobPosition[player]
@@ -185,11 +183,10 @@ function PhysicWorld:handleBallWorldCollision()
     print("ball collided with ground at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectY()
-    -- self.ballVelocity.y = - self.ballVelocity.y
     self.ballVelocity = self.ballVelocity * 0.95
     self.ballPosition.y = GROUND_PLANE_HEIGHT_MAX - BALL_RADIUS
 
-    -- mCallback( MatchEvent{MatchEvent::BALL_HIT_GROUND, playerSide, 0} )
+    self.eventCallback(MatchEvent.BALL_HIT_GROUND, playerSide)
   end
 
   -- Border Collision
@@ -197,11 +194,10 @@ function PhysicWorld:handleBallWorldCollision()
     print("ball collided with left border at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectX()
-    -- self.ballVelocity.x = - self.ballVelocity.x
     -- set the balls position
     self.ballPosition.x = LEFT_PLANE + BALL_RADIUS
 
-    -- mCallback( MatchEvent{MatchEvent::BALL_HIT_WALL, LEFT_PLAYER, 0} )
+    self.eventCallback(MatchEvent.BALL_HIT_WALL, LEFT_PLAYER)
   elseif (self.ballPosition.x + BALL_RADIUS >= RIGHT_PLANE) and (self.ballVelocity.x > 0.0) then
     print("ball collided with right border at " .. tostring(self.ballPosition))
 
@@ -209,7 +205,7 @@ function PhysicWorld:handleBallWorldCollision()
     -- set the balls position
     self.ballPosition.x = RIGHT_PLANE - BALL_RADIUS
 
-    -- mCallback( MatchEvent{MatchEvent::BALL_HIT_WALL, RIGHT_PLAYER, 0} )
+    self.eventCallback(MatchEvent.BALL_HIT_WALL, RIGHT_PLAYER)
   elseif (self.ballPosition.y > NET_SPHERE_POSITION) and (math.abs(self.ballPosition.x - NET_POSITION_X) < BALL_RADIUS + NET_RADIUS) then
     print("ball collided with left/right net at " .. tostring(self.ballPosition))
 
@@ -223,7 +219,7 @@ function PhysicWorld:handleBallWorldCollision()
       self.ballPosition.x = NET_POSITION_X + BALL_RADIUS + NET_RADIUS
     end
 
-    -- mCallback( MatchEvent{MatchEvent::BALL_HIT_NET, playerSide, 0} )
+    self.eventCallback(MatchEvent.BALL_HIT_NET, playerSide)
   else
     print("ball collided with net at " .. tostring(self.ballPosition))
 
@@ -251,9 +247,10 @@ function PhysicWorld:handleBallWorldCollision()
       -- pushes the ball out of the net
       self.ballPosition = Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - normal * (NET_RADIUS + BALL_RADIUS)
 
-      -- mCallback( MatchEvent{MatchEvent::BALL_HIT_NET_TOP, NO_PLAYER, 0} )
+      self.eventCallback(MatchEvent.BALL_HIT_NET_TOP, NO_PLAYER)
     end
 
+    -- commented out in original code as well
     -- self.ballVelocity = self.ballVelocity:reflect((Vector2d(NET_POSITION_X, temp) - self.ballPosition):normalise()) * 0.75
   end
 end
@@ -319,6 +316,10 @@ end
 -- PlayerSide player
 function PhysicWorld:getBlobState(player)
   return self.blobState[player]
+end
+
+function PhysicWorld:setEventCallback(callback)
+  self.eventCallback = callback
 end
 
 return PhysicWorld

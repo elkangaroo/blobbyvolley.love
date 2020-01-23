@@ -11,6 +11,7 @@ DuelMatch = require("lib.DuelMatch")
 GameLogic = require("lib.GameLogic")
 PlayerIdentity = require("lib.PlayerIdentity")
 PhysicWorld = require("lib.PhysicWorld")
+MatchEvent = require("lib.MatchEvent")
 
 -- Enum PlayerSide
 NO_PLAYER = -1

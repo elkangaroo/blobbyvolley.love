@@ -34,6 +34,20 @@ function GameLogic:__construct(scoreToWin)
   }
 end
 
+-- DuelMatchState state
+function GameLogic:step(state)
+	-- self.clock:step()
+
+	-- if self.clock:isRunning() then
+		self.squish[LEFT_PLAYER] = self.squish[LEFT_PLAYER] - 1
+    self.squish[RIGHT_PLAYER] = self.squish[RIGHT_PLAYER] - 1
+    self.squishWall = self.squishWall - 1
+    self.squishGround = self.squishGround - 1
+
+		-- OnGameHandler(state)
+	-- end
+end
+
 function GameLogic:onServe()
 	self.isBallValid = true
 	self.isGameRunning = false
@@ -46,13 +60,70 @@ function GameLogic:onBallHitsGround(side)
   end
 
 	self.squishGround = SQUISH_TOLERANCE
-	self.touches[other_side(side)] = 0
+	self.touches[self:getOtherSide(side)] = 0
 
 	-- OnBallHitsGroundHandler(side)
 end
 
+-- PlayerSide side
+function GameLogic:onBallHitsPlayer(side)
+	if not self:isCollisionValid(side) then
+		return
+  end
+
+	-- otherwise, set the squish value
+	self.squish[side] = SQUISH_TOLERANCE
+	-- now, the other blobby has to accept the new hit!
+	self.squish[self:getOtherSide(side)] = 0
+
+	-- set the ball activity
+	self.isGameRunning = true
+
+	-- count the touches
+	self.touches[side] = self.touches[side] + 1
+	-- OnBallHitsPlayerHandler(side)
+
+	-- reset other players touches after OnBallHitsPlayerHandler is called, so
+	-- we have still access to its old value inside the handler function
+	self.touches[self:getOtherSide(side)] = 0
+end
+
+-- PlayerSide side
+function GameLogic:onBallHitsWall(side)
+  if not self:isWallCollisionValid() then
+    return
+  end
+
+	-- otherwise, set the squish value
+	self.squishWall = SQUISH_TOLERANCE
+
+	-- OnBallHitsWallHandler(side)
+end
+
+-- PlayerSide side
+function GameLogic:onBallHitsNet(side)
+	if not self:isWallCollisionValid() then
+		return
+  end
+
+	-- otherwise, set the squish value
+	self.squishWall = SQUISH_TOLERANCE
+
+	-- OnBallHitsNetHandler(side)
+end
+
 function GameLogic:isGroundCollisionValid()
 	return self.squishGround <= 0 and self.isBallValid
+end
+
+-- PlayerSide side
+function GameLogic:isWallCollisionValid()
+	return self.squishWall <= 0 and self.isBallValid
+end
+
+-- PlayerSide side
+function GameLogic:isCollisionValid(side)
+	return self.squish[side] <= 0
 end
 
 function GameLogic:getLastErrorSide()
@@ -75,6 +146,15 @@ end
 -- PlayerSide side
 function GameLogic:getTouches(side)
   return self.touches[side]
+end
+
+-- PlayerSide side
+function GameLogic:getOtherSide(side)
+  if side == LEFT_PLAYER then
+      return RIGHT_PLAYER
+  elseif side == RIGHT_PLAYER then
+      return LEFT_PLAYER
+  end
 end
 
 -- string file, DuelMatch match, number scoreToWin

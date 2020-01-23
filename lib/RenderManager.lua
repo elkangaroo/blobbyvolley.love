@@ -17,42 +17,41 @@ local RenderManager = {
 
 -- int xResolution, int yResolution, boolean isFullscreen
 function RenderManager:init(xResolution, yResolution, isFullscreen)
+  -- string filename
+  local function newImageDataWithBlackColorKey(filename)
+    imageData = love.image.newImageData(filename)
+    imageData:mapPixel(function(x, y, r, g, b, a)
+      if r == 0 and g == 0 and b == 0 then
+        a = 0
+      end
+      return r, g, b, a
+    end)
+
+    return imageData
+  end
+
   self.uiCanvas = love.graphics.newCanvas()
-  self.uiFont = love.graphics.newImageFont("res/gfx/font.bmp", '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.!()ßÄÖÜ\':;?,/_ -%+Ì')
+  self.uiFont = love.graphics.newImageFont(newImageDataWithBlackColorKey("res/gfx/font.bmp"), '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.!()ßÄÖÜ\':;?,/_ -%+Ì')
 
   self.leftBlobColor = { 1, 0, 0 }
   self.rightBlobColor = { 0, 1, 0 }
 
   for i = 1, 16 do
     filename = string.format("res/gfx/ball%02d.bmp", i)
-    imageData = love.image.newImageData(filename)
-    imageData:mapPixel(function(x, y, r, g, b, a)
-      if r == 0 and g == 0 and b == 0 then
-        a = 0
-      end
-      return r, g, b, a
-    end)
-    table.insert(self.ballImages, love.graphics.newImage(imageData))
+    table.insert(self.ballImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
   end
 
   for i = 1, 5 do
     filename = string.format("res/gfx/blobbym%d.bmp", i)
-    imageData = love.image.newImageData(filename)
-    imageData:mapPixel(function(x, y, r, g, b, a)
-      if r == 0 and g == 0 and b == 0 then
-        a = 0
-      end
-      return r, g, b, a
-    end)
-    table.insert(self.blobImages, love.graphics.newImage(imageData))
+    table.insert(self.blobImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
 
     -- filename = string.format("res/gfx/blobbym%d.bmp", i)
-    -- image = love.graphics.newImage(filename)
+    -- image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
     -- GLuint blobSpecular = loadTexture(loadSurface(filename), true)
     -- mBlobSpecular.push_back(blobSpecular)
     --
     -- filename = string.format("res/gfx/sch1%d.bmp", i)
-    -- image = love.graphics.newImage(filename)
+    -- image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
     -- GLuint blobShadow = loadTexture(loadSurface(filename), false)
     -- mBlobShadow.push_back(blobShadow)
   end

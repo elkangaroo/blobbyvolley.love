@@ -20,11 +20,13 @@ function DuelMatch:__construct(isRemote, rules, scoreToWin)
     [LEFT_PLAYER] = nil,
     [RIGHT_PLAYER] = nil,
   }
+  self.events = {}
 
   self.physicWorld = PhysicWorld()
-
   if not self.isRemote then
-    -- self.physicWorld:setEventCallback( [this]( const MatchEvent& event ) { mEvents.push_back(event) } )
+    self.physicWorld:setEventCallback(function(type, side, intensity)
+      self:addEvent(type, side, intensity)
+    end)
   end
 end
 
@@ -52,54 +54,40 @@ function DuelMatch:step()
     -- mTransformedInput[RIGHT_PLAYER] = mLogic->transformInput( mTransformedInput[RIGHT_PLAYER], RIGHT_PLAYER )
   end
 
+  self.logic:step()
   -- self.logic:step(self:getState())
   self.physicWorld:step(self.logic.isBallValid, self.isGameRunning)
-  -- self.physicWorld:step(
-  --   mTransformedInput[LEFT_PLAYER],
-  --   mTransformedInput[RIGHT_PLAYER],
-  --   self.logic:isBallValid(),
-  --   self.logic:isGameRunning()
-  -- )
+  -- self.physicWorld:step(mTransformedInput[LEFT_PLAYER], mTransformedInput[RIGHT_PLAYER], self.logic.isBallValid, self.isGameRunning)
 
-  -- for( const auto& event : mEvents )
-  -- {
-  -- switch( event.event )
-  -- {
-  -- case MatchEvent::BALL_HIT_BLOB:
-  -- mLogic->onBallHitsPlayer( event.side )
-  -- break
-  -- case MatchEvent::BALL_HIT_GROUND:
-  -- mLogic->onBallHitsGround( event.side )
-  -- // if not valid, reduce velocity
-  -- if(!mLogic->isBallValid())
-  -- mPhysicWorld->setBallVelocity( mPhysicWorld->getBallVelocity().scale(0.6) )
-  -- break
-  -- case MatchEvent::BALL_HIT_NET:
-  -- mLogic->onBallHitsNet( event.side )
-  -- break
-  -- case MatchEvent::BALL_HIT_NET_TOP:
-  -- mLogic->onBallHitsNet( NO_PLAYER )
-  -- break
-  -- case MatchEvent::BALL_HIT_WALL:
-  -- mLogic->onBallHitsWall( event.side )
-  -- break
-  -- default:
-  -- break
-  -- }
-  -- }
+  for i, e in ipairs(self.events) do
+    if e.type == MatchEvent.BALL_HIT_BLOB then
+      self.logic:onBallHitsPlayer(e.side)
+    elseif e.type == MatchEvent.BALL_HIT_GROUND then
+      self.logic:onBallHitsGround(e.side)
+      if not self.logic.isBallValid then
+        self.physicWorld.ballVelocity = self.physicWorld.ballVelocity * 0.6
+      end
+    elseif e.type == MatchEvent.BALL_HIT_NET then
+      self.logic:onBallHitsNet(e.side)
+    elseif e.type == MatchEvent.BALL_HIT_NET_TOP then
+      self.logic:onBallHitsNet(e.side)
+    elseif e.type == MatchEvent.BALL_HIT_WALL then
+      self.logic:onBallHitsWall(e.side)
+    end
+  end
 
   errorside = self.logic:getLastErrorSide()
   if errorside ~= NO_PLAYER then
     print("error by player " .. errorside)
-    -- mEvents.emplace_back( MatchEvent::PLAYER_ERROR, errorside, 0 )
-    -- self.physicWorld:setBallVelocity( self.physicWorld:getBallVelocity().scale(0.6) )
+    self:addEvent(MatchEvent.PLAYER_ERROR, errorside)
+    self.physicWorld.ballVelocity = self.physicWorld.ballVelocity * 0.6
   end
 
   self.logic.servingPlayer = LEFT_PLAYER
   if self.logic.isBallValid and self:canStartRound(self.logic.servingPlayer) then
     self:resetBall(self.logic.servingPlayer)
     self.logic:onServe()
-    -- mEvents.emplace_back( MatchEvent::RESET_BALL, NO_PLAYER, 0 )
+    self:addEvent(MatchEvent.RESET_BALL, NO_PLAYER)
   end
 end
 
@@ -127,6 +115,13 @@ function DuelMatch:resetBall(side)
 
 	self.physicWorld.ballVelocity = Vector2d()
 	self.physicWorld.ballAngularVelocity = (side == RIGHT_PLAYER and -1 or 1) * STANDARD_BALL_ANGULAR_VELOCITY
+end
+
+-- PlayerSide side
+function DuelMatch:setServingPlayer(side)
+	self.logic.servingPlayer = side
+	self:resetBall(side)
+	self.logic:onServe()
 end
 
 -- number left, number right
@@ -195,6 +190,14 @@ end
 -- PlayerSide player
 function DuelMatch:getPlayer(player)
   return self.players[player]
+end
+
+function DuelMatch:addEvent(type, side, intensity)
+  table.insert(self.events, { type = type, side = side or NO_PLAYER, intensity = intensity or 0 })
+end
+
+function DuelMatch:resetEvents()
+  self.events = {}
 end
 
 return DuelMatch

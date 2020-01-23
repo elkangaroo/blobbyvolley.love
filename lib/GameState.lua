@@ -35,16 +35,15 @@ function GameState:presentGame()
 
   RenderManager:setBall(self.match:getBallPosition(), self.match:getBallRotation())
 
-  -- events = self.match:getEvents()
-  -- for i, e in ipairs(events) do
-  --   if e.event == MatchEvent.BALL_HIT_BLOB then
-  --     SoundManager.playSound("sounds/bums.wav", e.intensity + BALL_HIT_PLAYER_SOUND_VOLUME)
-  --   end
-  --
-  --   if e.event == MatchEvent.PLAYER_ERROR then
-  --     SoundManager.playSound("sounds/pfiff.wav", ROUND_START_SOUND_VOLUME)
-  --   end
-  -- end
+  for i, e in ipairs(self.match.events) do
+    if e.type == MatchEvent.BALL_HIT_BLOB then
+      SoundManager.playSound("res/sfx/bums.wav", e.intensity + BALL_HIT_PLAYER_SOUND_VOLUME)
+    end
+
+    if e.type == MatchEvent.PLAYER_ERROR or e.type == MatchEvent.ROUND_START then
+      SoundManager.playSound("res/sfx/pfiff.wav", ROUND_START_SOUND_VOLUME)
+    end
+  end
 end
 
 -- helper function that draws the ui in the game, i.e. clock, score and player names
@@ -70,7 +69,6 @@ function GameState:presentGameUi()
 end
 
 function GameState:step_impl()
-  -- @todo
 end
 
 function GameState:getStateName()
