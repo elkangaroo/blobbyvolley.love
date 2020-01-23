@@ -68,7 +68,7 @@ function DuelMatch:step()
 
   self.logic:step()
   -- self.logic:step(self:getState())
-  self.physicWorld:step(self.inputs, self.logic.isBallValid, self.isGameRunning)
+  self.physicWorld:step(self.inputs, self.logic.isBallValid, self.logic.isGameRunning)
 
   for i, e in ipairs(self.events) do
     if e.type == MatchEvent.BALL_HIT_BLOB then

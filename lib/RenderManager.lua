@@ -11,15 +11,16 @@ local RenderManager = {
   ballRotation = 0.0,
   ballImages = {},
   blobImages = {},
+  blobShadowImages = {},
+  ballShadowImage = nil,
   uiCanvas = nil,
   uiFont = nil,
 }
 
--- int xResolution, int yResolution, boolean isFullscreen
-function RenderManager:init(xResolution, yResolution, isFullscreen)
+function RenderManager:init()
   -- string filename
   local function newImageDataWithBlackColorKey(filename)
-    imageData = love.image.newImageData(filename)
+    local imageData = love.image.newImageData(filename)
     imageData:mapPixel(function(x, y, r, g, b, a)
       if r == 0 and g == 0 and b == 0 then
         a = 0
@@ -36,24 +37,19 @@ function RenderManager:init(xResolution, yResolution, isFullscreen)
   self.leftBlobColor = { 1, 0, 0 }
   self.rightBlobColor = { 0, 1, 0 }
 
+  self.ballShadowImage = love.graphics.newImage(newImageDataWithBlackColorKey("res/gfx/schball.bmp"))
+
   for i = 1, 16 do
-    filename = string.format("res/gfx/ball%02d.bmp", i)
+    local filename = string.format("res/gfx/ball%02d.bmp", i)
     table.insert(self.ballImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
   end
 
   for i = 1, 5 do
-    filename = string.format("res/gfx/blobbym%d.bmp", i)
+    local filename = string.format("res/gfx/blobbym%d.bmp", i)
     table.insert(self.blobImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
 
-    -- filename = string.format("res/gfx/blobbym%d.bmp", i)
-    -- image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
-    -- GLuint blobSpecular = loadTexture(loadSurface(filename), true)
-    -- mBlobSpecular.push_back(blobSpecular)
-    --
-    -- filename = string.format("res/gfx/sch1%d.bmp", i)
-    -- image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
-    -- GLuint blobShadow = loadTexture(loadSurface(filename), false)
-    -- mBlobShadow.push_back(blobShadow)
+    local filename = string.format("res/gfx/sch1%d.bmp", i)
+    table.insert(self.blobShadowImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
   end
 end
 
@@ -62,17 +58,49 @@ function RenderManager:draw()
     love.graphics.draw(self.backgroundImage, 0, 0)
   end
 
+  if self.showShadow then
+    love.graphics.push("all")
+
+    love.graphics.setBlendMode("alpha", "alphamultiply")
+		-- glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    -- draw left blob shadow
+		local position = self:getShadowPosition(self.leftBlobPosition);
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(self.blobShadowImages[(self.leftBlobAnimationState % 5) + 1], position.x, position.y)
+
+    -- draw right blob shadow
+    local position = self:getShadowPosition(self.rightBlobPosition);
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(self.blobShadowImages[(self.rightBlobAnimationState % 5) + 1], position.x, position.y)
+
+		-- draw ball shadow
+    local position = self:getShadowPosition(self.ballPosition);
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(self.ballShadowImage, position.x, position.y)
+
+    love.graphics.pop()
+	end
+
+  love.graphics.push("all")
+
+  -- love.graphics.setColor(0.4, 0.1, 0.7, 1)
+  -- love.graphics.line(NET_POSITION_X, NET_POSITION_Y, NET_POSITION_X, 600)
+
   -- draw ball
   ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
+  love.graphics.setColor(1, 1, 1, 1)
   love.graphics.draw(self.ballImages[(ballAnimationState % 16) + 1], self.ballPosition.x, self.ballPosition.y)
 
   -- draw left blob
-  -- glColor3ubv(self.leftBlobColor) -- @todo color
+  love.graphics.setColor(self.leftBlobColor)
   love.graphics.draw(self.blobImages[(self.leftBlobAnimationState % 5) + 1], self.leftBlobPosition.x, self.leftBlobPosition.y)
 
   -- draw right blob
-  -- glColor3ubv(self.rightBlobColor) -- @todo color
+  love.graphics.setColor(self.rightBlobColor)
   love.graphics.draw(self.blobImages[(self.rightBlobAnimationState % 5) + 1], self.rightBlobPosition.x, self.rightBlobPosition.y)
+
+  love.graphics.pop()
 end
 
 function RenderManager:updateUi(callback)
@@ -122,6 +150,14 @@ end
 function RenderManager:setBall(position, rotation)
   self.ballPosition = position
   self.ballRotation = rotation
+end
+
+-- Vector2d position
+function RenderManager:getShadowPosition(position)
+	return Vector2d(
+		position.x + (500.0 - position.y) / 4 + 16.0,
+		500.0 - (500.0 - position.y) / 16.0 - 10.0
+	)
 end
 
 function RenderManager:getOscillationColor()

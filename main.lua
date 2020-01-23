@@ -73,7 +73,7 @@ app.tickPeriod = 1/60 -- seconds per tick (60 ticks/s)
 function love.load(...)
   GameConfig.load("conf/config.xml")
 
-  RenderManager:init(BASE_RESOLUTION_X, BASE_RESOLUTION_Y, "true" == GameConfig.get("fullscreen"))
+  RenderManager:init()
   RenderManager.showShadow = ("true" == GameConfig.get("show_shadow"))
 
   SoundManager.isMuted = ("true" == GameConfig.get("mute"))
