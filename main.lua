@@ -67,6 +67,9 @@ FONT_WIDTH_SMALL = 12
 
 local app = {}
 app.version = 0.1
+app.isPaused = false
+app.accumulator = 0.0
+app.tickPeriod = 1/60 -- seconds per tick (60 ticks/s)
 
 function love.load(...)
   print("starting load")
@@ -88,12 +91,22 @@ function love.load(...)
   end
 
   app.state = State()
+  app.state:step()
 
   print("starting mainloop")
 end
 
 function love.update(dt)
-  app.state:step()
+  dt = math.min(app.tickPeriod, dt)
+
+  app.accumulator = app.accumulator + dt
+  while app.accumulator >= app.tickPeriod do
+    app.accumulator = app.accumulator - app.tickPeriod
+
+    if not app.isPaused then
+      app.state:step()
+    end
+  end
 end
 
 function love.draw()
@@ -119,7 +132,9 @@ function love.quit()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-
+  if "p" == key or "pause" == key then
+    app.isPaused = not app.isPaused
+  end
 end
 
 function love.keyreleased(key, scancode)
