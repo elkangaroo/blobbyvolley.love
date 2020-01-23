@@ -62,6 +62,7 @@ function GameLogic:onBallHitsGround(side)
 	self.squishGround = SQUISH_TOLERANCE
 	self.touches[self:getOtherSide(side)] = 0
 
+  print("onBallHitsGround")
 	-- OnBallHitsGroundHandler(side)
 end
 
@@ -81,6 +82,8 @@ function GameLogic:onBallHitsPlayer(side)
 
 	-- count the touches
 	self.touches[side] = self.touches[side] + 1
+
+  print("onBallHitsPlayer")
 	-- OnBallHitsPlayerHandler(side)
 
 	-- reset other players touches after OnBallHitsPlayerHandler is called, so
@@ -97,6 +100,7 @@ function GameLogic:onBallHitsWall(side)
 	-- otherwise, set the squish value
 	self.squishWall = SQUISH_TOLERANCE
 
+  print("onBallHitsWall")
 	-- OnBallHitsWallHandler(side)
 end
 
@@ -109,7 +113,23 @@ function GameLogic:onBallHitsNet(side)
 	-- otherwise, set the squish value
 	self.squishWall = SQUISH_TOLERANCE
 
+  print("onBallHitsNet")
 	-- OnBallHitsNetHandler(side)
+end
+
+-- PlayerSide errorSide, PlayerSide servingSide
+function GameLogic:onError(errorSide, servingSide)
+	self.lastError = errorSide
+	self.isBallValid = false
+
+	self.touches[LEFT_PLAYER] = 0
+	self.touches[RIGHT_PLAYER] = 0
+	self.squish[LEFT_PLAYER] = 0
+	self.squish[RIGHT_PLAYER] = 0
+	self.squishWall = 0
+	self.squishGround = 0
+
+	self.servingPlayer = servingSide
 end
 
 function GameLogic:isGroundCollisionValid()

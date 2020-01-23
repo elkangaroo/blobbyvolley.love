@@ -20,6 +20,18 @@ function DuelMatch:__construct(isRemote, rules, scoreToWin)
     [LEFT_PLAYER] = nil,
     [RIGHT_PLAYER] = nil,
   }
+  self.inputs = {
+    [LEFT_PLAYER] = {
+      left = false,
+      right = false,
+      up = false,
+    },
+    [RIGHT_PLAYER] = {
+      left = false,
+      right = false,
+      up = false,
+    },
+  }
   self.events = {}
 
   self.physicWorld = PhysicWorld()
@@ -56,8 +68,7 @@ function DuelMatch:step()
 
   self.logic:step()
   -- self.logic:step(self:getState())
-  self.physicWorld:step(self.logic.isBallValid, self.isGameRunning)
-  -- self.physicWorld:step(mTransformedInput[LEFT_PLAYER], mTransformedInput[RIGHT_PLAYER], self.logic.isBallValid, self.isGameRunning)
+  self.physicWorld:step(self.inputs, self.logic.isBallValid, self.isGameRunning)
 
   for i, e in ipairs(self.events) do
     if e.type == MatchEvent.BALL_HIT_BLOB then
@@ -93,8 +104,6 @@ end
 
 -- PlayerSide side
 function DuelMatch:canStartRound(side)
-  print("blob hit ground = " .. (self.physicWorld:blobHitGround(side) and "true" or "false"))
-
 	return self.physicWorld:blobHitGround(side)
     and self.physicWorld.ballVelocity.y < 1.5
     and self.physicWorld.ballVelocity.y > -1.5

@@ -39,11 +39,11 @@ function PhysicWorld:__construct()
   }
 end
 
--- bool isBallValid, bool isGameRunning
-function PhysicWorld:step(isBallValid, isGameRunning)
+-- table<PlayerInput> inputs, bool isBallValid, bool isGameRunning
+function PhysicWorld:step(inputs, isBallValid, isGameRunning)
   -- Compute independent actions
-  self:handleBlob(LEFT_PLAYER)
-  self:handleBlob(RIGHT_PLAYER)
+  self:handleBlob(LEFT_PLAYER, inputs[LEFT_PLAYER])
+  self:handleBlob(RIGHT_PLAYER, inputs[RIGHT_PLAYER])
 
   -- Move ball when game is running
   if isGameRunning then
@@ -101,14 +101,8 @@ function PhysicWorld:step(isBallValid, isGameRunning)
 end
 
 -- PlayerSide player, PlayerInput input
-function PhysicWorld:handleBlob(player)
+function PhysicWorld:handleBlob(player, input)
   currentBlobbyGravity = GRAVITATION
-
-  input = {
-    left = false,
-    right = false,
-    up = true,
-  }
 
   if input.up then
     if self:blobHitGround(player) then
@@ -141,15 +135,11 @@ function PhysicWorld:handleBlob(player)
     self.blobVelocity[player].y = 0.0
   end
 
-  self:blobbyAnimationStep(player);
+  self:blobbyAnimationStep(player)
 end
 
 -- PlayerSide player
 function PhysicWorld:handleBlobbyBallCollision(player)
-  if true then
-    -- return false -- jump up and down :D
-  end
-
   circlepos = self.blobPosition[player]
 
   -- check for impact
@@ -189,7 +179,7 @@ function PhysicWorld:handleBallWorldCollision()
     self.eventCallback(MatchEvent.BALL_HIT_GROUND, playerSide)
   end
 
-  -- Border Collision
+  -- Border Collision left
   if (self.ballPosition.x - BALL_RADIUS <= LEFT_PLANE) and (self.ballVelocity.x < 0.0) then
     print("ball collided with left border at " .. tostring(self.ballPosition))
 
@@ -198,6 +188,8 @@ function PhysicWorld:handleBallWorldCollision()
     self.ballPosition.x = LEFT_PLANE + BALL_RADIUS
 
     self.eventCallback(MatchEvent.BALL_HIT_WALL, LEFT_PLAYER)
+
+  -- Border Collision right
   elseif (self.ballPosition.x + BALL_RADIUS >= RIGHT_PLANE) and (self.ballVelocity.x > 0.0) then
     print("ball collided with right border at " .. tostring(self.ballPosition))
 
@@ -206,6 +198,8 @@ function PhysicWorld:handleBallWorldCollision()
     self.ballPosition.x = RIGHT_PLANE - BALL_RADIUS
 
     self.eventCallback(MatchEvent.BALL_HIT_WALL, RIGHT_PLAYER)
+
+  -- Net Collision left/right
   elseif (self.ballPosition.y > NET_SPHERE_POSITION) and (math.abs(self.ballPosition.x - NET_POSITION_X) < BALL_RADIUS + NET_RADIUS) then
     print("ball collided with left/right net at " .. tostring(self.ballPosition))
 
@@ -220,13 +214,12 @@ function PhysicWorld:handleBallWorldCollision()
     end
 
     self.eventCallback(MatchEvent.BALL_HIT_NET, playerSide)
+
+  -- Net Collision top
   else
-    print("ball collided with net at " .. tostring(self.ballPosition))
+    if (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):length() < NET_RADIUS + BALL_RADIUS then
+      print("ball collided with net at " .. tostring(self.ballPosition))
 
-    -- Net Collisions
-    ballNetDistance = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):length()
-
-    if ballNetDistance < NET_RADIUS + BALL_RADIUS then
       -- calculate
       normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()
 
@@ -286,7 +279,7 @@ end
 -- PlayerSide player
 function PhysicWorld:blobbyAnimationStep(player)
   if self.blobState[player] < 0.0 then
-    self.currentBlobbyAnimationSpeed[player] = 0
+    self.currentBlobbyAnimationSpeed[player] = 0.0
     self.blobState[player] = 0
   end
 

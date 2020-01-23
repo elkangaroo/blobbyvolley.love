@@ -67,13 +67,10 @@ FONT_WIDTH_SMALL = 12
 
 local app = {}
 app.version = 0.1
-app.isPaused = false
 app.accumulator = 0.0
 app.tickPeriod = 1/60 -- seconds per tick (60 ticks/s)
 
 function love.load(...)
-  print("starting load")
-
   GameConfig.load("conf/config.xml")
 
   RenderManager:init(BASE_RESOLUTION_X, BASE_RESOLUTION_Y, "true" == GameConfig.get("fullscreen"))
@@ -92,8 +89,6 @@ function love.load(...)
 
   app.state = State()
   app.state:step()
-
-  print("starting mainloop")
 end
 
 function love.update(dt)
@@ -102,10 +97,7 @@ function love.update(dt)
   app.accumulator = app.accumulator + dt
   while app.accumulator >= app.tickPeriod do
     app.accumulator = app.accumulator - app.tickPeriod
-
-    if not app.isPaused then
-      app.state:step()
-    end
+    app.state:step()
   end
 end
 
@@ -119,7 +111,7 @@ function love.draw()
   if "true" == GameConfig.get("showfps") then
     -- love.graphics.setColor(0.3, 0.9, 1)
     -- love.graphics.print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()), 2, 2)
-    print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()))
+    -- print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()))
   end
 end
 
@@ -132,11 +124,9 @@ function love.quit()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-  if "p" == key or "pause" == key then
-    app.isPaused = not app.isPaused
-  end
+  app.state:keypressed(key)
 end
 
 function love.keyreleased(key, scancode)
-
+  app.state:keyreleased(key)
 end

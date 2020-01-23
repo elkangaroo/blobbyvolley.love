@@ -24,7 +24,6 @@ end
 
 function LocalGameState:step_impl()
   if self.match.isPaused then
-    print("match is paused")
     -- displayQueryPrompt(200,
     --   TextManager::LBL_CONF_QUIT,
     --   std::make_tuple(TextManager::LBL_YES, [&]() switchState(new MainMenuState) ),
@@ -41,11 +40,11 @@ function LocalGameState:step_impl()
     --   self:switchState(LocalGameState())
     -- end
     -- elseif InputManager.exit() then
-    --   if match:isPaused() then
-    --     switchState(MainMenuState)
+    --   if self.match.isPaused then
+    --     self:switchState(MainMenuState())
     --   else
     --     RenderManager:redraw()
-    --     match:pause()
+    --     self.match:pause()
     --  end
   else
     self.match:step()
@@ -59,6 +58,36 @@ function LocalGameState:step_impl()
 
   self:presentGameUi()
   self.match:resetEvents()
+end
+
+-- KeyConstant key
+function LocalGameState:keypressed(key)
+  if ("a" == key) then self.match.inputs[LEFT_PLAYER].left = true end
+  if ("d" == key) then self.match.inputs[LEFT_PLAYER].right = true end
+  if ("w" == key) then self.match.inputs[LEFT_PLAYER].up = true end
+
+  if ("left" == key) then self.match.inputs[RIGHT_PLAYER].left = true end
+  if ("right" == key) then self.match.inputs[RIGHT_PLAYER].right = true end
+  if ("up" == key) then self.match.inputs[RIGHT_PLAYER].up = true end
+
+  if "p" == key or "pause" == key then
+    if self.match.isPaused then
+      self.match:unpause()
+    else
+      self.match:pause()
+    end
+  end
+end
+
+-- KeyConstant key
+function LocalGameState:keyreleased(key)
+  if ("a" == key) then self.match.inputs[LEFT_PLAYER].left = false end
+  if ("d" == key) then self.match.inputs[LEFT_PLAYER].right = false end
+  if ("w" == key) then self.match.inputs[LEFT_PLAYER].up = false end
+
+  if ("left" == key) then self.match.inputs[RIGHT_PLAYER].left = false end
+  if ("right" == key) then self.match.inputs[RIGHT_PLAYER].right = false end
+  if ("up" == key) then self.match.inputs[RIGHT_PLAYER].up = false end
 end
 
 function LocalGameState:getStateName()

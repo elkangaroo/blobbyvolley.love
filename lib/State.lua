@@ -31,7 +31,17 @@ function State:step()
   end
 end
 
--- table<State> newState
+-- KeyConstant key
+function State:keypressed(key)
+  self.currentState:keypressed(key)
+end
+
+-- KeyConstant key
+function State:keyreleased(key)
+  self.currentState:keyreleased(key)
+end
+
+-- State newState
 function State:switchState(newState)
   self.stateToSwitchTo = newState
 end
