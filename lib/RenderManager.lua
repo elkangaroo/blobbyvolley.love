@@ -67,41 +67,38 @@ function RenderManager:draw()
     love.graphics.setBlendMode("alpha", "alphamultiply")
 		-- glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		-- draw ball shadow
+    local position = self:getShadowPosition(self.ballPosition);
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(self.ballShadowImage, position.x - 64, position.y - 16)
+
     -- draw left blob shadow
 		local position = self:getShadowPosition(self.leftBlobPosition);
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(self.blobShadowImages[(self.leftBlobAnimationState % 5) + 1], position.x, position.y)
+    love.graphics.draw(self.blobShadowImages[(self.leftBlobAnimationState % 5) + 1], position.x - 64, position.y - 16)
 
     -- draw right blob shadow
     local position = self:getShadowPosition(self.rightBlobPosition);
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(self.blobShadowImages[(self.rightBlobAnimationState % 5) + 1], position.x, position.y)
-
-		-- draw ball shadow
-    local position = self:getShadowPosition(self.ballPosition);
-    love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(self.ballShadowImage, position.x, position.y)
+    love.graphics.draw(self.blobShadowImages[(self.rightBlobAnimationState % 5) + 1], position.x - 64, position.y - 16)
 
     love.graphics.pop()
 	end
 
   love.graphics.push("all")
 
-  -- love.graphics.setColor(0.4, 0.1, 0.7, 1)
-  -- love.graphics.line(NET_POSITION_X, NET_POSITION_Y, NET_POSITION_X, 600)
-
   -- draw ball
   local ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
   love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.draw(self.ballImages[(ballAnimationState % 16) + 1], self.ballPosition.x, self.ballPosition.y)
+  love.graphics.draw(self.ballImages[(ballAnimationState % 16) + 1], self.ballPosition.x - BALL_WIDTH / 2, self.ballPosition.y - BALL_HEIGHT / 2)
 
   -- draw left blob
   love.graphics.setColor(self.leftBlobColor)
-  love.graphics.draw(self.blobImages[(self.leftBlobAnimationState % 5) + 1], self.leftBlobPosition.x, self.leftBlobPosition.y)
+  love.graphics.draw(self.blobImages[(self.leftBlobAnimationState % 5) + 1], self.leftBlobPosition.x - BLOBBY_WIDTH / 2, self.leftBlobPosition.y - BLOBBY_HEIGHT / 2)
 
   -- draw right blob
   love.graphics.setColor(self.rightBlobColor)
-  love.graphics.draw(self.blobImages[(self.rightBlobAnimationState % 5) + 1], self.rightBlobPosition.x, self.rightBlobPosition.y)
+  love.graphics.draw(self.blobImages[(self.rightBlobAnimationState % 5) + 1], self.rightBlobPosition.x - BLOBBY_WIDTH / 2, self.rightBlobPosition.y - BLOBBY_HEIGHT / 2)
 
   love.graphics.pop()
 end

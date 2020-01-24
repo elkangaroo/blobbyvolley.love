@@ -64,24 +64,7 @@ function PhysicWorld:step(inputs, isBallValid, isGameRunning)
   end
 
   self:handleBallWorldCollision()
-
-  -- Collision between blobby and the net
-  if self.blobPosition[LEFT_PLAYER].x + BLOBBY_LOWER_RADIUS > NET_POSITION_X - NET_RADIUS then
-    self.blobPosition[LEFT_PLAYER].x = NET_POSITION_X - NET_RADIUS - BLOBBY_LOWER_RADIUS
-  end
-
-  if self.blobPosition[RIGHT_PLAYER].x - BLOBBY_LOWER_RADIUS < NET_POSITION_X + NET_RADIUS then
-    self.blobPosition[RIGHT_PLAYER].x = NET_POSITION_X + NET_RADIUS + BLOBBY_LOWER_RADIUS
-  end
-
-  -- Collision between blobby and the border
-  if self.blobPosition[LEFT_PLAYER].x < LEFT_PLANE then
-    self.blobPosition[LEFT_PLAYER].x = LEFT_PLANE
-  end
-
-  if self.blobPosition[RIGHT_PLAYER].x > RIGHT_PLANE then
-    self.blobPosition[RIGHT_PLAYER].x = RIGHT_PLANE
-  end
+  self:handleBlobbyWorldCollision()
 
   -- Velocity Integration
   if not isGameRunning then
@@ -166,10 +149,32 @@ function PhysicWorld:handleBlobbyBallCollision(player)
   return true
 end
 
+function PhysicWorld:handleBlobbyWorldCollision()
+  -- Collision between left blobby and the net
+  if self.blobPosition[LEFT_PLAYER].x + BLOBBY_LOWER_RADIUS > NET_POSITION_X - NET_RADIUS then
+    self.blobPosition[LEFT_PLAYER].x = NET_POSITION_X - NET_RADIUS - BLOBBY_LOWER_RADIUS
+  end
+
+  -- Collision between right blobby and the net
+  if self.blobPosition[RIGHT_PLAYER].x - BLOBBY_LOWER_RADIUS < NET_POSITION_X + NET_RADIUS then
+    self.blobPosition[RIGHT_PLAYER].x = NET_POSITION_X + NET_RADIUS + BLOBBY_LOWER_RADIUS
+  end
+
+  -- Collision between left blobby and the border
+  if self.blobPosition[LEFT_PLAYER].x < LEFT_PLANE then
+    self.blobPosition[LEFT_PLAYER].x = LEFT_PLANE
+  end
+
+  -- Collision between right blobby and the border
+  if self.blobPosition[RIGHT_PLAYER].x > RIGHT_PLANE then
+    self.blobPosition[RIGHT_PLAYER].x = RIGHT_PLANE
+  end
+end
+
 function PhysicWorld:handleBallWorldCollision()
   local playerSide = (self.ballPosition.x > NET_POSITION_X) and RIGHT_PLAYER or LEFT_PLAYER
 
-  -- Ball to ground Collision
+  -- Collision between ball and the ground
   if self.ballPosition.y + BALL_RADIUS > GROUND_PLANE_HEIGHT_MAX then
     print("ball collided with ground at " .. tostring(self.ballPosition))
 
@@ -180,7 +185,7 @@ function PhysicWorld:handleBallWorldCollision()
     self.eventCallback(MatchEvent.BALL_HIT_GROUND, playerSide)
   end
 
-  -- Border Collision left
+  -- Collision between ball and the left border
   if (self.ballPosition.x - BALL_RADIUS <= LEFT_PLANE) and (self.ballVelocity.x < 0.0) then
     print("ball collided with left border at " .. tostring(self.ballPosition))
 
@@ -190,7 +195,7 @@ function PhysicWorld:handleBallWorldCollision()
 
     self.eventCallback(MatchEvent.BALL_HIT_WALL, LEFT_PLAYER)
 
-  -- Border Collision right
+  -- Collision between ball and the right border
   elseif (self.ballPosition.x + BALL_RADIUS >= RIGHT_PLANE) and (self.ballVelocity.x > 0.0) then
     print("ball collided with right border at " .. tostring(self.ballPosition))
 
@@ -200,18 +205,18 @@ function PhysicWorld:handleBallWorldCollision()
 
     self.eventCallback(MatchEvent.BALL_HIT_WALL, RIGHT_PLAYER)
 
-  -- Net Collision left/right
+  -- Collision between ball and the net left or right
   elseif (self.ballPosition.y > NET_SPHERE_POSITION) and (math.abs(self.ballPosition.x - NET_POSITION_X) < BALL_RADIUS + NET_RADIUS) then
     print("ball collided with left/right net at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectX()
     -- set the balls position so that it touches the net
     if playerSide == LEFT_PLAYER then
-      self.ballPosition.x = NET_POSITION_X - BALL_RADIUS - NET_RADIUS
+      self.ballPosition.x = NET_POSITION_X - NET_RADIUS - BALL_RADIUS
     end
 
     if playerSide == RIGHT_PLAYER then
-      self.ballPosition.x = NET_POSITION_X + BALL_RADIUS + NET_RADIUS
+      self.ballPosition.x = NET_POSITION_X + NET_RADIUS + BALL_RADIUS
     end
 
     self.eventCallback(MatchEvent.BALL_HIT_NET, playerSide)
