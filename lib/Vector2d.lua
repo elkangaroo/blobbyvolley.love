@@ -41,6 +41,10 @@ do
     return Vector2d(self.x / v.x, self.y / v.y)
   end
 
+  function meta:__unm()
+    return Vector2d(-self.x, -self.y)
+  end
+
   function meta:__eq(v)
     return self.x == v.x and self.y == v.y
   end

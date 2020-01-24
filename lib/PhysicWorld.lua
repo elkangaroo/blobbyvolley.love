@@ -100,7 +100,7 @@ function PhysicWorld:step(inputs, isBallValid, isGameRunning)
   end
 end
 
--- PlayerSide player, PlayerInput input
+-- PlayerSide player, table<PlayerInput> input
 function PhysicWorld:handleBlob(player, input)
   currentBlobbyGravity = GRAVITATION
 
@@ -143,9 +143,9 @@ function PhysicWorld:handleBlobbyBallCollision(player)
   circlepos = self.blobPosition[player]
 
   -- check for impact
-  if self:playerBottomBallCollision(player) then
+  if self:isBlobbyBallCollisionBottom(player) then
     circlepos.y = circlepos.y + BLOBBY_LOWER_SPHERE
-  elseif self:playerTopBallCollision(player) then
+  elseif self:isBlobbyBallCollisionTop(player) then
     circlepos.y = circlepos.y - BLOBBY_UPPER_SPHERE
   else
     return false -- no impact
@@ -153,14 +153,15 @@ function PhysicWorld:handleBlobbyBallCollision(player)
 
   print("ball collided with blobby #" .. player .. " at " .. tostring(self.ballPosition))
 
-  -- there actually was a collision
-
   -- calculate hit intensity
   self.lastHitIntensity = (self.blobVelocity[player] - self.ballVelocity):length() / 25.0
-  self.lastHitIntensity = self.lastHitIntensity > 1.0 and 1.0 or self.lastHitIntensity
+  if self.lastHitIntensity > 1.0 then
+    self.lastHitIntensity = 1.0
+  end
 
   -- set ball velocity
-  self.ballVelocity = (circlepos - self.ballPosition * -1):normalise() * BALL_COLLISION_VELOCITY
+  self.ballVelocity = -(circlepos - self.ballPosition)
+  self.ballVelocity = self.ballVelocity:normalise() * BALL_COLLISION_VELOCITY
   self.ballPosition = self.ballPosition + self.ballVelocity
   return true
 end
@@ -249,13 +250,13 @@ function PhysicWorld:handleBallWorldCollision()
 end
 
 -- PlayerSide player
-function PhysicWorld:playerTopBallCollision(player)
+function PhysicWorld:isBlobbyBallCollisionTop(player)
   blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y - BLOBBY_UPPER_SPHERE)
   return self:circleCircleCollision(self.ballPosition, BALL_RADIUS, blobpos, BLOBBY_UPPER_RADIUS)
 end
 
 -- PlayerSide player
-function PhysicWorld:playerBottomBallCollision(player)
+function PhysicWorld:isBlobbyBallCollisionBottom(player)
   blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y + BLOBBY_LOWER_SPHERE)
   return self:circleCircleCollision(self.ballPosition, BALL_RADIUS, blobpos, BLOBBY_LOWER_RADIUS)
 end
