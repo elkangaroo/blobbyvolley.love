@@ -100,6 +100,11 @@ function RenderManager:draw()
   love.graphics.setColor(self.rightBlobColor)
   love.graphics.draw(self.blobImages[(self.rightBlobAnimationState % 5) + 1], self.rightBlobPosition.x - BLOBBY_WIDTH / 2, self.rightBlobPosition.y - BLOBBY_HEIGHT / 2)
 
+  -- draw ball marker
+  local ballMarkerColor = love.timer.getTime() * 1000 % 1000 >= 500 and 1 or 0
+  love.graphics.setColor(ballMarkerColor, ballMarkerColor, ballMarkerColor)
+  love.graphics.rectangle("fill", self.ballPosition.x, 7.5, 5.0, 5.0)
+
   love.graphics.pop()
 end
 
@@ -161,8 +166,7 @@ function RenderManager:getShadowPosition(position)
 end
 
 function RenderManager:getOscillationColor()
-  -- local time = float(SDL_GetTicks()) / 1000.0
-  local time = 1
+  local time = love.timer.getTime()
 
   return {
     (math.sin(time * 1.5) + 1.0) * 128,
