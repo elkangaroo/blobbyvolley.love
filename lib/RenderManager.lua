@@ -32,7 +32,10 @@ function RenderManager:init()
   end
 
   self.uiCanvas = love.graphics.newCanvas()
-  self.uiFont = love.graphics.newImageFont(newImageDataWithBlackColorKey("res/gfx/font.bmp"), '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.!()ßÄÖÜ\':;?,/_ -%+Ì')
+  self.uiFont = love.graphics.newImageFont(
+    newImageDataWithBlackColorKey("res/gfx/font.bmp"),
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.!()ßÄÖÜ\':;?,/_ -%+Ì'
+  )
 
   self.leftBlobColor = { 1, 0, 0 }
   self.rightBlobColor = { 0, 1, 0 }
@@ -88,7 +91,7 @@ function RenderManager:draw()
   -- love.graphics.line(NET_POSITION_X, NET_POSITION_Y, NET_POSITION_X, 600)
 
   -- draw ball
-  ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
+  local ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.draw(self.ballImages[(ballAnimationState % 16) + 1], self.ballPosition.x, self.ballPosition.y)
 
@@ -161,8 +164,8 @@ function RenderManager:getShadowPosition(position)
 end
 
 function RenderManager:getOscillationColor()
-  -- time = float(SDL_GetTicks()) / 1000.0
-  time = 1
+  -- local time = float(SDL_GetTicks()) / 1000.0
+  local time = 1
 
   return {
     (math.sin(time * 1.5) + 1.0) * 128,

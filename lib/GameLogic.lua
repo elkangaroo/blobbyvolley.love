@@ -147,7 +147,7 @@ function GameLogic:isCollisionValid(side)
 end
 
 function GameLogic:getLastErrorSide()
-  lastError = self.lastError
+  local lastError = self.lastError
   self.lastError = NO_PLAYER
 
   return lastError

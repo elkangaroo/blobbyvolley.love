@@ -19,19 +19,21 @@ end
 
 -- PlayerSide side, boolean forceHuman
 function PlayerIdentity.createFromConfig(side, forceHuman)
-  prefix = (side == LEFT_PLAYER) and "left" or "right"
+  local prefix = (side == LEFT_PLAYER) and "left" or "right"
 
+  local name = ""
 	if forceHuman or "true" == GameConfig.get(prefix .. "_player_human") then
 		name = GameConfig.get(prefix .. "_player_name")
 	else
 		name = GameConfig.get(prefix .. "_script_name") .. ".lua"
 	end
 
-  color = {
+  local color = {
   	GameConfig.get(prefix .. "_blobby_color_r") / 255,
   	GameConfig.get(prefix .. "_blobby_color_g") / 255,
   	GameConfig.get(prefix .. "_blobby_color_b") / 255,
   }
+
 	-- isOscillating = ("true" == GameConfig.get(prefix .. "_blobby_oscillate"))
 	-- preferredSide = GameConfig.get("network_side")
 

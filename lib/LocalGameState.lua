@@ -11,8 +11,8 @@ setmetatable(LocalGameState, {
 })
 
 function LocalGameState:__construct()
-  leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
-  rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
+  local leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
+  local rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
 
   local match = DuelMatch(false, GameConfig.get("rules"))
   match:setPlayers(leftPlayer, rightPlayer)
@@ -50,7 +50,7 @@ function LocalGameState:step_impl()
     self.match:step()
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
-      winner = true
+      self.winner = true
     end
 
     self:presentGame()
@@ -62,13 +62,13 @@ end
 
 -- KeyConstant key
 function LocalGameState:keypressed(key)
-  if ("a" == key) then self.match.inputs[LEFT_PLAYER].left = true end
-  if ("d" == key) then self.match.inputs[LEFT_PLAYER].right = true end
-  if ("w" == key) then self.match.inputs[LEFT_PLAYER].up = true end
+  if ("a" == key) then self.match.playerInputs[LEFT_PLAYER].left = true end
+  if ("d" == key) then self.match.playerInputs[LEFT_PLAYER].right = true end
+  if ("w" == key) then self.match.playerInputs[LEFT_PLAYER].up = true end
 
-  if ("left" == key) then self.match.inputs[RIGHT_PLAYER].left = true end
-  if ("right" == key) then self.match.inputs[RIGHT_PLAYER].right = true end
-  if ("up" == key) then self.match.inputs[RIGHT_PLAYER].up = true end
+  if ("left" == key) then self.match.playerInputs[RIGHT_PLAYER].left = true end
+  if ("right" == key) then self.match.playerInputs[RIGHT_PLAYER].right = true end
+  if ("up" == key) then self.match.playerInputs[RIGHT_PLAYER].up = true end
 
   if "p" == key or "pause" == key then
     if self.match.isPaused then
@@ -81,13 +81,13 @@ end
 
 -- KeyConstant key
 function LocalGameState:keyreleased(key)
-  if ("a" == key) then self.match.inputs[LEFT_PLAYER].left = false end
-  if ("d" == key) then self.match.inputs[LEFT_PLAYER].right = false end
-  if ("w" == key) then self.match.inputs[LEFT_PLAYER].up = false end
+  if ("a" == key) then self.match.playerInputs[LEFT_PLAYER].left = false end
+  if ("d" == key) then self.match.playerInputs[LEFT_PLAYER].right = false end
+  if ("w" == key) then self.match.playerInputs[LEFT_PLAYER].up = false end
 
-  if ("left" == key) then self.match.inputs[RIGHT_PLAYER].left = false end
-  if ("right" == key) then self.match.inputs[RIGHT_PLAYER].right = false end
-  if ("up" == key) then self.match.inputs[RIGHT_PLAYER].up = false end
+  if ("left" == key) then self.match.playerInputs[RIGHT_PLAYER].left = false end
+  if ("right" == key) then self.match.playerInputs[RIGHT_PLAYER].right = false end
+  if ("up" == key) then self.match.playerInputs[RIGHT_PLAYER].up = false end
 end
 
 function LocalGameState:getStateName()

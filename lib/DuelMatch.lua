@@ -11,16 +11,14 @@ setmetatable(DuelMatch, {
 
 -- boolean isRemote, string rules, number scoreToWin
 function DuelMatch:__construct(isRemote, rules, scoreToWin)
-  scoreToWin = scoreToWin or GameConfig.get("scoretowin")
-
-  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin)
+  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
   self.isPaused = false
   self.isRemote = isRemote
   self.players = {
     [LEFT_PLAYER] = nil,
     [RIGHT_PLAYER] = nil,
   }
-  self.inputs = {
+  self.playerInputs = {
     [LEFT_PLAYER] = {
       left = false,
       right = false,
@@ -49,8 +47,7 @@ end
 
 -- string rules, number scoreToWin
 function DuelMatch:setRules(rules, scoreToWin)
-  scoreToWin = scoreToWin or GameConfig.get("scoretowin")
-  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin)
+  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
 end
 
 function DuelMatch:step()
@@ -58,17 +55,14 @@ function DuelMatch:step()
     return
   end
 
-  -- mTransformedInput[LEFT_PLAYER] = mInputSources[LEFT_PLAYER]->updateInput()
-  -- mTransformedInput[RIGHT_PLAYER] = mInputSources[RIGHT_PLAYER]->updateInput()
-
   if not self.isRemote then
-    -- mTransformedInput[LEFT_PLAYER] = mLogic->transformInput( mTransformedInput[LEFT_PLAYER], LEFT_PLAYER )
-    -- mTransformedInput[RIGHT_PLAYER] = mLogic->transformInput( mTransformedInput[RIGHT_PLAYER], RIGHT_PLAYER )
+    -- self.playerInputs[LEFT_PLAYER] = self.logic:transformInput(self.playerInputs[LEFT_PLAYER], LEFT_PLAYER)
+    -- self.playerInputs[RIGHT_PLAYER] = self.logic:transformInput(self.playerInputs[RIGHT_PLAYER], RIGHT_PLAYER)
   end
 
   self.logic:step()
   -- self.logic:step(self:getState())
-  self.physicWorld:step(self.inputs, self.logic.isBallValid, self.logic.isGameRunning)
+  self.physicWorld:step(self.playerInputs, self.logic.isBallValid, self.logic.isGameRunning)
 
   for i, e in ipairs(self.events) do
     if e.type == MatchEvent.BALL_HIT_BLOB then
@@ -104,7 +98,7 @@ end
 
 -- PlayerSide side
 function DuelMatch:canStartRound(side)
-	return self.physicWorld:blobHitGround(side)
+	return self.physicWorld:isBlobbyOnGround(side)
     and self.physicWorld.ballVelocity.y < 1.5
     and self.physicWorld.ballVelocity.y > -1.5
     and self.physicWorld.ballPosition.y > 430

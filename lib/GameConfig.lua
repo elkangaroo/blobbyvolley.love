@@ -3,7 +3,7 @@ local GameConfig = {}
 -- @todo read values from config.xml
 GameConfig.values = {
   fullscreen = "false",
-  show_shadow = "false",
+  show_shadow = "true",
   global_volume = "1.000000",
   mute = "false",
   scoretowin = "15",

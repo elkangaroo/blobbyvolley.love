@@ -83,7 +83,6 @@ function love.load(...)
 
   local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
   if love.filesystem.getInfo(bg) then
-    print("setting background " .. bg)
    	RenderManager:setBackground(bg)
   end
 

@@ -54,17 +54,22 @@ function GameState:presentGameUi()
     love.graphics.setFont(RenderManager.uiFont)
 
     -- Scores
-    text = string.format(self.match:getServingPlayer() == LEFT_PLAYER and "%02d!" or "%02d ", self.match:getScore(LEFT_PLAYER))
+    local text = string.format(self.match:getServingPlayer() == LEFT_PLAYER and "%02d!" or "%02d ", self.match:getScore(LEFT_PLAYER))
     love.graphics.printf(text, 24, 24, text:len() * FONT_WIDTH_NORMAL, "left")
-    text = string.format(self.match:getServingPlayer() == RIGHT_PLAYER and "%02d!" or "%02d ", self.match:getScore(RIGHT_PLAYER))
+
+    local text = string.format(self.match:getServingPlayer() == RIGHT_PLAYER and "%02d!" or "%02d ", self.match:getScore(RIGHT_PLAYER))
     love.graphics.printf(text, 800 - 24 - text:len() * FONT_WIDTH_NORMAL, 24, text:len() * FONT_WIDTH_NORMAL, "right")
 
-    -- blob name / time textfields
-    text = self.match:getPlayer(LEFT_PLAYER).name
+    -- Blob names
+    local text = self.match:getPlayer(LEFT_PLAYER).name
     love.graphics.printf(text:upper(), 12, 550, text:len() * FONT_WIDTH_NORMAL, "left")
-    text = self.match:getPlayer(RIGHT_PLAYER).name
+
+    local text = self.match:getPlayer(RIGHT_PLAYER).name
     love.graphics.printf(text:upper(), 800 - 12 - text:len() * FONT_WIDTH_NORMAL, 550, text:len() * FONT_WIDTH_NORMAL, "right")
-    -- love.graphics.printf(self.match:getClock():getTimeString(), 400, 24, 50, "center")
+
+    -- Game clock
+    -- local text = self.match:getClock():getTimeString()
+    -- love.graphics.printf(text, 400 - text:len() / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
   end)
 end
 

@@ -18,7 +18,7 @@ function PhysicWorld:__construct()
   self.lastHitIntensity = 0
   self.eventCallback = function() end
 
-  self.currentBlobbyAnimationSpeed = {
+  self.blobAnimationSpeed = {
     [LEFT_PLAYER] = 0.0,
     [RIGHT_PLAYER] = 0.0,
   }
@@ -102,19 +102,19 @@ end
 
 -- PlayerSide player, table<PlayerInput> input
 function PhysicWorld:handleBlob(player, input)
-  currentBlobbyGravity = GRAVITATION
+  local currentBlobbyGravity = GRAVITATION
 
   if input.up then
-    if self:blobHitGround(player) then
+    if self:isBlobbyOnGround(player) then
       self.blobVelocity[player].y = BLOBBY_JUMP_ACCELERATION
-      self:blobbyStartAnimation(player)
+      self:startBlobbyAnimation(player)
     end
 
     currentBlobbyGravity = currentBlobbyGravity - BLOBBY_JUMP_BUFFER
   end
 
-  if (input.left or input.right) and self:blobHitGround(player) then
-    self:blobbyStartAnimation(player)
+  if (input.left or input.right) and self:isBlobbyOnGround(player) then
+    self:startBlobbyAnimation(player)
   end
 
   self.blobVelocity[player].x = (input.right and BLOBBY_SPEED or 0) - (input.left and BLOBBY_SPEED or 0)
@@ -128,14 +128,14 @@ function PhysicWorld:handleBlob(player, input)
   -- Hitting the ground
   if self.blobPosition[player].y > GROUND_PLANE_HEIGHT then
     if self.blobVelocity[player].y > 3.5 then
-      self:blobbyStartAnimation(player)
+      self:startBlobbyAnimation(player)
     end
 
     self.blobPosition[player].y = GROUND_PLANE_HEIGHT
     self.blobVelocity[player].y = 0.0
   end
 
-  self:blobbyAnimationStep(player)
+  self:handleBlobbyAnimationStep(player)
 end
 
 -- PlayerSide player
@@ -167,7 +167,7 @@ function PhysicWorld:handleBlobbyBallCollision(player)
 end
 
 function PhysicWorld:handleBallWorldCollision()
-  playerSide = (self.ballPosition.x > NET_POSITION_X) and RIGHT_PLAYER or LEFT_PLAYER
+  local playerSide = (self.ballPosition.x > NET_POSITION_X) and RIGHT_PLAYER or LEFT_PLAYER
 
   -- Ball to ground Collision
   if self.ballPosition.y + BALL_RADIUS > GROUND_PLANE_HEIGHT_MAX then
@@ -269,7 +269,7 @@ function PhysicWorld:circleCircleCollision(pos1, rad1, pos2, rad2)
 end
 
 -- PlayerSide player
-function PhysicWorld:blobHitGround(player)
+function PhysicWorld:isBlobbyOnGround(player)
   if player == LEFT_PLAYER or player == RIGHT_PLAYER then
     return self.blobPosition[player].y >= GROUND_PLANE_HEIGHT
   end
@@ -278,17 +278,17 @@ function PhysicWorld:blobHitGround(player)
 end
 
 -- PlayerSide player
-function PhysicWorld:blobbyAnimationStep(player)
+function PhysicWorld:handleBlobbyAnimationStep(player)
   if self.blobState[player] < 0.0 then
-    self.currentBlobbyAnimationSpeed[player] = 0.0
+    self.blobAnimationSpeed[player] = 0.0
     self.blobState[player] = 0
   end
 
   if self.blobState[player] >= 4.5 then
-    self.currentBlobbyAnimationSpeed[player] = BLOBBY_ANIMATION_SPEED * -1
+    self.blobAnimationSpeed[player] = BLOBBY_ANIMATION_SPEED * -1
   end
 
-  self.blobState[player] = self.blobState[player] + self.currentBlobbyAnimationSpeed[player]
+  self.blobState[player] = self.blobState[player] + self.blobAnimationSpeed[player]
 
   if self.blobState[player] >= 5 then
     self.blobState[player] = 4.99
@@ -296,9 +296,9 @@ function PhysicWorld:blobbyAnimationStep(player)
 end
 
 -- PlayerSide player
-function PhysicWorld:blobbyStartAnimation(player)
-  if self.currentBlobbyAnimationSpeed[player] == 0 then
-    self.currentBlobbyAnimationSpeed[player] = BLOBBY_ANIMATION_SPEED
+function PhysicWorld:startBlobbyAnimation(player)
+  if self.blobAnimationSpeed[player] == 0 then
+    self.blobAnimationSpeed[player] = BLOBBY_ANIMATION_SPEED
   end
 end
 
