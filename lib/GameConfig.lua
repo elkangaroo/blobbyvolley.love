@@ -40,4 +40,14 @@ function GameConfig.get(name)
   return GameConfig.values[name]
 end
 
+-- string name
+function GameConfig.getNumber(name)
+  return tonumber(GameConfig.get(name))
+end
+
+-- string name
+function GameConfig.getBoolean(name)
+  return "true" == GameConfig.get(name)
+end
+
 return GameConfig

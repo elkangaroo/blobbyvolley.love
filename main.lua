@@ -11,6 +11,7 @@ LocalGameState = require("lib.LocalGameState")
 Match = require("lib.Match")
 MatchEvent = require("lib.MatchEvent")
 GameLogic = require("lib.GameLogic")
+FallbackGameLogic = require("lib.FallbackGameLogic")
 PlayerIdentity = require("lib.PlayerIdentity")
 PhysicWorld = require("lib.PhysicWorld")
 
@@ -77,10 +78,10 @@ function love.load(...)
   GameConfig.load("conf/config.xml")
 
   RenderManager:init()
-  RenderManager.showShadow = ("true" == GameConfig.get("show_shadow"))
+  RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
 
-  SoundManager.isMuted = ("true" == GameConfig.get("mute"))
-  SoundManager.setGlobalVolume(GameConfig.get("global_volume"))
+  SoundManager.isMuted = GameConfig.getBoolean("mute")
+  SoundManager.setGlobalVolume(GameConfig.getNumber("global_volume"))
   SoundManager.loadSound("res/sfx/bums.wav")
   SoundManager.loadSound("res/sfx/pfiff.wav")
 
@@ -108,7 +109,7 @@ function love.draw()
   RenderManager:drawUi()
   RenderManager:refresh()
 
-  if "true" == GameConfig.get("showfps") then
+  if GameConfig.getBoolean("showfps") then
     -- love.graphics.setColor(0.3, 0.9, 1)
     -- love.graphics.print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()), 2, 2)
     -- print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()))

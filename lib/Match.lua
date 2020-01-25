@@ -11,7 +11,7 @@ setmetatable(Match, {
 
 -- boolean isRemote, string rules, number scoreToWin
 function Match:__construct(isRemote, rules, scoreToWin)
-  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
+  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.getNumber("scoretowin"))
   self.isPaused = false
   self.isRemote = isRemote
   self.players = {
@@ -47,7 +47,7 @@ end
 
 -- string rules, number scoreToWin
 function Match:setRules(rules, scoreToWin)
-  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
+  self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.getNumber("scoretowin"))
 end
 
 function Match:update()
@@ -88,8 +88,7 @@ function Match:update()
     self.physicWorld.ballVelocity = self.physicWorld.ballVelocity * 0.6
   end
 
-  self.logic.servingPlayer = LEFT_PLAYER
-  if self.logic.isBallValid and self:canStartRound(self.logic.servingPlayer) then
+  if not self.logic.isBallValid and self:canStartRound(self.logic.servingPlayer) then
     self:resetBall(self.logic.servingPlayer)
     self.logic:onServe()
     self:addEvent(MatchEvent.RESET_BALL, NO_PLAYER)

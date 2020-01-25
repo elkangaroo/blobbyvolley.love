@@ -51,6 +51,16 @@ function GameLogic:update(state)
 	end
 end
 
+-- PlayerSide side, number amount
+function GameLogic:score(side, amount)
+	self.scores[side] = self.scores[side] + amount
+	if self.scores[side] < 0 then
+		self.scores[side] = 0
+  end
+
+	self.winningPlayer = self:checkWin()
+end
+
 function GameLogic:onPause()
 	-- pausing for now only means stopping the clock
 	GameClock:stop()
@@ -74,8 +84,7 @@ function GameLogic:onBallHitsGround(side)
 	self.squishGround = SQUISH_TOLERANCE
 	self.touches[self:getOtherSide(side)] = 0
 
-  print("onBallHitsGround")
-	-- OnBallHitsGroundHandler(side)
+	self:OnBallHitsGroundHandler(side)
 end
 
 -- PlayerSide side
@@ -95,8 +104,7 @@ function GameLogic:onBallHitsPlayer(side)
 	-- count the touches
 	self.touches[side] = self.touches[side] + 1
 
-  print("onBallHitsPlayer")
-	-- OnBallHitsPlayerHandler(side)
+	self:OnBallHitsPlayerHandler(side)
 
 	-- reset other players touches after OnBallHitsPlayerHandler is called, so
 	-- we have still access to its old value inside the handler function
@@ -112,8 +120,7 @@ function GameLogic:onBallHitsWall(side)
 	-- otherwise, set the squish value
 	self.squishWall = SQUISH_TOLERANCE
 
-  print("onBallHitsWall")
-	-- OnBallHitsWallHandler(side)
+	self:OnBallHitsWallHandler(side)
 end
 
 -- PlayerSide side
@@ -125,8 +132,7 @@ function GameLogic:onBallHitsNet(side)
 	-- otherwise, set the squish value
 	self.squishWall = SQUISH_TOLERANCE
 
-  print("onBallHitsNet")
-	-- OnBallHitsNetHandler(side)
+	self:OnBallHitsNetHandler(side)
 end
 
 -- PlayerSide errorSide, PlayerSide servingSide
@@ -189,17 +195,31 @@ function GameLogic:getOtherSide(side)
   end
 end
 
+function GameLogic:OnBallHitsPlayerHandler(side) end
+function GameLogic:OnBallHitsGroundHandler(side) end
+function GameLogic:OnBallHitsWallHandler(side) end
+function GameLogic:OnBallHitsNetHandler(side) end
+function GameLogic:OnGameHandler(state) end
+
+function GameLogic:getAuthor()
+  return ""
+end
+
+function GameLogic:getTitle()
+  return ""
+end
+
+function GameLogic:getSourceFile()
+  return ""
+end
+
 -- string file, Match match, number scoreToWin
 function GameLogic.createGameLogic(file, match, scoreToWin)
-  if file == FALLBACK_RULES_NAME then
-    return GameLogic(scoreToWin)
-  end
-
-  if love.filesystem.getInfo("rules/" .. file) then
+  if file ~= FALLBACK_RULES_NAME and love.filesystem.getInfo("rules/" .. file) then
     return LuaGameLogic(file, match, scoreToWin)
   end
 
-  return GameLogic(scoreToWin)
+  return FallbackGameLogic(scoreToWin)
 end
 
 return GameLogic
