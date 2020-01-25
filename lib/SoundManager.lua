@@ -1,7 +1,7 @@
-local SoundManager = {}
-
-SoundManager.isMuted = false
-SoundManager.sources = {}
+local SoundManager = {
+  isMuted = false,
+  sources = {},
+}
 
 -- number volume
 function SoundManager.setGlobalVolume(volume)

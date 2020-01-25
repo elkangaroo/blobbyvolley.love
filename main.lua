@@ -1,6 +1,7 @@
 Vector2d = require("lib.Vector2d")
 
 GameConfig = require("lib.GameConfig")
+GameClock = require("lib.GameClock")
 RenderManager = require("lib.RenderManager")
 SoundManager = require("lib.SoundManager")
 

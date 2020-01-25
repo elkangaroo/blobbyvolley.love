@@ -68,8 +68,8 @@ function GameState:presentGameUi()
     love.graphics.printf(text:upper(), 800 - 12 - text:len() * FONT_WIDTH_NORMAL, 550, text:len() * FONT_WIDTH_NORMAL, "right")
 
     -- Game clock
-    -- local text = self.match:getClock():getTimeString()
-    -- love.graphics.printf(text, 400 - text:len() / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
+    local text = GameClock:getTimeString()
+    love.graphics.printf(text, 400 - text:len() * FONT_WIDTH_NORMAL / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
   end)
 end
 

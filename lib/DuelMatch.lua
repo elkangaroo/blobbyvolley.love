@@ -134,12 +134,12 @@ function DuelMatch:setScore(left, right)
 end
 
 function DuelMatch:pause()
-  -- self.logic:onPause()
+  self.logic:onPause()
   self.isPaused = true
 end
 
 function DuelMatch:unpause()
-  -- self.logic:onUnPause()
+  self.logic:onUnPause()
   self.isPaused = false
 end
 

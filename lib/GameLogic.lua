@@ -11,6 +11,9 @@ setmetatable(GameLogic, {
 
 -- number scoreToWin
 function GameLogic:__construct(scoreToWin)
+  GameClock:reset()
+  GameClock:start()
+
   self.scoreToWin = scoreToWin
   self.squishWall = 0
   self.squishGround = 0
@@ -36,16 +39,25 @@ end
 
 -- DuelMatchState state
 function GameLogic:step(state)
-	-- self.clock:step()
+	GameClock:step()
 
-	-- if self.clock:isRunning() then
+	if GameClock.isRunning then
 		self.squish[LEFT_PLAYER] = self.squish[LEFT_PLAYER] - 1
     self.squish[RIGHT_PLAYER] = self.squish[RIGHT_PLAYER] - 1
     self.squishWall = self.squishWall - 1
     self.squishGround = self.squishGround - 1
 
 		-- OnGameHandler(state)
-	-- end
+	end
+end
+
+function GameLogic:onPause()
+	-- pausing for now only means stopping the clock
+	GameClock:stop()
+end
+
+function GameLogic:onUnPause()
+	GameClock:start()
 end
 
 function GameLogic:onServe()
