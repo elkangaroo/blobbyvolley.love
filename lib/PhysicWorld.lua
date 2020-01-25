@@ -40,7 +40,7 @@ function PhysicWorld:__construct()
 end
 
 -- table<PlayerInput> inputs, bool isBallValid, bool isGameRunning
-function PhysicWorld:step(inputs, isBallValid, isGameRunning)
+function PhysicWorld:update(inputs, isBallValid, isGameRunning)
   -- Compute independent actions
   self:handleBlob(LEFT_PLAYER, inputs[LEFT_PLAYER])
   self:handleBlob(RIGHT_PLAYER, inputs[RIGHT_PLAYER])

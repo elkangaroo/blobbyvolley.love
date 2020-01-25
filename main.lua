@@ -90,7 +90,7 @@ function love.load(...)
   end
 
   app.state = State()
-  app.state:step()
+  app.state:update()
 end
 
 function love.update(dt)
@@ -99,13 +99,11 @@ function love.update(dt)
   app.accumulator = app.accumulator + dt
   while app.accumulator >= app.tickPeriod do
     app.accumulator = app.accumulator - app.tickPeriod
-    app.state:step()
+    app.state:update()
   end
 end
 
 function love.draw()
-  love.graphics.setColor(1, 1, 1, 1)
-
   RenderManager:draw()
   RenderManager:drawUi()
   RenderManager:refresh()

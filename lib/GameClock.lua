@@ -37,7 +37,7 @@ function GameClock:getTimeString()
 	return (hours > 0 and hours .. ":" or "") .. minutes .. ":" .. seconds
 end
 
-function GameClock:step()
+function GameClock:update()
 	if GameClock.isRunning then
 		local newTime = love.timer.getTime()
 		if newTime > GameClock.lastTime then

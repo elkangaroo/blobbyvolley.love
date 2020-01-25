@@ -1,6 +1,6 @@
 local RenderManager = {
   showShadow = true,
-  backgroundImage = nil,
+
   leftBlobPosition = nil,
   leftBlobAnimationState = 0,
   rightBlobPosition = nil,
@@ -9,12 +9,20 @@ local RenderManager = {
   rightBlobColor = nil,
   ballPosition = nil,
   ballRotation = 0.0,
-  ballImages = {},
+
+  backgroundImage = nil,
   blobImages = {},
   blobShadowImages = {},
+  ballImages = {},
   ballShadowImage = nil,
+
   uiCanvas = nil,
   uiFont = nil,
+  uiElements = {
+    playerScores = {},
+    playerNames = {},
+    gameTime = "",
+  },
 }
 
 function RenderManager:init()
@@ -54,6 +62,11 @@ function RenderManager:init()
     local filename = string.format("res/gfx/sch1%d.bmp", i)
     table.insert(self.blobShadowImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
   end
+
+  self.uiElements.playerScores[LEFT_PLAYER] = ""
+  self.uiElements.playerScores[RIGHT_PLAYER] = ""
+  self.uiElements.playerNames[LEFT_PLAYER] = ""
+  self.uiElements.playerNames[RIGHT_PLAYER] = ""
 end
 
 function RenderManager:draw()
@@ -108,13 +121,31 @@ function RenderManager:draw()
   love.graphics.pop()
 end
 
-function RenderManager:updateUi(callback)
-  self.uiCanvas:renderTo(callback)
-end
-
 function RenderManager:drawUi()
-  -- important: reset color before drawing to canvas to have colors properly displayed
-  love.graphics.setColor(1, 1, 1, 1)
+  self.uiCanvas:renderTo(function()
+    love.graphics.clear()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(RenderManager.uiFont)
+
+    -- draw player scores
+    local text = self.uiElements.playerScores[LEFT_PLAYER]
+    love.graphics.printf(text, 24, 24, text:len() * FONT_WIDTH_NORMAL, "left")
+
+    local text = self.uiElements.playerScores[RIGHT_PLAYER]
+    love.graphics.printf(text, 800 - 24 - text:len() * FONT_WIDTH_NORMAL, 24, text:len() * FONT_WIDTH_NORMAL, "right")
+
+    -- draw player names
+    local text = self.uiElements.playerNames[LEFT_PLAYER]
+    love.graphics.printf(text:upper(), 12, 550, text:len() * FONT_WIDTH_NORMAL, "left")
+
+    local text = self.uiElements.playerNames[RIGHT_PLAYER]
+    love.graphics.printf(text:upper(), 800 - 12 - text:len() * FONT_WIDTH_NORMAL, 550, text:len() * FONT_WIDTH_NORMAL, "right")
+
+    -- draw game clock
+    local text = self.uiElements.gameTime
+    love.graphics.printf(text, 400 - text:len() * FONT_WIDTH_NORMAL / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
+  end)
+
   love.graphics.draw(self.uiCanvas)
 end
 
@@ -127,7 +158,7 @@ function RenderManager:setBackground(filename)
   self.backgroundImage = love.graphics.newImage(filename)
 end
 
--- int player, table<Color> color
+-- PlayerSide player, table<Color> color
 function RenderManager:setBlobColor(player, color)
   if player == LEFT_PLAYER then
     self.leftBlobColor = color
@@ -138,7 +169,7 @@ function RenderManager:setBlobColor(player, color)
   end
 end
 
--- number player, Vector2d position, number animationState
+-- PlayerSide player, Vector2d position, number animationState
 function RenderManager:setBlob(player, position, animationState)
   animationState = math.floor(animationState + 0.5)
 
@@ -157,6 +188,17 @@ end
 function RenderManager:setBall(position, rotation)
   self.ballPosition = position
   self.ballRotation = rotation
+end
+
+-- PlayerSide player, string name, string score
+function RenderManager:setPlayer(player, name, score)
+  self.uiElements.playerNames[player] = name
+  self.uiElements.playerScores[player] = score
+end
+
+-- string time
+function RenderManager:setGameTime(time)
+  self.uiElements.gameTime = time
 end
 
 -- Vector2d position

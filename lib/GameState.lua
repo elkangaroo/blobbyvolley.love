@@ -48,32 +48,15 @@ end
 
 -- helper function that draws the ui in the game, i.e. clock, score and player names
 function GameState:presentGameUi()
-  RenderManager:updateUi(function()
-    love.graphics.clear()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setFont(RenderManager.uiFont)
+  local scoreLeft = string.format(self.match:getServingPlayer() == LEFT_PLAYER and "%02d!" or "%02d ", self.match:getScore(LEFT_PLAYER))
+  local scoreRight = string.format(self.match:getServingPlayer() == RIGHT_PLAYER and "%02d!" or "%02d ", self.match:getScore(RIGHT_PLAYER))
 
-    -- Scores
-    local text = string.format(self.match:getServingPlayer() == LEFT_PLAYER and "%02d!" or "%02d ", self.match:getScore(LEFT_PLAYER))
-    love.graphics.printf(text, 24, 24, text:len() * FONT_WIDTH_NORMAL, "left")
-
-    local text = string.format(self.match:getServingPlayer() == RIGHT_PLAYER and "%02d!" or "%02d ", self.match:getScore(RIGHT_PLAYER))
-    love.graphics.printf(text, 800 - 24 - text:len() * FONT_WIDTH_NORMAL, 24, text:len() * FONT_WIDTH_NORMAL, "right")
-
-    -- Blob names
-    local text = self.match:getPlayer(LEFT_PLAYER).name
-    love.graphics.printf(text:upper(), 12, 550, text:len() * FONT_WIDTH_NORMAL, "left")
-
-    local text = self.match:getPlayer(RIGHT_PLAYER).name
-    love.graphics.printf(text:upper(), 800 - 12 - text:len() * FONT_WIDTH_NORMAL, 550, text:len() * FONT_WIDTH_NORMAL, "right")
-
-    -- Game clock
-    local text = GameClock:getTimeString()
-    love.graphics.printf(text, 400 - text:len() * FONT_WIDTH_NORMAL / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
-  end)
+  RenderManager:setPlayer(LEFT_PLAYER, self.match:getPlayer(LEFT_PLAYER).name, scoreLeft)
+  RenderManager:setPlayer(RIGHT_PLAYER, self.match:getPlayer(RIGHT_PLAYER).name, scoreRight)
+  RenderManager:setGameTime(GameClock:getTimeString())
 end
 
-function GameState:step_impl()
+function GameState:update_impl()
 end
 
 function GameState:getStateName()

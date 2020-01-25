@@ -50,7 +50,7 @@ function Match:setRules(rules, scoreToWin)
   self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
 end
 
-function Match:step()
+function Match:update()
   if self.isPaused then
     return
   end
@@ -60,9 +60,9 @@ function Match:step()
     -- self.playerInputs[RIGHT_PLAYER] = self.logic:transformInput(self.playerInputs[RIGHT_PLAYER], RIGHT_PLAYER)
   end
 
-  self.logic:step()
-  -- self.logic:step(self:getState())
-  self.physicWorld:step(self.playerInputs, self.logic.isBallValid, self.logic.isGameRunning)
+  self.logic:update()
+  -- self.logic:update(self:getState())
+  self.physicWorld:update(self.playerInputs, self.logic.isBallValid, self.logic.isGameRunning)
 
   for i, e in ipairs(self.events) do
     if e.type == MatchEvent.BALL_HIT_BLOB then

@@ -22,7 +22,7 @@ function LocalGameState:__construct()
   self.winner = false
 end
 
-function LocalGameState:step_impl()
+function LocalGameState:update_impl()
   if self.match.isPaused then
     -- displayQueryPrompt(200,
     --   TextManager::LBL_CONF_QUIT,
@@ -47,7 +47,7 @@ function LocalGameState:step_impl()
     --     self.match:pause()
     --  end
   else
-    self.match:step()
+    self.match:update()
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
       self.winner = true

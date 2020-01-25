@@ -38,8 +38,8 @@ function GameLogic:__construct(scoreToWin)
 end
 
 -- MatchState state
-function GameLogic:step(state)
-	GameClock:step()
+function GameLogic:update(state)
+	GameClock:update()
 
 	if GameClock.isRunning then
 		self.squish[LEFT_PLAYER] = self.squish[LEFT_PLAYER] - 1
