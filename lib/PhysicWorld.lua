@@ -221,36 +221,31 @@ function PhysicWorld:handleBallWorldCollision()
 
     self.eventCallback(MatchEvent.BALL_HIT_NET, playerSide)
 
-  -- Net Collision top
-  else
-    if (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):length() < NET_RADIUS + BALL_RADIUS then
-      print("ball collided with net at " .. tostring(self.ballPosition))
+  -- Collision between ball and the net top
+  elseif (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):length() < NET_RADIUS + BALL_RADIUS then
+    print("ball collided with top net at " .. tostring(self.ballPosition))
 
-      -- calculate
-      normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()
+    -- calculate
+    normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()
 
-      -- normal component of kinetic energy
-      perp_ekin = normal:dot(self.ballVelocity)
-      perp_ekin = perp_ekin * perp_ekin
-      -- parallel component of kinetic energy
-      para_ekin = self.ballVelocity:length() * self.ballVelocity:length() - perp_ekin
+    -- normal component of kinetic energy
+    perp_ekin = normal:dot(self.ballVelocity)
+    perp_ekin = perp_ekin * perp_ekin
+    -- parallel component of kinetic energy
+    para_ekin = self.ballVelocity:length() * self.ballVelocity:length() - perp_ekin
 
-      -- the normal component is damped stronger than the parallel component
-      -- the values are ~ 0.85 and ca. 0.95, because speed is sqrt(ekin)
-      perp_ekin = perp_ekin * 0.7
-      para_ekin = para_ekin * 0.9
+    -- the normal component is damped stronger than the parallel component
+    -- the values are ~ 0.85 and ca. 0.95, because speed is sqrt(ekin)
+    perp_ekin = perp_ekin * 0.7
+    para_ekin = para_ekin * 0.9
 
-      nspeed = math.sqrt(perp_ekin + para_ekin)
+    nspeed = math.sqrt(perp_ekin + para_ekin)
 
-      self.ballVelocity = self.ballVelocity:reflect(normal):normalise() * nspeed
-      -- pushes the ball out of the net
-      self.ballPosition = Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - normal * (NET_RADIUS + BALL_RADIUS)
+    self.ballVelocity = self.ballVelocity:reflect(normal):normalise() * nspeed
+    -- pushes the ball out of the net
+    self.ballPosition = Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - normal * (NET_RADIUS + BALL_RADIUS)
 
-      self.eventCallback(MatchEvent.BALL_HIT_NET_TOP, NO_PLAYER)
-    end
-
-    -- commented out in original code as well
-    -- self.ballVelocity = self.ballVelocity:reflect((Vector2d(NET_POSITION_X, temp) - self.ballPosition):normalise()) * 0.75
+    self.eventCallback(MatchEvent.BALL_HIT_NET_TOP, NO_PLAYER)
   end
 end
 
@@ -289,20 +284,16 @@ function PhysicWorld:handleBlobbyAnimationStep(player)
     self.blobState[player] = 0
   end
 
-  if self.blobState[player] >= 4.5 then
-    self.blobAnimationSpeed[player] = BLOBBY_ANIMATION_SPEED * -1
+  if self.blobState[player] >= 4.0 then
+    self.blobAnimationSpeed[player] = -BLOBBY_ANIMATION_SPEED
   end
 
   self.blobState[player] = self.blobState[player] + self.blobAnimationSpeed[player]
-
-  if self.blobState[player] >= 5 then
-    self.blobState[player] = 4.99
-  end
 end
 
 -- PlayerSide player
 function PhysicWorld:startBlobbyAnimation(player)
-  if self.blobAnimationSpeed[player] == 0 then
+  if self.blobAnimationSpeed[player] == 0.0 then
     self.blobAnimationSpeed[player] = BLOBBY_ANIMATION_SPEED
   end
 end

@@ -140,14 +140,16 @@ end
 
 -- number player, Vector2d position, number animationState
 function RenderManager:setBlob(player, position, animationState)
+  animationState = math.floor(animationState + 0.5)
+
   if player == LEFT_PLAYER then
     self.leftBlobPosition = position
-    self.leftBlobAnimationState = math.floor(animationState)
+    self.leftBlobAnimationState = animationState
   end
 
   if player == RIGHT_PLAYER then
     self.rightBlobPosition = position
-    self.rightBlobAnimationState = math.floor(animationState)
+    self.rightBlobAnimationState = animationState
   end
 end
 
