@@ -10,7 +10,7 @@ setmetatable(GameState, {
   end
 })
 
--- table<DuelMatch> match
+-- table<Match> match
 function GameState:__construct(match)
   State.__construct(self)
   self.match = match

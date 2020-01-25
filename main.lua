@@ -8,11 +8,11 @@ SoundManager = require("lib.SoundManager")
 State = require("lib.State")
 GameState = require("lib.GameState")
 LocalGameState = require("lib.LocalGameState")
-DuelMatch = require("lib.DuelMatch")
+Match = require("lib.Match")
+MatchEvent = require("lib.MatchEvent")
 GameLogic = require("lib.GameLogic")
 PlayerIdentity = require("lib.PlayerIdentity")
 PhysicWorld = require("lib.PhysicWorld")
-MatchEvent = require("lib.MatchEvent")
 
 -- Enum PlayerSide
 NO_PLAYER = -1

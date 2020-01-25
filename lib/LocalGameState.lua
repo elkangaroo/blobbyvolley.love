@@ -14,7 +14,7 @@ function LocalGameState:__construct()
   local leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
   local rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
 
-  local match = DuelMatch(false, GameConfig.get("rules"))
+  local match = Match(false, GameConfig.get("rules"))
   match:setPlayers(leftPlayer, rightPlayer)
   match:addEvent(MatchEvent.ROUND_START, NO_PLAYER)
 

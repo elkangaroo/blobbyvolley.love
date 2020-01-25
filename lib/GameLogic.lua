@@ -37,7 +37,7 @@ function GameLogic:__construct(scoreToWin)
   }
 end
 
--- DuelMatchState state
+-- MatchState state
 function GameLogic:step(state)
 	GameClock:step()
 
@@ -189,7 +189,7 @@ function GameLogic:getOtherSide(side)
   end
 end
 
--- string file, DuelMatch match, number scoreToWin
+-- string file, Match match, number scoreToWin
 function GameLogic.createGameLogic(file, match, scoreToWin)
   if file == FALLBACK_RULES_NAME then
     return GameLogic(scoreToWin)

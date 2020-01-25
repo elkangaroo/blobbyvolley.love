@@ -1,7 +1,7 @@
-local DuelMatch = {}
-DuelMatch.__index = DuelMatch
+local Match = {}
+Match.__index = Match
 
-setmetatable(DuelMatch, {
+setmetatable(Match, {
   __call = function (cls, ...)
     local self = setmetatable({}, cls)
     self:__construct(...)
@@ -10,7 +10,7 @@ setmetatable(DuelMatch, {
 })
 
 -- boolean isRemote, string rules, number scoreToWin
-function DuelMatch:__construct(isRemote, rules, scoreToWin)
+function Match:__construct(isRemote, rules, scoreToWin)
   self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
   self.isPaused = false
   self.isRemote = isRemote
@@ -40,17 +40,17 @@ function DuelMatch:__construct(isRemote, rules, scoreToWin)
   end
 end
 
-function DuelMatch:setPlayers(lplayer, rplayer)
+function Match:setPlayers(lplayer, rplayer)
   self.players[LEFT_PLAYER] = lplayer
   self.players[RIGHT_PLAYER] = rplayer
 end
 
 -- string rules, number scoreToWin
-function DuelMatch:setRules(rules, scoreToWin)
+function Match:setRules(rules, scoreToWin)
   self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.get("scoretowin"))
 end
 
-function DuelMatch:step()
+function Match:step()
   if self.isPaused then
     return
   end
@@ -97,7 +97,7 @@ function DuelMatch:step()
 end
 
 -- PlayerSide side
-function DuelMatch:canStartRound(side)
+function Match:canStartRound(side)
 	return self.physicWorld:isBlobbyOnGround(side)
     and self.physicWorld.ballVelocity.y < 1.5
     and self.physicWorld.ballVelocity.y > -1.5
@@ -105,7 +105,7 @@ function DuelMatch:canStartRound(side)
 end
 
 -- PlayerSide side
-function DuelMatch:resetBall(side)
+function Match:resetBall(side)
 	if side == LEFT_PLAYER then
 		self.physicWorld.ballPosition = Vector2d(200, STANDARD_BALL_HEIGHT)
 	elseif side == RIGHT_PLAYER then
@@ -121,34 +121,34 @@ function DuelMatch:resetBall(side)
 end
 
 -- PlayerSide side
-function DuelMatch:setServingPlayer(side)
+function Match:setServingPlayer(side)
 	self.logic.servingPlayer = side
 	self:resetBall(side)
 	self.logic:onServe()
 end
 
 -- number left, number right
-function DuelMatch:setScore(left, right)
+function Match:setScore(left, right)
   self.logic:setScore(LEFT_PLAYER, left)
   self.logic:setScore(RIGHT_PLAYER, right)
 end
 
-function DuelMatch:pause()
+function Match:pause()
   self.logic:onPause()
   self.isPaused = true
 end
 
-function DuelMatch:unpause()
+function Match:unpause()
   self.logic:onUnPause()
   self.isPaused = false
 end
 
-function DuelMatch:getWinningPlayer()
+function Match:getWinningPlayer()
   return self.logic.winningPlayer
 end
 
 -- PlayerSide player
-function DuelMatch:getBlobPosition(player)
+function Match:getBlobPosition(player)
   if player == LEFT_PLAYER or player == RIGHT_PLAYER then
     return self.physicWorld:getBlobPosition(player)
   else
@@ -157,7 +157,7 @@ function DuelMatch:getBlobPosition(player)
 end
 
 -- PlayerSide player
-function DuelMatch:getBlobState(player)
+function Match:getBlobState(player)
   if player == LEFT_PLAYER or player == RIGHT_PLAYER then
     return self.physicWorld:getBlobState(player)
   else
@@ -165,42 +165,42 @@ function DuelMatch:getBlobState(player)
   end
 end
 
-function DuelMatch:getBallPosition()
+function Match:getBallPosition()
   return self.physicWorld.ballPosition
 end
 
-function DuelMatch:getBallVelocity()
+function Match:getBallVelocity()
   return self.physicWorld.ballVelocity
 end
 
-function DuelMatch:getBallRotation()
+function Match:getBallRotation()
   return self.physicWorld.ballRotation
 end
 
-function DuelMatch:getServingPlayer()
+function Match:getServingPlayer()
   return self.logic.servingPlayer
 end
 
 -- PlayerSide player
-function DuelMatch:getScore(player)
+function Match:getScore(player)
   return self.logic:getScore(player)
 end
 
-function DuelMatch:getClock()
+function Match:getClock()
   return self.logic:getClock()
 end
 
 -- PlayerSide player
-function DuelMatch:getPlayer(player)
+function Match:getPlayer(player)
   return self.players[player]
 end
 
-function DuelMatch:addEvent(type, side, intensity)
+function Match:addEvent(type, side, intensity)
   table.insert(self.events, { type = type, side = side or NO_PLAYER, intensity = intensity or 0 })
 end
 
-function DuelMatch:resetEvents()
+function Match:resetEvents()
   self.events = {}
 end
 
-return DuelMatch
+return Match
