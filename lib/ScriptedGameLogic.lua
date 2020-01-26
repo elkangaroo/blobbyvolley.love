@@ -15,6 +15,8 @@ function ScriptedGameLogic:__construct(filename, match, scoreToWin)
   FallbackGameLogic:__construct(scoreToWin)
   ScriptableComponent:setComponentPointer(self)
 
+  self.match = match
+
   __SCRIPTED_GAME_LOGIC_POINTER = self
   SCORE_TO_WIN = self.scoreToWin
 
@@ -33,6 +35,38 @@ function ScriptedGameLogic:__construct(filename, match, scoreToWin)
   print("loaded rules " .. self:getTitle() .. " by " .. self:getAuthor() .. " from " .. self:getSourceFile())
 end
 
+function ScriptedGameLogic:checkWin()
+  if "function" ~= type(IsWinning) then
+    return FallbackGameLogic:checkWin()
+  end
+
+  local lscore = self:getScore(LEFT_PLAYER)
+  local rscore = self:getScore(RIGHT_PLAYER)
+  local won = IsWinning(lscore, rscore)
+
+	if won and lscore > rscore then
+		return LEFT_PLAYER
+  end
+
+	if won and lscore < rscore then
+		return RIGHT_PLAYER
+  end
+
+	return NO_PLAYER
+end
+
+-- PlayerInput ip, PlayerSide player
+function ScriptedGameLogic:handleInput(ip, player)
+  if "function" ~= type(HandleInput) then
+    return FallbackGameLogic:handleInput(ip, player)
+  end
+
+  local ret = {}
+  ret.left, ret.right, ret.up = HandleInput(player, ip.left, ip.right, ip.up)
+
+	return ret
+end
+
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsPlayerHandler(side)
   if "function" ~= type(OnBallHitsPlayer) then
@@ -41,6 +75,16 @@ function ScriptedGameLogic:OnBallHitsPlayerHandler(side)
 	end
 
   OnBallHitsPlayer(side)
+end
+
+-- PlayerSide side
+function ScriptedGameLogic:OnBallHitsGroundHandler(side)
+  if "function" ~= type(OnBallHitsGround) then
+		FallbackGameLogic:OnBallHitsGroundHandler(side)
+		return
+	end
+
+  OnBallHitsGround(side)
 end
 
 -- PlayerSide side
@@ -63,14 +107,14 @@ function ScriptedGameLogic:OnBallHitsNetHandler(side)
   OnBallHitsNet(side)
 end
 
--- PlayerSide side
-function ScriptedGameLogic:OnBallHitsGroundHandler(side)
-  if "function" ~= type(OnBallHitsGround) then
-		FallbackGameLogic:OnBallHitsGroundHandler(side)
-		return
-	end
+-- MatchState state
+function ScriptedGameLogic:OnGameHandler(state)
+  if "function" ~= type(OnGame) then
+    FallbackGameLogic:OnGameHandler(state)
+    return
+  end
 
-  OnBallHitsGround(side)
+  OnGame(state)
 end
 
 function ScriptedGameLogic:getAuthor()

@@ -134,7 +134,7 @@ function PhysicWorld:handleBlobbyBallCollision(player)
     return false -- no impact
   end
 
-  print("ball collided with blobby #" .. player .. " at " .. tostring(self.ballPosition))
+  -- print("ball collided with blobby #" .. player .. " at " .. tostring(self.ballPosition))
 
   -- calculate hit intensity
   self.lastHitIntensity = (self.blobVelocity[player] - self.ballVelocity):length() / 25.0
@@ -176,7 +176,7 @@ function PhysicWorld:handleBallWorldCollision()
 
   -- Collision between ball and the ground
   if self.ballPosition.y + BALL_RADIUS > GROUND_PLANE_HEIGHT_MAX then
-    print("ball collided with ground at " .. tostring(self.ballPosition))
+    -- print("ball collided with ground at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectY()
     self.ballVelocity = self.ballVelocity * 0.95
@@ -187,7 +187,7 @@ function PhysicWorld:handleBallWorldCollision()
 
   -- Collision between ball and the left border
   if (self.ballPosition.x - BALL_RADIUS <= LEFT_PLANE) and (self.ballVelocity.x < 0.0) then
-    print("ball collided with left border at " .. tostring(self.ballPosition))
+    -- print("ball collided with left border at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectX()
     -- set the balls position
@@ -197,7 +197,7 @@ function PhysicWorld:handleBallWorldCollision()
 
   -- Collision between ball and the right border
   elseif (self.ballPosition.x + BALL_RADIUS >= RIGHT_PLANE) and (self.ballVelocity.x > 0.0) then
-    print("ball collided with right border at " .. tostring(self.ballPosition))
+    -- print("ball collided with right border at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectX()
     -- set the balls position
@@ -207,7 +207,7 @@ function PhysicWorld:handleBallWorldCollision()
 
   -- Collision between ball and the net left or right
   elseif (self.ballPosition.y > NET_SPHERE_POSITION) and (math.abs(self.ballPosition.x - NET_POSITION_X) < BALL_RADIUS + NET_RADIUS) then
-    print("ball collided with left/right net at " .. tostring(self.ballPosition))
+    -- print("ball collided with left/right net at " .. tostring(self.ballPosition))
 
     self.ballVelocity = self.ballVelocity:reflectX()
     -- set the balls position so that it touches the net
@@ -223,7 +223,7 @@ function PhysicWorld:handleBallWorldCollision()
 
   -- Collision between ball and the net top
   elseif (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):length() < NET_RADIUS + BALL_RADIUS then
-    print("ball collided with top net at " .. tostring(self.ballPosition))
+    -- print("ball collided with top net at " .. tostring(self.ballPosition))
 
     -- calculate
     normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()

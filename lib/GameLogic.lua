@@ -47,8 +47,22 @@ function GameLogic:update(state)
     self.squishWall = self.squishWall - 1
     self.squishGround = self.squishGround - 1
 
-		-- OnGameHandler(state)
+		self:OnGameHandler(state)
 	end
+end
+
+function GameLogic:checkWin()
+  local left = self:getScore(LEFT_PLAYER)
+  local right = self:getScore(RIGHT_PLAYER)
+  if left >= self.scoreToWin and left >= right + 2 then
+    return LEFT_PLAYER
+  end
+
+  if right >= self.scoreToWin and right >= left + 2 then
+    return RIGHT_PLAYER
+  end
+
+  return NO_PLAYER
 end
 
 -- PlayerSide side, number amount
@@ -59,6 +73,16 @@ function GameLogic:score(side, amount)
   end
 
 	self.winningPlayer = self:checkWin()
+end
+
+-- PlayerInput ip, PlayerSide player
+function GameLogic:transformInput(ip, player)
+	return self:handleInput(ip, player)
+end
+
+-- PlayerInput ip, PlayerSide player
+function GameLogic:handleInput(ip, player)
+  return ip
 end
 
 function GameLogic:onPause()
@@ -167,7 +191,6 @@ end
 function GameLogic:getLastErrorSide()
   local lastError = self.lastError
   self.lastError = NO_PLAYER
-
   return lastError
 end
 

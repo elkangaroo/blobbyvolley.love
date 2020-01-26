@@ -17,20 +17,6 @@ function FallbackGameLogic:__construct(scoreToWin)
   print("loaded rules " .. FALLBACK_RULES_NAME .. " by Blobby Volley 2 Developers")
 end
 
-function FallbackGameLogic:checkWin()
-  local left = self:getScore(LEFT_PLAYER)
-  local right = self:getScore(RIGHT_PLAYER)
-  if left >= self.scoreToWin and left >= right + 2 then
-    return LEFT_PLAYER
-  end
-
-  if right >= self.scoreToWin and right >= left + 2 then
-    return RIGHT_PLAYER
-  end
-
-  return NO_PLAYER
-end
-
 -- PlayerSide side
 function FallbackGameLogic:OnBallHitsPlayerHandler(side)
   if self:getTouches(side) > 3 then

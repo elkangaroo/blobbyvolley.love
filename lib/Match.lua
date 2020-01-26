@@ -58,8 +58,8 @@ function Match:update()
   }
 
   if not self.isRemote then
-    -- transformedInputs[LEFT_PLAYER] = self.logic:transformInput(transformedInputs[LEFT_PLAYER], LEFT_PLAYER)
-		-- transformedInputs[RIGHT_PLAYER] = self.logic:transformInput(transformedInputs[RIGHT_PLAYER], RIGHT_PLAYER)
+    transformedInputs[LEFT_PLAYER] = self.logic:transformInput(transformedInputs[LEFT_PLAYER], LEFT_PLAYER)
+		transformedInputs[RIGHT_PLAYER] = self.logic:transformInput(transformedInputs[RIGHT_PLAYER], RIGHT_PLAYER)
   end
 
   self.logic:update()
@@ -85,7 +85,7 @@ function Match:update()
 
   errorside = self.logic:getLastErrorSide()
   if errorside ~= NO_PLAYER then
-    print("error by player " .. errorside)
+    -- print("error by player " .. errorside)
     self:addEvent(MatchEvent.PLAYER_ERROR, errorside)
     self.physicWorld.ballVelocity = self.physicWorld.ballVelocity * 0.6
   end
