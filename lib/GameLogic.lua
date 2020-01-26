@@ -215,7 +215,7 @@ end
 
 -- string file, Match match, number scoreToWin
 function GameLogic.createGameLogic(file, match, scoreToWin)
-  if file ~= FALLBACK_RULES_NAME and love.filesystem.getInfo("rules/" .. file) then
+  if file ~= FALLBACK_RULES_NAME and love.filesystem.getInfo("api/rules/" .. file) then
     return LuaGameLogic(file, match, scoreToWin)
   end
 

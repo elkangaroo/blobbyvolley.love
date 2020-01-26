@@ -14,25 +14,13 @@ function Match:__construct(isRemote, rules, scoreToWin)
   self.logic = GameLogic.createGameLogic(rules, self, scoreToWin or GameConfig.getNumber("scoretowin"))
   self.isPaused = false
   self.isRemote = isRemote
-  self.players = {
-    [LEFT_PLAYER] = nil,
-    [RIGHT_PLAYER] = nil,
-  }
-  self.playerInputs = {
-    [LEFT_PLAYER] = {
-      left = false,
-      right = false,
-      up = false,
-    },
-    [RIGHT_PLAYER] = {
-      left = false,
-      right = false,
-      up = false,
-    },
-  }
+  self.players = { [LEFT_PLAYER] = nil, [RIGHT_PLAYER] = nil }
+  self.inputSources = { [LEFT_PLAYER] = nil, [RIGHT_PLAYER] = nil }
   self.events = {}
 
   self.physicWorld = PhysicWorld()
+  self:setInputSources(InputSource(), InputSource())
+
   if not self.isRemote then
     self.physicWorld:setEventCallback(function(type, side, intensity)
       self:addEvent(type, side, intensity)
@@ -40,9 +28,18 @@ function Match:__construct(isRemote, rules, scoreToWin)
   end
 end
 
+-- PlayerIdentity lplayer, PlayerIdentity rplayer
 function Match:setPlayers(lplayer, rplayer)
   self.players[LEFT_PLAYER] = lplayer
   self.players[RIGHT_PLAYER] = rplayer
+end
+
+-- InputSource linput, InputSource rinput
+function Match:setInputSources(linput, rinput)
+	self.inputSources[LEFT_PLAYER] = linput
+  self.inputSources[LEFT_PLAYER].match = self
+	self.inputSources[RIGHT_PLAYER] = rinput
+	self.inputSources[RIGHT_PLAYER].match = self
 end
 
 -- string rules, number scoreToWin
@@ -55,14 +52,19 @@ function Match:update()
     return
   end
 
+  local transformedInputs = {
+    [LEFT_PLAYER] = self.inputSources[LEFT_PLAYER]:updateInput(),
+	  [RIGHT_PLAYER] = self.inputSources[RIGHT_PLAYER]:updateInput(),
+  }
+
   if not self.isRemote then
-    -- self.playerInputs[LEFT_PLAYER] = self.logic:transformInput(self.playerInputs[LEFT_PLAYER], LEFT_PLAYER)
-    -- self.playerInputs[RIGHT_PLAYER] = self.logic:transformInput(self.playerInputs[RIGHT_PLAYER], RIGHT_PLAYER)
+    -- transformedInputs[LEFT_PLAYER] = self.logic:transformInput(transformedInputs[LEFT_PLAYER], LEFT_PLAYER)
+		-- transformedInputs[RIGHT_PLAYER] = self.logic:transformInput(transformedInputs[RIGHT_PLAYER], RIGHT_PLAYER)
   end
 
   self.logic:update()
   -- self.logic:update(self:getState())
-  self.physicWorld:update(self.playerInputs, self.logic.isBallValid, self.logic.isGameRunning)
+  self.physicWorld:update(transformedInputs, self.logic.isBallValid, self.logic.isGameRunning)
 
   for i, e in ipairs(self.events) do
     if e.type == MatchEvent.BALL_HIT_BLOB then
@@ -185,6 +187,11 @@ function Match:getScore(player)
   return self.logic:getScore(player)
 end
 
+-- PlayerSide side
+function Match:getTouches(side)
+  return self.logic:getTouches(side)
+end
+
 function Match:getClock()
   return self.logic:getClock()
 end
@@ -192,6 +199,14 @@ end
 -- PlayerSide player
 function Match:getPlayer(player)
   return self.players[player]
+end
+
+function Match:isBallValid()
+  return self.logic.isBallValid
+end
+
+function Match:isGameRunning()
+  return self.logic.isGameRunning
 end
 
 function Match:addEvent(type, side, intensity)

@@ -13,7 +13,11 @@ MatchEvent = require("lib.MatchEvent")
 GameLogic = require("lib.GameLogic")
 FallbackGameLogic = require("lib.FallbackGameLogic")
 PlayerIdentity = require("lib.PlayerIdentity")
+PlayerInput = require("lib.PlayerInput")
 PhysicWorld = require("lib.PhysicWorld")
+InputSource = require("lib.InputSource")
+LocalInputSource = require("lib.LocalInputSource")
+ScriptedInputSource = require("lib.ScriptedInputSource")
 
 -- Enum PlayerSide
 NO_PLAYER = -1
@@ -68,6 +72,29 @@ TEMP_RULES_NAME = "server_rules.lua"
 -- RenderManager.h
 FONT_WIDTH_NORMAL =	24
 FONT_WIDTH_SMALL = 12
+
+-- ScriptedInputSource.h
+WAITING_TIME = 1500 -- The time the bot waits after game start
+
+-- IScriptableComponent.cpp
+CONST_FIELD_WIDTH = RIGHT_PLANE
+CONST_GROUND_HEIGHT = 600 - GROUND_PLANE_HEIGHT_MAX
+CONST_BALL_GRAVITY = -BALL_GRAVITATION
+CONST_BALL_RADIUS = BALL_RADIUS
+CONST_BLOBBY_JUMP = BLOBBY_JUMP_ACCELERATION
+CONST_BLOBBY_BODY_RADIUS = BLOBBY_LOWER_RADIUS
+CONST_BLOBBY_HEAD_RADIUS = BLOBBY_UPPER_RADIUS
+CONST_BLOBBY_HEAD_OFFSET = BLOBBY_UPPER_SPHERE
+CONST_BLOBBY_BODY_OFFSET = -BLOBBY_LOWER_SPHERE
+CONST_BALL_HITSPEED = BALL_COLLISION_VELOCITY
+CONST_BLOBBY_HEIGHT = BLOBBY_HEIGHT
+CONST_BLOBBY_GRAVITY = -GRAVITATION
+CONST_BLOBBY_SPEED = BLOBBY_SPEED
+CONST_NET_HEIGHT = 600 - NET_SPHERE_POSITION
+CONST_NET_RADIUS = NET_RADIUS
+NO_PLAYER = NO_PLAYER
+LEFT_PLAYER = LEFT_PLAYER
+RIGHT_PLAYER = RIGHT_PLAYER
 
 local app = {}
 app.version = 0.1

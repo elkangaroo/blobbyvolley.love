@@ -14,8 +14,12 @@ function LocalGameState:__construct()
   local leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
   local rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
 
+  local leftInput = InputSource.createInputSource(LEFT_PLAYER)
+	local rightInput = InputSource.createInputSource(RIGHT_PLAYER)
+
   local match = Match(false, GameConfig.get("rules"))
   match:setPlayers(leftPlayer, rightPlayer)
+  match:setInputSources(leftInput, rightInput)
   match:addEvent(MatchEvent.ROUND_START, NO_PLAYER)
 
   GameState.__construct(self, match)
@@ -62,13 +66,17 @@ end
 
 -- KeyConstant key
 function LocalGameState:keypressed(key)
-  if ("a" == key) then self.match.playerInputs[LEFT_PLAYER].left = true end
-  if ("d" == key) then self.match.playerInputs[LEFT_PLAYER].right = true end
-  if ("w" == key) then self.match.playerInputs[LEFT_PLAYER].up = true end
+  if GameConfig.getBoolean("left_player_human") then
+    if ("a" == key) then self.match.inputSources[LEFT_PLAYER]:set("left", true) end
+    if ("d" == key) then self.match.inputSources[LEFT_PLAYER]:set("right", true) end
+    if ("w" == key) then self.match.inputSources[LEFT_PLAYER]:set("up", true) end
+  end
 
-  if ("left" == key) then self.match.playerInputs[RIGHT_PLAYER].left = true end
-  if ("right" == key) then self.match.playerInputs[RIGHT_PLAYER].right = true end
-  if ("up" == key) then self.match.playerInputs[RIGHT_PLAYER].up = true end
+  if GameConfig.getBoolean("right_player_human") then
+    if ("left" == key) then self.match.inputSources[RIGHT_PLAYER]:set("left", true) end
+    if ("right" == key) then self.match.inputSources[RIGHT_PLAYER]:set("right", true) end
+    if ("up" == key) then self.match.inputSources[RIGHT_PLAYER]:set("up", true) end
+  end
 
   if "p" == key or "pause" == key then
     if self.match.isPaused then
@@ -81,13 +89,17 @@ end
 
 -- KeyConstant key
 function LocalGameState:keyreleased(key)
-  if ("a" == key) then self.match.playerInputs[LEFT_PLAYER].left = false end
-  if ("d" == key) then self.match.playerInputs[LEFT_PLAYER].right = false end
-  if ("w" == key) then self.match.playerInputs[LEFT_PLAYER].up = false end
+  if GameConfig.getBoolean("left_player_human") then
+    if ("a" == key) then self.match.inputSources[LEFT_PLAYER]:set("left", false) end
+    if ("d" == key) then self.match.inputSources[LEFT_PLAYER]:set("right", false) end
+    if ("w" == key) then self.match.inputSources[LEFT_PLAYER]:set("up", false) end
+  end
 
-  if ("left" == key) then self.match.playerInputs[RIGHT_PLAYER].left = false end
-  if ("right" == key) then self.match.playerInputs[RIGHT_PLAYER].right = false end
-  if ("up" == key) then self.match.playerInputs[RIGHT_PLAYER].up = false end
+  if GameConfig.getBoolean("right_player_human") then
+    if ("left" == key) then self.match.inputSources[RIGHT_PLAYER]:set("left", false) end
+    if ("right" == key) then self.match.inputSources[RIGHT_PLAYER]:set("right", false) end
+    if ("up" == key) then self.match.inputSources[RIGHT_PLAYER]:set("up", false) end
+  end
 end
 
 function LocalGameState:getStateName()
