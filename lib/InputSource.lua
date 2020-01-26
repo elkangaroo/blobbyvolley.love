@@ -10,7 +10,7 @@ setmetatable(InputSource, {
 })
 
 function InputSource:__construct()
-  self.match = 0
+  self.match = nil
 end
 
 function InputSource:getNextInput()

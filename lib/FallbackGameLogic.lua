@@ -14,7 +14,7 @@ setmetatable(FallbackGameLogic, {
 function FallbackGameLogic:__construct(scoreToWin)
   GameLogic:__construct(scoreToWin)
 
-  print("loaded rules " .. self:getTitle() .. " by " .. self:getAuthor())
+  print("loaded rules " .. FALLBACK_RULES_NAME .. " by Blobby Volley 2 Developers")
 end
 
 function FallbackGameLogic:checkWin()
@@ -48,17 +48,5 @@ end
 function FallbackGameLogic:OnBallHitsWallHandler(side) end
 function FallbackGameLogic:OnBallHitsNetHandler(side) end
 function FallbackGameLogic:OnGameHandler(state) end
-
-function FallbackGameLogic:getAuthor()
-  return "Blobby Volley 2 Developers"
-end
-
-function FallbackGameLogic:getTitle()
-  return FALLBACK_RULES_NAME
-end
-
-function FallbackGameLogic:getSourceFile()
-  return ""
-end
 
 return FallbackGameLogic

@@ -13,10 +13,7 @@ setmetatable(ScriptedInputSource, {
 -- string filename, PlayerSide side, number difficulty
 function ScriptedInputSource:__construct(filename, side, difficulty)
   InputSource:__construct()
-
-  LUA_REGISTRYINDEX = {
-    __ScriptComponent__ = self
-  }
+  ScriptableComponent:setComponentPointer(self)
 
   self.dummyWorld = PhysicWorld()
   self.startTime = love.timer.getTime()
@@ -26,36 +23,21 @@ function ScriptedInputSource:__construct(filename, side, difficulty)
 	self.lastJump = false
 	self.jumpDelay = 0
 
+  __SCRIPTED_INPUT_SOURCE_POINTER = self
   __DIFFICULTY = difficulty / 25.0
   __DEBUG = GameConfig.getBoolean("bot_debug")
   __SIDE = side
 
-  self.openScript("api/api.lua")
-	self.openScript("api/bot_api.lua")
-	self.openScript("api/bots/" .. filename)
+  -- setGameConstants() -- currently set in main.lua
+	-- setGameFunctions() -- currently defined in ScriptableComponent
 
-	if nil == __OnStep then
-		ScriptedInputSource.handleScriptError("Missing bot function __OnStep, check bot_api.lua!")
+  ScriptableComponent:openScript("api/api.lua")
+	ScriptableComponent:openScript("api/bot_api.lua")
+	ScriptableComponent:openScript("api/bots/" .. filename)
+
+  if "function" ~= type(__OnStep) then
+		ScriptableComponent:handleScriptError("Missing bot function __OnStep, check bot_api.lua!")
 	end
-end
-
-function ScriptedInputSource.handleScriptError(errormsg)
-  error("Lua Bot Error: " .. errormsg)
-end
-
--- string filename
-function ScriptedInputSource.openScript(filename)
-  local ending = ".lua"
-  if filename:sub(-#ending) ~= ending then
-    filename = filename .. ending
-  end
-
-  chunk, errormsg = love.filesystem.load(filename)
-  if errormsg then
-    ScriptedInputSource.handleScriptError(errormsg)
-  end
-
-  chunk()
 end
 
 function ScriptedInputSource:getNextInput()
@@ -65,21 +47,19 @@ function ScriptedInputSource:getNextInput()
   __WANT_RIGHT = false
   __WANT_JUMP = false
 
-	if ScriptedInputSource:getMatch() == 0 then
+	if nil == ScriptableComponent:getMatch() then
 		return PlayerInput()
-  else
-    self.match = ScriptedInputSource:getMatch()
-	end
+  end
 
   __OnStep()
 
   -- if no player is serving player, assume the left one is
-  local servingPlayer = ScriptedInputSource:getMatch():getServingPlayer()
+  local servingPlayer = ScriptableComponent:getMatch():getServingPlayer()
   if servingPlayer == NO_PLAYER then
     servingPlayer = LEFT_PLAYER
   end
 
-	if ScriptedInputSource:getMatch():isGameRunning() and self.side == servingPlayer then
+	if ScriptableComponent:getMatch():isGameRunning() and self.side == servingPlayer then
 		serving = true
 	end
 
@@ -106,69 +86,19 @@ function ScriptedInputSource:getNextInput()
   return PlayerInput(wantleft, wantright, wantjump)
 end
 
-function ScriptedInputSource:getComponent()
-  return LUA_REGISTRYINDEX.__ScriptComponent__
+function ScriptedInputSource:getPointer()
+	return __SCRIPTED_INPUT_SOURCE_POINTER
 end
 
-function ScriptedInputSource:getMatch()
-  return ScriptedInputSource:getComponent().match
-end
-
-function ScriptedInputSource:getWorld()
-  return ScriptedInputSource:getComponent().dummyWorld
-end
 
 --
--- standard lua functions
+-- common functions for lua bots api
 --
 
-function get_ball_pos()
-  local vector = ScriptedInputSource:getMatch():getBallPosition()
-	return vector.x, 600 - vector.y
-end
-
-function get_ball_vel()
-  local vector = ScriptedInputSource:getMatch():getBallVelocity()
-	return vector.x, -vector.y
-end
-
-function get_blob_pos(side)
-	assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-  local vector = ScriptedInputSource:getMatch():getBlobPosition(side)
-  return vector.x, 600 - vector.y
-end
-
-function get_blob_vel(side)
-  assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-  local vector = ScriptedInputSource:getMatch():getBlobVelocity(side)
-  return vector.x, -vector.y
-end
-
-function get_score(side)
-  assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-  return ScriptedInputSource:getMatch():getScore(side)
-end
-
-function get_touches(side)
-  assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-  return ScriptedInputSource:getMatch():getTouches(side)
-end
-
-function is_ball_valid()
-  return ScriptedInputSource:getMatch():isBallValid()
-end
-
-function is_game_running()
-  return ScriptedInputSource:getMatch():isGameRunning()
-end
-
-function get_serving_player()
-  return ScriptedInputSource:getMatch():getServingPlayer()
-end
 
 -- number steps, number x, number y, number vx, number vy
 function simulate(steps, x, y, vx, vy)
-	local world = ScriptedInputSource:getWorld()
+	local world = ScriptedInputSource:getPointer().dummyWorld
   world.ballPosition = Vector2d(x, 600 - y)
   world.ballVelocity = Vector2d(vx, -vy)
 
@@ -187,7 +117,7 @@ function simulate_until(x, y, vx, vy, axis, coordinate)
 		error("invalid condition specified: choose either 'x' or 'y'")
 	end
 
-  local world = ScriptedInputSource:getWorld()
+  local world = ScriptedInputSource:getPointer().dummyWorld
 	world.ballPosition = Vector2d(x, 600 - y)
 	world.ballVelocity = Vector2d(vx, -vy)
 

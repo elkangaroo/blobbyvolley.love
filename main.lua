@@ -5,16 +5,24 @@ GameClock = require("lib.GameClock")
 RenderManager = require("lib.RenderManager")
 SoundManager = require("lib.SoundManager")
 
+ScriptableComponent = require("lib.ScriptableComponent")
+
 State = require("lib.State")
 GameState = require("lib.GameState")
 LocalGameState = require("lib.LocalGameState")
+
 Match = require("lib.Match")
 MatchEvent = require("lib.MatchEvent")
-GameLogic = require("lib.GameLogic")
-FallbackGameLogic = require("lib.FallbackGameLogic")
+
 PlayerIdentity = require("lib.PlayerIdentity")
 PlayerInput = require("lib.PlayerInput")
+
 PhysicWorld = require("lib.PhysicWorld")
+
+GameLogic = require("lib.GameLogic")
+FallbackGameLogic = require("lib.FallbackGameLogic")
+ScriptedGameLogic = require("lib.ScriptedGameLogic")
+
 InputSource = require("lib.InputSource")
 LocalInputSource = require("lib.LocalInputSource")
 ScriptedInputSource = require("lib.ScriptedInputSource")

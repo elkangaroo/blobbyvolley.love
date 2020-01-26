@@ -195,28 +195,20 @@ function GameLogic:getOtherSide(side)
   end
 end
 
+function GameLogic:getGameTime()
+  return GameClock.gameTime
+end
+
 function GameLogic:OnBallHitsPlayerHandler(side) end
 function GameLogic:OnBallHitsGroundHandler(side) end
 function GameLogic:OnBallHitsWallHandler(side) end
 function GameLogic:OnBallHitsNetHandler(side) end
 function GameLogic:OnGameHandler(state) end
 
-function GameLogic:getAuthor()
-  return ""
-end
-
-function GameLogic:getTitle()
-  return ""
-end
-
-function GameLogic:getSourceFile()
-  return ""
-end
-
 -- string file, Match match, number scoreToWin
 function GameLogic.createGameLogic(file, match, scoreToWin)
   if file ~= FALLBACK_RULES_NAME and love.filesystem.getInfo("api/rules/" .. file) then
-    return LuaGameLogic(file, match, scoreToWin)
+    return ScriptedGameLogic(file, match, scoreToWin)
   end
 
   return FallbackGameLogic(scoreToWin)
