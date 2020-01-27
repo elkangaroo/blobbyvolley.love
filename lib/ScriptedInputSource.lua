@@ -63,9 +63,9 @@ function ScriptedInputSource:getNextInput()
 		serving = true
 	end
 
-	wantleft = __WANT_LEFT
-	wantright = __WANT_RIGHT
-	wantjump = __WANT_JUMP
+	local wantleft = __WANT_LEFT
+	local wantright = __WANT_RIGHT
+	local wantjump = __WANT_JUMP
 
 	if serving and self.startTime + WAITING_TIME > love.timer.getTime() then
 		return PlayerInput()

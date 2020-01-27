@@ -123,7 +123,7 @@ end
 
 -- PlayerSide player
 function PhysicWorld:handleBlobbyBallCollision(player)
-  circlepos = self.blobPosition[player]
+  local circlepos = self.blobPosition[player]
 
   -- check for impact
   if self:isBlobbyBallCollisionBottom(player) then
@@ -226,20 +226,19 @@ function PhysicWorld:handleBallWorldCollision()
     -- print("ball collided with top net at " .. tostring(self.ballPosition))
 
     -- calculate
-    normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()
+    local normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()
 
     -- normal component of kinetic energy
-    perp_ekin = normal:dot(self.ballVelocity)
-    perp_ekin = perp_ekin * perp_ekin
+    local perp_ekin = normal:dot(self.ballVelocity) ^ 2
     -- parallel component of kinetic energy
-    para_ekin = self.ballVelocity:length() * self.ballVelocity:length() - perp_ekin
+    local para_ekin = self.ballVelocity:length() * self.ballVelocity:length() - perp_ekin
 
     -- the normal component is damped stronger than the parallel component
     -- the values are ~ 0.85 and ca. 0.95, because speed is sqrt(ekin)
     perp_ekin = perp_ekin * 0.7
     para_ekin = para_ekin * 0.9
 
-    nspeed = math.sqrt(perp_ekin + para_ekin)
+    local nspeed = math.sqrt(perp_ekin + para_ekin)
 
     self.ballVelocity = self.ballVelocity:reflect(normal):normalise() * nspeed
     -- pushes the ball out of the net
@@ -251,21 +250,20 @@ end
 
 -- PlayerSide player
 function PhysicWorld:isBlobbyBallCollisionTop(player)
-  blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y - BLOBBY_UPPER_SPHERE)
+  local blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y - BLOBBY_UPPER_SPHERE)
   return self:circleCircleCollision(self.ballPosition, BALL_RADIUS, blobpos, BLOBBY_UPPER_RADIUS)
 end
 
 -- PlayerSide player
 function PhysicWorld:isBlobbyBallCollisionBottom(player)
-  blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y + BLOBBY_LOWER_SPHERE)
+  local blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y + BLOBBY_LOWER_SPHERE)
   return self:circleCircleCollision(self.ballPosition, BALL_RADIUS, blobpos, BLOBBY_LOWER_RADIUS)
 end
 
 -- calculates whether two circles overlap
 -- Vector2d pos1, number rad1, const Vector2d pos2, number rad2
 function PhysicWorld:circleCircleCollision(pos1, rad1, pos2, rad2)
-  mxdist = rad1 + rad2
-  return (pos1 - pos2):lengthSq() < mxdist * mxdist
+  return (pos1 - pos2):lengthSq() < (rad1 + rad2) ^ 2
 end
 
 -- PlayerSide player

@@ -83,7 +83,7 @@ function Match:update()
     end
   end
 
-  errorside = self.logic:getLastErrorSide()
+  local errorside = self.logic:getLastErrorSide()
   if errorside ~= NO_PLAYER then
     -- print("error by player " .. errorside)
     self:addEvent(MatchEvent.PLAYER_ERROR, errorside)

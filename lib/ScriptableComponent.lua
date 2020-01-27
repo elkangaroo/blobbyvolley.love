@@ -7,7 +7,7 @@ function ScriptableComponent:openScript(filename)
     filename = filename .. ending
   end
 
-  chunk, errormsg = love.filesystem.load(filename)
+  local chunk, errormsg = love.filesystem.load(filename)
   if errormsg then
     self:handleScriptError(errormsg)
   end
