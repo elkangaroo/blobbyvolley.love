@@ -13,30 +13,111 @@ setmetatable(ScriptedInputSource, {
 -- string filename, PlayerSide side, number difficulty
 function ScriptedInputSource:__construct(filename, side, difficulty)
   InputSource:__construct()
-  ScriptableComponent:setComponentPointer(self)
 
+  self.sourceFile = filename
   self.dummyWorld = PhysicWorld()
   self.startTime = love.timer.getTime()
 	self.difficulty = difficulty
 	self.side = side
-
 	self.lastJump = false
 	self.jumpDelay = 0
 
-  __SCRIPTED_INPUT_SOURCE_POINTER = self
-  __DIFFICULTY = difficulty / 25.0
-  __DEBUG = GameConfig.getBoolean("bot_debug")
-  __SIDE = side
+  self.sandbox = {
+    __DIFFICULTY = difficulty / 25.0,
+    __DEBUG = GameConfig.getBoolean("bot_debug"),
+    __SIDE = side,
 
-  -- setGameConstants() -- currently set in main.lua
-	-- setGameFunctions() -- currently defined in ScriptableComponent
+    get_ball_pos = function()
+      local vector = self.match:getBallPosition()
+    	return vector.x, 600 - vector.y
+    end,
+    get_ball_vel = function()
+      local vector = self.match:getBallVelocity()
+    	return vector.x, -vector.y
+    end,
+    get_blob_pos = function(side)
+    	assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
+      local vector = self.match:getBlobPosition(side)
+      return vector.x, 600 - vector.y
+    end,
+    get_blob_vel = function(side)
+      assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
+      local vector = self.match:getBlobVelocity(side)
+      return vector.x, -vector.y
+    end,
+    get_score = function(side)
+      assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
+      return self.match:getScore(side)
+    end,
+    get_touches = function(side)
+      assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
+      return self.match:getTouches(side)
+    end,
+    is_ball_valid = function()
+      return self.match:isBallValid()
+    end,
+    is_game_running = function()
+      return self.match:isGameRunning()
+    end,
+    get_serving_player = function()
+      return self.match:getServingPlayer()
+    end,
 
-  ScriptableComponent:openScript("api/api.lua")
-	ScriptableComponent:openScript("api/bot_api.lua")
-	ScriptableComponent:openScript("api/bots/" .. filename)
+    simulate = function(steps, x, y, vx, vy)
+    	local world = self.dummyWorld
+      world.ballPosition = Vector2d(x, 600 - y)
+      world.ballVelocity = Vector2d(vx, -vy)
 
-  if "function" ~= type(__OnStep) then
-		ScriptableComponent:handleScriptError("Missing bot function __OnStep, check bot_api.lua!")
+    	for i = 0, steps do
+    		-- set ball valid to false to ignore blobby bounces
+    		world:update({[LEFT_PLAYER] = PlayerInput(), [RIGHT_PLAYER] = PlayerInput()}, false, true)
+    	end
+
+    	return world.ballPosition.x, 600 - world.ballPosition.y, world.ballVelocity.x, -world.ballVelocity.y
+    end,
+    simulate_until = function(x, y, vx, vy, axis, coordinate)
+    	local ival = (axis == "x") and x or y
+    	if axis ~= "x" and axis ~= "y" then
+    		error("invalid condition specified: choose either 'x' or 'y'")
+    	end
+
+      local world = self.dummyWorld
+    	world.ballPosition = Vector2d(x, 600 - y)
+    	world.ballVelocity = Vector2d(vx, -vy)
+
+    	local steps = 0
+      local init = ival < coordinate
+    	while coordinate ~= ival and steps < 75 * 5 do
+    		steps = steps + 1
+    		-- set ball valid to false to ignore blobby bounces
+    		world:update({[LEFT_PLAYER] = PlayerInput(), [RIGHT_PLAYER] = PlayerInput()}, false, true)
+    		-- check for the condition
+    		local pos = world.ballPosition
+    		local v = (axis == "x") and pos.x or 600 - pos.y
+    		if (v < coordinate) ~= init then
+    			break
+        end
+    	end
+
+    	-- indicate failure
+    	if steps == 75 * 5 then
+    		steps = -1
+      end
+
+    	return steps, world.ballPosition.x, 600 - world.ballPosition.y, world.ballVelocity.x, -world.ballVelocity.y
+    end,
+  }
+
+  LuaApiSandbox.load({
+    "api/api.lua",
+    "api/bot_api.lua",
+    "api/bots/" .. filename
+  }, self.sandbox)
+
+  print("loaded bot " .. self.sourceFile .. " on side " .. self.side)
+
+  if "function" ~= type(self.sandbox.__OnStep) then
+    error("Lua Api Error: Missing bot function __OnStep, check bot_api.lua!")
 	end
 end
 
@@ -47,25 +128,25 @@ function ScriptedInputSource:getNextInput()
   __WANT_RIGHT = false
   __WANT_JUMP = false
 
-	if nil == ScriptableComponent:getMatch() then
+	if nil == self.match then
 		return PlayerInput()
   end
 
-  __OnStep()
+  self.sandbox.__OnStep()
 
   -- if no player is serving player, assume the left one is
-  local servingPlayer = ScriptableComponent:getMatch():getServingPlayer()
+  local servingPlayer = self.match:getServingPlayer()
   if servingPlayer == NO_PLAYER then
     servingPlayer = LEFT_PLAYER
   end
 
-	if ScriptableComponent:getMatch():isGameRunning() and self.side == servingPlayer then
+	if self.match:isGameRunning() and self.side == servingPlayer then
 		serving = true
 	end
 
-	local wantleft = __WANT_LEFT
-	local wantright = __WANT_RIGHT
-	local wantjump = __WANT_JUMP
+	local wantleft = self.sandbox.__WANT_LEFT
+	local wantright = self.sandbox.__WANT_RIGHT
+	local wantjump = self.sandbox.__WANT_JUMP
 
 	if serving and self.startTime + WAITING_TIME > love.timer.getTime() then
 		return PlayerInput()
@@ -84,63 +165,6 @@ function ScriptedInputSource:getNextInput()
 	self.lastJump = wantjump
 
   return PlayerInput(wantleft, wantright, wantjump)
-end
-
-function ScriptedInputSource:getPointer()
-	return __SCRIPTED_INPUT_SOURCE_POINTER
-end
-
-
---
--- common functions for lua bots api
---
-
-
--- number steps, number x, number y, number vx, number vy
-function simulate(steps, x, y, vx, vy)
-	local world = ScriptedInputSource:getPointer().dummyWorld
-  world.ballPosition = Vector2d(x, 600 - y)
-  world.ballVelocity = Vector2d(vx, -vy)
-
-	for i = 0, steps do
-		-- set ball valid to false to ignore blobby bounces
-		world:update({[LEFT_PLAYER] = PlayerInput(), [RIGHT_PLAYER] = PlayerInput()}, false, true)
-	end
-
-	return world.ballPosition.x, 600 - world.ballPosition.y, world.ballVelocity.x, -world.ballVelocity.y
-end
-
--- number x, number y, number vx, number vy, string axis, number coordinate
-function simulate_until(x, y, vx, vy, axis, coordinate)
-	local ival = (axis == "x") and x or y
-	if axis ~= "x" and axis ~= "y" then
-		error("invalid condition specified: choose either 'x' or 'y'")
-	end
-
-  local world = ScriptedInputSource:getPointer().dummyWorld
-	world.ballPosition = Vector2d(x, 600 - y)
-	world.ballVelocity = Vector2d(vx, -vy)
-
-	local steps = 0
-  local init = ival < coordinate
-	while coordinate ~= ival and steps < 75 * 5 do
-		steps = steps + 1
-		-- set ball valid to false to ignore blobby bounces
-		world:update({[LEFT_PLAYER] = PlayerInput(), [RIGHT_PLAYER] = PlayerInput()}, false, true)
-		-- check for the condition
-		local pos = world.ballPosition
-		local v = (axis == "x") and pos.x or 600 - pos.y
-		if (v < coordinate) ~= init then
-			break
-    end
-	end
-
-	-- indicate failure
-	if steps == 75 * 5 then
-		steps = -1
-  end
-
-	return steps, world.ballPosition.x, 600 - world.ballPosition.y, world.ballVelocity.x, -world.ballVelocity.y
 end
 
 return ScriptedInputSource

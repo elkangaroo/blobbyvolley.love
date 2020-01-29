@@ -26,10 +26,8 @@ function InputSource.createInputSource(side)
   local prefix = (side == LEFT_PLAYER) and "left" or "right"
 
 	if GameConfig.getBoolean(prefix .. "_player_human") then
-    print("input=human=" .. side)
 		return LocalInputSource()
 	else
-    print("input=bot=" .. side)
 		return ScriptedInputSource(GameConfig.get(prefix .. "_script_name"), side, GameConfig.getNumber(prefix .. "_script_strength"))
 	end
 end
