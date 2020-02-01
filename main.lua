@@ -85,11 +85,13 @@ FONT_WIDTH_SMALL = 12
 WAITING_TIME = 1500 -- The time the bot waits after game start
 
 local app = {}
-app.version = 0.1
+app._VERSION = "0.1.0"
 app.accumulator = 0.0
 app.tickPeriod = 1/60 -- seconds per tick (60 ticks/s)
 
 function love.load(...)
+  love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
+
   GameConfig.load("conf/config.xml")
 
   RenderManager:init()
@@ -124,10 +126,18 @@ function love.draw()
   RenderManager:drawUi()
   RenderManager:refresh()
 
+  -- temporary print winner on screen until we have game states :)
+  if app.state.currentState and app.state.currentState.winner then
+    local winningText = app.state.currentState.match:getPlayer(app.state.currentState.match:getWinningPlayer()).name .. " won!"
+    love.graphics.printf(winningText:upper(), 400 - winningText:len() * FONT_WIDTH_NORMAL / 2, 276, winningText:len() * FONT_WIDTH_NORMAL, "center")
+  end
+
   if GameConfig.getBoolean("showfps") then
-    -- love.graphics.setColor(0.3, 0.9, 1)
-    -- love.graphics.print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()), 2, 2)
-    -- print(string.format('v%s FPS: %s', app.version, love.timer.getFPS()))
+    love.graphics.push()
+      love.graphics.setColor(1, 1, 1, 0.66)
+      love.graphics.scale(0.5, 0.5)
+      love.graphics.print(string.format('FPS:%s', love.timer.getFPS()), 48, 12)
+    love.graphics.pop()
   end
 end
 

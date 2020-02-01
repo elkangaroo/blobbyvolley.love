@@ -13,7 +13,7 @@ GameConfig.values = {
   rules = "default.lua",
   -- rules = "__FALLBACK__",
 
-  left_player_human = "false",
+  left_player_human = "true",
   left_player_name = "Left Player",
   left_script_name = "gintonicV9",
   left_script_strength = "4",

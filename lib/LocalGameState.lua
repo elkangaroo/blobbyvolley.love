@@ -34,7 +34,6 @@ function LocalGameState:update_impl()
     --   std::make_tuple(TextManager::LBL_NO,  [&]() mMatch->unpause() )
     -- )
   elseif self.winner then
-    print("match has a winner")
     -- displayWinningPlayerScreen(match:getWinningPlayer())
     -- if imgui.doButton(GEN_ID, Vector2(310, 340), TextManager::LBL_OK) then
     --   self:switchState(MainMenuState())

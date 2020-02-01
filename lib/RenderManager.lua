@@ -70,6 +70,8 @@ function RenderManager:init()
 end
 
 function RenderManager:draw()
+  love.graphics.setColor(1, 1, 1, 1)
+
   if self.backgroundImage then
     love.graphics.draw(self.backgroundImage, 0, 0)
   end
