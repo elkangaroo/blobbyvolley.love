@@ -10,12 +10,12 @@ env:
 
 before_install:
   - pip install hererocks
-  - hererocks env --$LUA -rlatest
-  - source env/bin/activate
+  - hererocks .here --$LUA -rlatest
+  - source .here/bin/activate
   - luarocks install luacheck
 
 script:
-  - luacheck .
+  - luacheck . --exclude-files .here || [ $? -eq 1 ] # allow warnings (exit code 1)
 
 branches:
   except:
