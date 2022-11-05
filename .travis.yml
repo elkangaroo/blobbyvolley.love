@@ -2,20 +2,25 @@ language: python
 sudo: false
 
 env:
-  - LUA="lua=5.1"
-  - LUA="lua=5.2"
-  - LUA="lua=5.3"
-  - LUA="luajit=2.0"
-  - LUA="luajit=2.1"
+  global:
+    - LOVE_PKG="https://bitbucket.org/rude/love/downloads/love-11.3-x86_64.AppImage"
+  jobs:
+    - LUA="lua=5.1"
+    - LUA="lua=5.2"
+    - LUA="lua=5.3"
+    - LUA="luajit=2.0"
+    - LUA="luajit=2.1"
 
 before_install:
   - pip install hererocks
   - hererocks .here --$LUA -rlatest
   - source .here/bin/activate
   - luarocks install luacheck
+  - wget -O .here/bin/love $LOVE_PKG && chmod 755 .here/bin/love
 
 script:
   - luacheck . --exclude-files .here || [ $? -eq 1 ] # allow warnings (exit code 1)
+  - love . --headless
 
 branches:
   except:

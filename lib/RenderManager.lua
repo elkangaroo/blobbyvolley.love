@@ -22,6 +22,7 @@ local RenderManager = {
     playerScores = {},
     playerNames = {},
     gameTime = "",
+    showfps = false,
   },
 }
 
@@ -146,9 +147,23 @@ function RenderManager:drawUi()
     -- draw game clock
     local text = self.uiElements.gameTime
     love.graphics.printf(text, 400 - text:len() * FONT_WIDTH_NORMAL / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
+
+    -- draw fps
+    if self.uiElements.showfps then
+      love.graphics.push()
+        love.graphics.setColor(1, 1, 1, 0.66)
+        love.graphics.scale(0.5, 0.5)
+        love.graphics.print(string.format('FPS:%s', love.timer.getFPS()), 48, 12)
+      love.graphics.pop()
+    end
   end)
 
   love.graphics.draw(self.uiCanvas)
+end
+
+function RenderManager:drawWinningScreen(playerName)
+  local winningText = playerName .. " won!"
+  love.graphics.printf(winningText:upper(), 400 - winningText:len() * FONT_WIDTH_NORMAL / 2, 276, winningText:len() * FONT_WIDTH_NORMAL, "center")
 end
 
 function RenderManager:refresh()

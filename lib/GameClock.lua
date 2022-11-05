@@ -7,7 +7,7 @@ local GameClock = {
 function GameClock:reset()
 	GameClock.isRunning = false
 	GameClock.gameTime = 0
-	GameClock.lastTime = love.timer.getTime()
+	GameClock.lastTime = 0
 end
 
 function GameClock:start()
