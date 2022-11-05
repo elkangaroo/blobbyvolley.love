@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  # Trigger the workflow on push or pull request events on main branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Trigger the workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        lua_version: ['5.4', '5.3', '5.2', '5.1', 'luajit-2.1', 'luajit-2.0']
+        # love_version: ['11.4', '11.3', '11.2', '0.10.2', '0.9.2', '0.8.0']
+
+    #env:
+    #  LOVE_PKG: "https://bitbucket.org/rude/love/downloads/love-11.3-x86_64.AppImage"
+    #        wget -O .love/love $LOVE_PKG && chmod 755 .love/love
+    #        love . --headless
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE
+    - uses: actions/checkout@v3
+
+    # Builds and installs Lua into the .lua/ directory in the working directory
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.lua_version }}
+
+    # Builds and installs LuaRocks into the .luarocks/ directory in the working directory
+    - uses: leafo/gh-actions-luarocks@v4
+
+    # Installs and runs Luacheck on source files; allow warnings (exit code 1)
+    - name: install and run luacheck
+      run: |
+        luarocks install luacheck
+        luacheck . --exclude-files .lua .luarocks || [ $? -eq 1 ]
