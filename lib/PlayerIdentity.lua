@@ -29,9 +29,9 @@ function PlayerIdentity.createFromConfig(side, forceHuman)
 	end
 
   local color = {
-  	GameConfig.getNumber(prefix .. "_blobby_color_r") / 255,
-  	GameConfig.getNumber(prefix .. "_blobby_color_g") / 255,
-  	GameConfig.getNumber(prefix .. "_blobby_color_b") / 255,
+    GameConfig.getNumber(prefix .. "_blobby_color_r") / 255,
+    GameConfig.getNumber(prefix .. "_blobby_color_g") / 255,
+    GameConfig.getNumber(prefix .. "_blobby_color_b") / 255,
   }
 
 	-- isOscillating = GameConfig.getBoolean(prefix .. "_blobby_oscillate")
