@@ -44,8 +44,14 @@ jobs:
     - name: Run luacheck
       run: luacheck . --exclude-files .lua .luarocks || [ $? -eq 1 ]
 
-    # Downloads LÖVE and runs application in headless mode
-    - name: Run app in headless
+    # Downloads LÖVE
+    - name: Download LÖVE
       run: |
-        wget -O love $LOVE_PKG && chmod 755 love
-        love . --headless
+        mkdir -p .love/bin/
+        wget -O .love/bin/love $LOVE_PKG
+        chmod 755 .love/bin/love
+        echo ".love/bin/" >> $GITHUB_PATH
+
+    # Runs application in headless mode
+    - name: Run app in headless mode
+      run: love . --headless
