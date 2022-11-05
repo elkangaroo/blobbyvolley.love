@@ -99,7 +99,7 @@ function love.load(arg, unfilteredArg)
       love.errorhandler = function(msg)
         print("--- (T_T) ---")
         print((debug.traceback("Error: " .. tostring(msg), 1):gsub("\n[^\n]+$", "")))
-        
+
         -- exit with error_code, otherwise program runs endlessly
         love.event.quit(1)
       end
