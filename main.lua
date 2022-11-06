@@ -1,3 +1,14 @@
+-- add external modules to require path
+love.filesystem.setRequirePath(
+  love.filesystem.getRequirePath()
+  .. ";lib/ext/xml2lua/?.lua"
+)
+
+-- load external libraries
+xml2lua = require("xml2lua")
+XmlTreeHandler = require("xmlhandler.tree")
+
+-- load internal libraries
 Vector2d = require("lib.Vector2d")
 
 GameConfig = require("lib.GameConfig")
