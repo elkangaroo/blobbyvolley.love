@@ -97,9 +97,10 @@ WAITING_TIME = 1500 -- The time the bot waits after game start
 
 local app = {}
 app._VERSION = "0.1.0"
+app._MIN_GAME_FPS = 5
 app.state = nil
 app.accumulator = 0.0
-app.tickPeriod = 1/60 -- seconds per tick (60 ticks/s)
+app.tickPeriod = 1 / 75 -- seconds per tick
 app.options = {}
 
 function love.load(arg, unfilteredArg)
@@ -136,6 +137,8 @@ function love.load(arg, unfilteredArg)
   SoundManager.setGlobalVolume(GameConfig.getNumber("global_volume"))
   SoundManager.loadSound("res/sfx/bums.wav")
   SoundManager.loadSound("res/sfx/pfiff.wav")
+
+  app.tickPeriod = 1 / math.max(app._MIN_GAME_FPS, GameConfig.getNumber("gamefps"))
 
   app.state = State()
   app.state:update()
