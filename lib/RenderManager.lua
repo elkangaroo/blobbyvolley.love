@@ -161,6 +161,7 @@ function RenderManager:drawUi()
   love.graphics.draw(self.uiCanvas)
 end
 
+-- string playerName
 function RenderManager:drawWinningScreen(playerName)
   local winningText = playerName .. " won!"
   love.graphics.printf(winningText:upper(), 400 - winningText:len() * FONT_WIDTH_NORMAL / 2, 276, winningText:len() * FONT_WIDTH_NORMAL, "center")
