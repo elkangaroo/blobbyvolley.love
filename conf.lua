@@ -5,6 +5,7 @@ function love.conf(t)
   t.window.title = "Blobby Volley: LÖVE Edition"
   t.window.width = 800
   t.window.height = 600
+  t.window.vsync = 0
 
   for _, a in pairs(arg) do
     -- headless mode for automated testing

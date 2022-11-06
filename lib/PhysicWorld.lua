@@ -40,6 +40,7 @@ function PhysicWorld:__construct()
 end
 
 -- table<PlayerInput> inputs, bool isBallValid, bool isGameRunning
+-- Important: This assumes a fixed framerate of 60 FPS!
 function PhysicWorld:update(inputs, isBallValid, isGameRunning)
   -- Compute independent actions
   self:handleBlob(LEFT_PLAYER, inputs[LEFT_PLAYER])
