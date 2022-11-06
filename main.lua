@@ -86,26 +86,45 @@ WAITING_TIME = 1500 -- The time the bot waits after game start
 
 local app = {}
 app._VERSION = "0.1.0"
+app.state = nil
 app.accumulator = 0.0
 app.tickPeriod = 1/60 -- seconds per tick (60 ticks/s)
+app.options = {}
 
-function love.load(...)
-  love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
+function love.load(arg, unfilteredArg)
+  for _, a in pairs(arg) do
+    if a == "--headless" then
+      app.options.headless = true
+
+      love.errorhandler = function(msg)
+        print("--- (T_T) ---")
+        print((debug.traceback("Error: " .. tostring(msg), 1):gsub("\n[^\n]+$", "")))
+
+        -- exit with error_code, otherwise program runs endlessly
+        love.event.quit(1)
+      end
+    end
+  end
 
   GameConfig.load("conf/config.xml")
 
-  RenderManager:init()
-  RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
+  if not app.options.headless then
+    love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
+
+    RenderManager:init()
+    RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
+    RenderManager.uiElements.showfps = GameConfig.getBoolean("showfps")
+
+    local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
+    if love.filesystem.getInfo(bg) then
+      RenderManager:setBackground(bg)
+    end
+  end
 
   SoundManager.isMuted = GameConfig.getBoolean("mute")
   SoundManager.setGlobalVolume(GameConfig.getNumber("global_volume"))
   SoundManager.loadSound("res/sfx/bums.wav")
   SoundManager.loadSound("res/sfx/pfiff.wav")
-
-  local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
-  if love.filesystem.getInfo(bg) then
-   	RenderManager:setBackground(bg)
-  end
 
   app.state = State()
   app.state:update()
@@ -118,6 +137,10 @@ function love.update(dt)
   while app.accumulator >= app.tickPeriod do
     app.accumulator = app.accumulator - app.tickPeriod
     app.state:update()
+
+    if app.options.headless then
+      love.event.quit()
+    end
   end
 end
 
@@ -128,16 +151,7 @@ function love.draw()
 
   -- temporary print winner on screen until we have game states :)
   if app.state.currentState and app.state.currentState.winner then
-    local winningText = app.state.currentState.match:getPlayer(app.state.currentState.match:getWinningPlayer()).name .. " won!"
-    love.graphics.printf(winningText:upper(), 400 - winningText:len() * FONT_WIDTH_NORMAL / 2, 276, winningText:len() * FONT_WIDTH_NORMAL, "center")
-  end
-
-  if GameConfig.getBoolean("showfps") then
-    love.graphics.push()
-      love.graphics.setColor(1, 1, 1, 0.66)
-      love.graphics.scale(0.5, 0.5)
-      love.graphics.print(string.format('FPS:%s', love.timer.getFPS()), 48, 12)
-    love.graphics.pop()
+    RenderManager:drawWinningScreen(app.state.currentState.match:getPlayer(app.state.currentState.match:getWinningPlayer()).name)
   end
 end
 

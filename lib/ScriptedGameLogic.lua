@@ -24,20 +24,20 @@ function ScriptedGameLogic:__construct(filename, match, scoreToWin)
       return self.match:getTouches(side)
     end,
     score = function(side, amount)
-    	self:score(side, amount)
+      self:score(side, amount)
     end,
     mistake = function(errorSide, servingSide, amount)
       self:score(self:getOtherSide(errorSide), amount)
-    	self:onError(errorSide, servingSide)
+      self:onError(errorSide, servingSide)
     end,
     servingplayer = function()
-    	return self.servingPlayer
+      return self.servingPlayer
     end,
     time = function()
-    	return self:getGameTime()
+      return self:getGameTime()
     end,
     isgamerunning = function()
-    	return self.isGameRunning
+      return self.isGameRunning
     end,
   }
 
@@ -63,15 +63,15 @@ function ScriptedGameLogic:checkWin()
   local rscore = self:getScore(RIGHT_PLAYER)
   local won = self.sandbox.IsWinning(lscore, rscore)
 
-	if won and lscore > rscore then
-		return LEFT_PLAYER
+  if won and lscore > rscore then
+    return LEFT_PLAYER
   end
 
-	if won and lscore < rscore then
-		return RIGHT_PLAYER
+  if won and lscore < rscore then
+    return RIGHT_PLAYER
   end
 
-	return NO_PLAYER
+  return NO_PLAYER
 end
 
 -- PlayerInput ip, PlayerSide player
@@ -83,15 +83,15 @@ function ScriptedGameLogic:handleInput(ip, player)
   local ret = {}
   ret.left, ret.right, ret.up = self.sandbox.HandleInput(player, ip.left, ip.right, ip.up)
 
-	return ret
+  return ret
 end
 
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsPlayerHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsPlayer) then
-		FallbackGameLogic:OnBallHitsPlayerHandler(side)
-		return
-	end
+    FallbackGameLogic:OnBallHitsPlayerHandler(side)
+    return
+  end
 
   self.sandbox.OnBallHitsPlayer(side)
 end
@@ -99,9 +99,9 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsGroundHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsGround) then
-		FallbackGameLogic:OnBallHitsGroundHandler(side)
-		return
-	end
+    FallbackGameLogic:OnBallHitsGroundHandler(side)
+    return
+  end
 
   self.sandbox.OnBallHitsGround(side)
 end
@@ -109,9 +109,9 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsWallHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsWall) then
-		FallbackGameLogic:OnBallHitsWallHandler(side)
-		return
-	end
+    FallbackGameLogic:OnBallHitsWallHandler(side)
+    return
+  end
 
   self.sandbox.OnBallHitsWall(side)
 end
@@ -119,9 +119,9 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsNetHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsNet) then
-		FallbackGameLogic:OnBallHitsNetHandler(side)
-		return
-	end
+    FallbackGameLogic:OnBallHitsNetHandler(side)
+    return
+  end
 
   self.sandbox.OnBallHitsNet(side)
 end

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  # Trigger the workflow on push or pull request events on main branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Trigger the workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        lua_version: ['5.4', '5.3', '5.2', '5.1', 'luajit', 'luajit-2.0.5']
+        # love_version: ['11.4', '11.3', '11.2', '0.10.2', '0.9.2', '0.8.0']
+        love_version: ['11.4', '11.3']
+
+    env:
+      LOVE_PKG: "https://github.com/love2d/love/releases/download/${{ matrix.love_version }}/love-${{ matrix.love_version }}-x86_64.AppImage"
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE
+    - uses: actions/checkout@v3
+
+    # Builds and installs Lua into the .lua/ directory in the working directory
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.lua_version }}
+
+    # Builds and installs LuaRocks into the .luarocks/ directory in the working directory
+    - uses: leafo/gh-actions-luarocks@v4
+
+    # Installs Luacheck
+    - name: Install luacheck
+      run: luarocks install luacheck
+
+    # Runs Luacheck on source files; allow warnings (exit code 1)
+    - name: Run luacheck
+      run: luacheck . --exclude-files .lua .luarocks || [ $? -eq 1 ]
+
+    # Downloads LÖVE
+    - name: Download LÖVE
+      run: |
+        mkdir -p .love/bin/
+        wget -O .love/bin/love $LOVE_PKG
+        chmod 755 .love/bin/love
+        echo ".love/bin/" >> $GITHUB_PATH
+
+    # Runs application in headless mode
+    - name: Run app in headless mode
+      run: love . --headless
