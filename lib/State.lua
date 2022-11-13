@@ -14,13 +14,13 @@ function State:__construct()
   self.stateToSwitchTo = nil
 end
 
-function State:update()
+function State:update(dt)
   if nil == self.currentState then
     -- self.currentState = MainMenuState()
     self.currentState = LocalGameState()
   end
 
-  self.currentState:update_impl()
+  self.currentState:update_impl(dt)
 
   -- check if we should switch to a new state
   if nil ~= self.stateToSwitchTo then

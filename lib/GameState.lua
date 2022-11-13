@@ -16,7 +16,7 @@ function GameState:__construct(match)
   self.match = match
 end
 
--- helper function that draws the game
+--- helper function that draws the game
 function GameState:presentGame()
   RenderManager:setBlob(LEFT_PLAYER, self.match:getBlobPosition(LEFT_PLAYER), self.match:getBlobState(LEFT_PLAYER))
   RenderManager:setBlob(RIGHT_PLAYER, self.match:getBlobPosition(RIGHT_PLAYER), self.match:getBlobState(RIGHT_PLAYER))
@@ -46,7 +46,7 @@ function GameState:presentGame()
   end
 end
 
--- helper function that draws the ui in the game, i.e. clock, score and player names
+--- helper function that draws the ui in the game, i.e. clock, score and player names
 function GameState:presentGameUi()
   local scoreLeft = string.format(self.match:getServingPlayer() == LEFT_PLAYER and "%02d!" or "%02d ", self.match:getScore(LEFT_PLAYER))
   local scoreRight = string.format(self.match:getServingPlayer() == RIGHT_PLAYER and "%02d!" or "%02d ", self.match:getScore(RIGHT_PLAYER))
@@ -56,7 +56,7 @@ function GameState:presentGameUi()
   RenderManager:setGameTime(GameClock:getTimeString())
 end
 
-function GameState:update_impl()
+function GameState:update_impl(dt)
 end
 
 function GameState:getStateName()

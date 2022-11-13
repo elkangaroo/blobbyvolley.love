@@ -95,13 +95,24 @@ FONT_WIDTH_SMALL = 12
 -- ScriptedInputSource.h
 WAITING_TIME = 1500 -- The time the bot waits after game start
 
-local app = {}
+app = {}
 app._VERSION = "0.1.0"
 app._MIN_GAME_FPS = 5
 app.state = nil
 app.accumulator = 0.0
 app.tickPeriod = 1 / 75 -- seconds per tick
 app.options = {}
+
+function app.timer(dt, func)
+  dt = math.min(app.tickPeriod, dt)
+
+  app.accumulator = app.accumulator + dt
+  while app.accumulator >= app.tickPeriod do
+    app.accumulator = app.accumulator - app.tickPeriod
+    
+    func()
+  end
+end
 
 function love.load(arg, unfilteredArg)
   for _, a in pairs(arg) do
@@ -141,20 +152,13 @@ function love.load(arg, unfilteredArg)
   app.tickPeriod = 1 / math.max(app._MIN_GAME_FPS, GameConfig.getNumber("gamefps"))
 
   app.state = State()
-  app.state:update()
 end
 
 function love.update(dt)
-  dt = math.min(app.tickPeriod, dt)
+  app.state:update(dt)
 
-  app.accumulator = app.accumulator + dt
-  while app.accumulator >= app.tickPeriod do
-    app.accumulator = app.accumulator - app.tickPeriod
-    app.state:update()
-
-    if app.options.headless then
-      love.event.quit()
-    end
+  if app.options.headless then
+    love.event.quit()
   end
 end
 

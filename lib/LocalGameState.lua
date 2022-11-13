@@ -26,7 +26,7 @@ function LocalGameState:__construct()
   self.winner = false
 end
 
-function LocalGameState:update_impl()
+function LocalGameState:update_impl(dt)
   if self.match.isPaused then
     -- displayQueryPrompt(200,
     --   TextManager::LBL_CONF_QUIT,
@@ -42,15 +42,14 @@ function LocalGameState:update_impl()
     -- if imgui.doButton(GEN_ID, Vector2(420, 340), TextManager::GAME_TRY_AGAIN) then
     --   self:switchState(LocalGameState())
     -- end
-    -- elseif InputManager.exit() then
-    --   if self.match.isPaused then
-    --     self:switchState(MainMenuState())
-    --   else
-    --     RenderManager:redraw()
-    --     self.match:pause()
-    --  end
+  -- elseif InputManager.exit() then
+    --  if self.match.isPaused then
+    --    self:switchState(MainMenuState())
+    --  else
+    --    self.match:pause()
+    -- end
   else
-    self.match:update()
+    self.match:update(dt)
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
       self.winner = true
