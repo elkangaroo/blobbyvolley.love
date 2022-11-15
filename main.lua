@@ -10,9 +10,11 @@ XmlTreeHandler = require("xmlhandler.tree")
 
 -- load internal libraries
 Vector2d = require("lib.Vector2d")
+Queue = require("lib.Queue")
 
 GameConfig = require("lib.GameConfig")
 GameClock = require("lib.GameClock")
+GuiManager = require("lib.GuiManager")
 RenderManager = require("lib.RenderManager")
 SoundManager = require("lib.SoundManager")
 
@@ -92,6 +94,15 @@ TEMP_RULES_NAME = "server_rules.lua"
 FONT_WIDTH_NORMAL =	24
 FONT_WIDTH_SMALL = 12
 
+-- RenderManager.h Text Flags (usable for the RenderManager:drawText() flag parameter)
+TF_NORMAL       = 0x00 -- 0 == false (backward compatibility for state modules)
+TF_HIGHLIGHT    = 0x01 -- 1 == true (backward compatibility for state modules)
+TF_SMALL_FONT   = 0x02 -- Draw a smaller font.
+TF_OBFUSCATE    = 0x04 -- Obfuscate the text with asterisks. (for password Editboxes)
+TF_ALIGN_LEFT   = 0x00 -- Text aligned left (default)
+TF_ALIGN_CENTER = 0x08 -- Text centered
+TF_ALIGN_RIGHT  = 0x10 -- Text aligned right
+
 -- ScriptedInputSource.h
 WAITING_TIME = 1500 -- The time the bot waits after game start
 
@@ -131,6 +142,8 @@ function love.load(arg, unfilteredArg)
 
   GameConfig.load("conf/config.xml")
 
+  GuiManager:init()
+
   if not app.options.headless then
     love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
 
@@ -141,6 +154,10 @@ function love.load(arg, unfilteredArg)
     local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
     if love.filesystem.getInfo(bg) then
       RenderManager:setBackground(bg)
+    end
+
+    if love.mouse.isCursorSupported() then
+      love.mouse.setCursor(RenderManager.uiCursor)
     end
   end
 
@@ -165,7 +182,6 @@ end
 function love.draw()
   RenderManager:draw()
   RenderManager:drawUi()
-  RenderManager:refresh()
 
   -- temporary print winner on screen until we have game states :)
   if app.state.currentState and app.state.currentState.winner then

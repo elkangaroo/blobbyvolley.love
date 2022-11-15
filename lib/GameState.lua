@@ -13,6 +13,7 @@ setmetatable(GameState, {
 -- table<Match> match
 function GameState:__construct(match)
   State.__construct(self)
+  love.mouse.setVisible(false)
   self.match = match
 end
 
@@ -54,6 +55,22 @@ function GameState:presentGameUi()
   RenderManager:setPlayer(LEFT_PLAYER, self.match:getPlayer(LEFT_PLAYER).name, scoreLeft)
   RenderManager:setPlayer(RIGHT_PLAYER, self.match:getPlayer(RIGHT_PLAYER).name, scoreRight)
   RenderManager:setGameTime(GameClock:getTimeString())
+end
+
+--- helper function that draws a query with multiple options
+-- number height, string title, table<string, function> opt1, table<string, function> opt2
+function GameState:displayQueryPrompt(height, title, opt1, opt2)
+  -- string   opt[1] option text to show
+  -- function opt[2] option function to call on click
+
+  GuiManager:addOverlay(Vector2d(0, height), Vector2d(800, height + 200))
+  GuiManager:addText(Vector2d(400, height + 30), title, TF_ALIGN_CENTER)
+  if GuiManager:addButton(Vector2d(400 - 60, height + 90), opt1[1], TF_ALIGN_RIGHT) then
+    opt1[2]()
+  end
+  if GuiManager:addButton(Vector2d(400 + 60, height + 90), opt2[1], TF_ALIGN_LEFT) then
+    opt2[2]()
+  end
 end
 
 function GameState:update_impl(dt)
