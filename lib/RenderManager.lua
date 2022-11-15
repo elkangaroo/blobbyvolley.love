@@ -1,3 +1,6 @@
+local bit = require("bit")
+
+-- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/RenderManagerGL2D.cpp
 local RenderManager = {
   showShadow = true,
 
@@ -18,6 +21,7 @@ local RenderManager = {
 
   uiCanvas = nil,
   uiFont = nil,
+  uiCursor = nil,
   uiElements = {
     playerScores = {},
     playerNames = {},
@@ -44,6 +48,9 @@ function RenderManager:init()
   self.uiFont = love.graphics.newImageFont(
     newImageDataWithBlackColorKey("res/gfx/font.bmp"),
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.!()ßÄÖÜ\':;?,/_ -%+Ì'
+  )
+  self.uiCursor = love.mouse.newCursor(
+    newImageDataWithBlackColorKey("res/gfx/cursor.bmp")
   )
 
   self.leftBlobColor = { 1, 0, 0 }
@@ -81,7 +88,6 @@ function RenderManager:draw()
     love.graphics.push("all")
 
     love.graphics.setBlendMode("alpha", "alphamultiply")
-		-- glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		-- draw ball shadow
     local position = self:getShadowPosition(self.ballPosition);
@@ -150,25 +156,62 @@ function RenderManager:drawUi()
 
     -- draw fps
     if self.uiElements.showfps then
-      love.graphics.push()
+      love.graphics.push("all")
         love.graphics.setColor(1, 1, 1, 0.66)
         love.graphics.scale(0.5, 0.5)
         love.graphics.print(string.format('FPS:%s', love.timer.getFPS()), 48, 12)
       love.graphics.pop()
     end
+
+    GuiManager:draw()
   end)
 
   love.graphics.draw(self.uiCanvas)
+end
+
+-- Vector2d pos1, Vector2d pos2, table<Color> color
+function RenderManager:drawOverlay(pos1, pos2, color)
+  love.graphics.push("all")
+
+  love.graphics.setBlendMode("alpha", "alphamultiply")
+
+  local vertices = { pos1.x, pos1.y, pos1.x, pos2.y, pos2.x, pos2.y, pos2.x, pos1.y }
+  love.graphics.setColor(color)
+  love.graphics.polygon("fill", vertices)
+
+  love.graphics.pop()
+end
+
+-- string text, Vector2d position, number flags
+function RenderManager:drawText(text, position, flags)
+  love.graphics.push("all")
+
+  local fontSize = FONT_WIDTH_NORMAL
+  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
+    fontSize = FONT_WIDTH_SMALL
+  end
+
+  local align = "left"
+  if bit.band(flags, TF_ALIGN_CENTER) ~= 0 then
+    align = "center"
+  elseif bit.band(flags, TF_ALIGN_RIGHT) ~= 0 then
+    align = "right"
+  end
+
+  love.graphics.printf(text:upper(), position.x, position.y, text:len() * fontSize, align)
+
+  if bit.band(flags, TF_HIGHLIGHT) ~= 0 then
+    love.graphics.setBlendMode("add", "premultiplied")
+    love.graphics.printf(text:upper(), position.x, position.y, text:len() * fontSize, align)
+  end
+
+  love.graphics.pop()
 end
 
 -- string playerName
 function RenderManager:drawWinningScreen(playerName)
   local winningText = playerName .. " won!"
   love.graphics.printf(winningText:upper(), 400 - winningText:len() * FONT_WIDTH_NORMAL / 2, 276, winningText:len() * FONT_WIDTH_NORMAL, "center")
-end
-
-function RenderManager:refresh()
-  -- @todo
 end
 
 -- string filename

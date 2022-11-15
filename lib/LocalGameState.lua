@@ -26,13 +26,21 @@ function LocalGameState:__construct()
   self.winner = false
 end
 
-function LocalGameState:update_impl()
+function LocalGameState:update_impl(dt)
   if self.match.isPaused then
-    -- displayQueryPrompt(200,
-    --   TextManager::LBL_CONF_QUIT,
-    --   std::make_tuple(TextManager::LBL_YES, [&]() switchState(new MainMenuState) ),
-    --   std::make_tuple(TextManager::LBL_NO,  [&]() mMatch->unpause() )
-    -- )
+    self:displayQueryPrompt(
+      200,
+      "really quit?",
+      { "yes", function()
+        -- self:switchState(MainMenuState())
+
+        -- just exit game until we have game states :)
+        love.event.quit()
+      end },
+      { "no", function()
+        self.match:unpause()
+      end }
+    )
   elseif self.winner then
     -- displayWinningPlayerScreen(match:getWinningPlayer())
     -- if imgui.doButton(GEN_ID, Vector2(310, 340), TextManager::LBL_OK) then
@@ -42,15 +50,14 @@ function LocalGameState:update_impl()
     -- if imgui.doButton(GEN_ID, Vector2(420, 340), TextManager::GAME_TRY_AGAIN) then
     --   self:switchState(LocalGameState())
     -- end
-    -- elseif InputManager.exit() then
-    --   if self.match.isPaused then
-    --     self:switchState(MainMenuState())
-    --   else
-    --     RenderManager:redraw()
-    --     self.match:pause()
-    --  end
+  -- elseif InputManager.exit() then
+    --  if self.match.isPaused then
+    --    self:switchState(MainMenuState())
+    --  else
+    --    self.match:pause()
+    -- end
   else
-    self.match:update()
+    self.match:update(dt)
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
       self.winner = true
@@ -77,10 +84,12 @@ function LocalGameState:keypressed(key)
     if ("up" == key) then self.match.inputSources[RIGHT_PLAYER]:set("up", true) end
   end
 
-  if "p" == key or "pause" == key then
+  if "escape" == key then
     if self.match.isPaused then
+      love.mouse.setVisible(false)
       self.match:unpause()
     else
+      love.mouse.setVisible(true)
       self.match:pause()
     end
   end
