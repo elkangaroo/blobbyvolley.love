@@ -20,7 +20,7 @@ function State:update(dt)
     self.currentState = LocalGameState()
   end
 
-  self.currentState:update_impl(dt)
+  self.currentState:update(dt)
 
   -- check if we should switch to a new state
   if nil ~= self.stateToSwitchTo then

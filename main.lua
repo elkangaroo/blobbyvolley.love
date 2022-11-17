@@ -182,11 +182,6 @@ end
 function love.draw()
   RenderManager:draw()
   RenderManager:drawUi()
-
-  -- temporary print winner on screen until we have game states :)
-  if app.state.currentState and app.state.currentState.winner then
-    RenderManager:drawWinningScreen(app.state.currentState.match:getPlayer(app.state.currentState.match:getWinningPlayer()).name)
-  end
 end
 
 function love.focus(focused)

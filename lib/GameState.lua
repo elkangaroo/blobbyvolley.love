@@ -2,7 +2,6 @@ local GameState = {}
 GameState.__index = GameState
 
 setmetatable(GameState, {
-  __index = State, -- base class
   __call = function (cls, ...)
     local self = setmetatable({}, cls)
     self:__construct(...)
@@ -12,7 +11,6 @@ setmetatable(GameState, {
 
 -- table<Match> match
 function GameState:__construct(match)
-  State.__construct(self)
   love.mouse.setVisible(false)
   self.match = match
 end
@@ -63,17 +61,17 @@ function GameState:displayQueryPrompt(height, title, opt1, opt2)
   -- string   opt[1] option text to show
   -- function opt[2] option function to call on click
 
-  GuiManager:addOverlay(Vector2d(0, height), Vector2d(800, height + 200))
-  GuiManager:addText(Vector2d(400, height + 30), title, TF_ALIGN_CENTER)
-  if GuiManager:addButton(Vector2d(400 - 60, height + 90), opt1[1], TF_ALIGN_RIGHT) then
+  GuiManager:addOverlay(Vector2d(0, height), Vector2d(800, 600 - height))
+  GuiManager:addText(Vector2d(400, height + 60), title, TF_ALIGN_CENTER)
+  if GuiManager:addButton(Vector2d(400 - 60, height + 120), opt1[1], TF_ALIGN_RIGHT) then
     opt1[2]()
   end
-  if GuiManager:addButton(Vector2d(400 + 60, height + 90), opt2[1], TF_ALIGN_LEFT) then
+  if GuiManager:addButton(Vector2d(400 + 60, height + 120), opt2[1], TF_ALIGN_LEFT) then
     opt2[2]()
   end
 end
 
-function GameState:update_impl(dt)
+function GameState:update(dt)
 end
 
 function GameState:getStateName()

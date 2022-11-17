@@ -30,20 +30,20 @@ local RenderManager = {
   },
 }
 
+-- string filename
+local function newImageDataWithBlackColorKey(filename)
+  local imageData = love.image.newImageData(filename)
+  imageData:mapPixel(function(x, y, r, g, b, a)
+    if r == 0 and g == 0 and b == 0 then
+      a = 0
+    end
+    return r, g, b, a
+  end)
+
+  return imageData
+end
+
 function RenderManager:init()
-  -- string filename
-  local function newImageDataWithBlackColorKey(filename)
-    local imageData = love.image.newImageData(filename)
-    imageData:mapPixel(function(x, y, r, g, b, a)
-      if r == 0 and g == 0 and b == 0 then
-        a = 0
-      end
-      return r, g, b, a
-    end)
-
-    return imageData
-  end
-
   self.uiCanvas = love.graphics.newCanvas()
   self.uiFont = love.graphics.newImageFont(
     newImageDataWithBlackColorKey("res/gfx/font.bmp"),
@@ -169,6 +169,12 @@ function RenderManager:drawUi()
   love.graphics.draw(self.uiCanvas)
 end
 
+-- string filename, Vector2d position
+function RenderManager:drawImage(filename, position)
+  local image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
+  love.graphics.draw(image, position.x, position.y)
+end 
+
 -- Vector2d pos1, Vector2d pos2, table<Color> color
 function RenderManager:drawOverlay(pos1, pos2, color)
   love.graphics.push("all")
@@ -206,12 +212,6 @@ function RenderManager:drawText(text, position, flags)
   end
 
   love.graphics.pop()
-end
-
--- string playerName
-function RenderManager:drawWinningScreen(playerName)
-  local winningText = playerName .. " won!"
-  love.graphics.printf(winningText:upper(), 400 - winningText:len() * FONT_WIDTH_NORMAL / 2, 276, winningText:len() * FONT_WIDTH_NORMAL, "center")
 end
 
 -- string filename

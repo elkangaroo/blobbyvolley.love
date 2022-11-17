@@ -27,6 +27,9 @@ end
 function GuiManager:draw()
   -- based on "A way to write switch-case statements in lua." https://gist.github.com/FreeBirdLjj/6303864
   local switch = {
+    [ObjectType.IMAGE] = function(obj)
+      RenderManager:drawImage(obj.text, obj.pos1)
+    end,
     [ObjectType.OVERLAY] = function(obj)
       RenderManager:drawOverlay(obj.pos1, obj.pos2, obj.color)
     end,
@@ -47,6 +50,11 @@ function GuiManager:draw()
       print("Unknown GuiManager.queue ObjectType " .. obj.type)
     end
   end
+end
+
+-- Vector2d position, string filename
+function GuiManager:addImage(position, filename)
+  Queue.push(self.queue, { type = ObjectType.IMAGE, pos1 = position, text = filename })
 end
 
 -- Vector2d pos1, Vector2d pos2, table<Color> color
