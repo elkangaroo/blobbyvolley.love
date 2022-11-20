@@ -62,10 +62,10 @@ function Match:update(dt)
 		transformedInputs[RIGHT_PLAYER] = self.logic:transformInput(transformedInputs[RIGHT_PLAYER], RIGHT_PLAYER)
   end
 
-  self.logic:update()
-  -- self.logic:update(self:getState())
-
   app.timer(dt, function()
+    self.logic:update()
+    -- self.logic:update(self:getState())
+
     self.physicWorld:update(transformedInputs, self.logic.isBallValid, self.logic.isGameRunning)
   end)
 

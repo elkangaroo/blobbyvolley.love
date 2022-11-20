@@ -274,9 +274,9 @@ function RenderManager:getOscillationColor()
   local time = love.timer.getTime()
 
   return {
-    (math.sin(time * 1.5) + 1.0) * 128,
-    (math.sin(time * 2.5) + 1.0) * 128,
-    (math.sin(time * 3.5) + 1.0) * 128,
+    (math.sin(time * 1.5) + 1.0) * 128 / 255,
+    (math.sin(time * 2.5) + 1.0) * 128 / 255,
+    (math.sin(time * 3.5) + 1.0) * 128 / 255,
   }
 end
 
