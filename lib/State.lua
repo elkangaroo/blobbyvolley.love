@@ -10,18 +10,11 @@ setmetatable(State, {
 })
 
 function State:__construct()
-  self.currentState = nil
+  self.currentState = LocalGameState()
   self.stateToSwitchTo = nil
 end
 
 function State:update(dt)
-  if nil == self.currentState then
-    -- self.currentState = MainMenuState()
-    self.currentState = LocalGameState()
-  end
-
-  self.currentState:update_impl(dt)
-
   -- check if we should switch to a new state
   if nil ~= self.stateToSwitchTo then
     print("switching to state " .. self.stateToSwitchTo:getStateName())
@@ -29,6 +22,12 @@ function State:update(dt)
     self.currentState = self.stateToSwitchTo
     self.stateToSwitchTo = nil
   end
+
+  if nil == self.currentState then
+    error("State.currentState is empty")
+  end
+
+  self.currentState:update(dt)
 end
 
 -- KeyConstant key

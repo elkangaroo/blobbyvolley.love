@@ -26,15 +26,16 @@ function LocalGameState:__construct()
   self.winner = false
 end
 
-function LocalGameState:update_impl(dt)
+function LocalGameState:update(dt)
   if self.match.isPaused then
+    love.mouse.setVisible(true)
     self:displayQueryPrompt(
       200,
       "really quit?",
       { "yes", function()
-        -- self:switchState(MainMenuState())
+        -- app.state:switchState(MainMenuState())
 
-        -- just exit game until we have game states :)
+        -- just exit game until we have MainMenuState :)
         love.event.quit()
       end },
       { "no", function()
@@ -42,21 +43,24 @@ function LocalGameState:update_impl(dt)
       end }
     )
   elseif self.winner then
-    -- displayWinningPlayerScreen(match:getWinningPlayer())
-    -- if imgui.doButton(GEN_ID, Vector2(310, 340), TextManager::LBL_OK) then
-    --   self:switchState(MainMenuState())
-    -- end
-    --
-    -- if imgui.doButton(GEN_ID, Vector2(420, 340), TextManager::GAME_TRY_AGAIN) then
-    --   self:switchState(LocalGameState())
-    -- end
-  -- elseif InputManager.exit() then
-    --  if self.match.isPaused then
-    --    self:switchState(MainMenuState())
-    --  else
-    --    self.match:pause()
-    -- end
+    love.mouse.setVisible(true)
+    -- self:displayWinningPlayerScreen(match:getWinningPlayer())
+    GuiManager:addOverlay(Vector2d(200, 150), Vector2d(700, 450))
+    GuiManager:addImage(Vector2d(120, 70), "res/gfx/pokal.bmp")
+    local winnerName = self.match:getPlayer(self.match:getWinningPlayer()).name
+    GuiManager:addText(Vector2d(274, 240), winnerName)
+    GuiManager:addText(Vector2d(274, 300), "has won the game!")
+    if GuiManager:addButton(Vector2d(290, 350), "ok") then
+      -- app.state:switchState(MainMenuState())
+
+      -- just exit game until we have MainMenuState :)
+      love.event.quit()
+    end
+    if GuiManager:addButton(Vector2d(400, 350), "try again") then
+      app.state:switchState(LocalGameState())
+    end
   else
+    love.mouse.setVisible(false)
     self.match:update(dt)
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
@@ -86,10 +90,8 @@ function LocalGameState:keypressed(key)
 
   if "escape" == key then
     if self.match.isPaused then
-      love.mouse.setVisible(false)
       self.match:unpause()
     else
-      love.mouse.setVisible(true)
       self.match:pause()
     end
   end
