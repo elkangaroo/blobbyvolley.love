@@ -56,9 +56,9 @@ end
 
 function ScriptedGameLogic:checkWin()
   if "function" ~= type(self.sandbox.IsWinning) then
-    return FallbackGameLogic:checkWin()
+    return FallbackGameLogic.checkWin(self)
   end
-
+  
   local lscore = self:getScore(LEFT_PLAYER)
   local rscore = self:getScore(RIGHT_PLAYER)
   local won = self.sandbox.IsWinning(lscore, rscore)
@@ -77,7 +77,7 @@ end
 -- PlayerInput ip, PlayerSide player
 function ScriptedGameLogic:handleInput(ip, player)
   if "function" ~= type(self.sandbox.HandleInput) then
-    return FallbackGameLogic:handleInput(ip, player)
+    return FallbackGameLogic.handleInput(self, ip, player)
   end
 
   local ret = {}
@@ -89,7 +89,7 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsPlayerHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsPlayer) then
-    FallbackGameLogic:OnBallHitsPlayerHandler(side)
+    FallbackGameLogic.OnBallHitsPlayerHandler(self, side)
     return
   end
 
@@ -99,7 +99,7 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsGroundHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsGround) then
-    FallbackGameLogic:OnBallHitsGroundHandler(side)
+    FallbackGameLogic.OnBallHitsGroundHandler(self, side)
     return
   end
 
@@ -109,7 +109,7 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsWallHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsWall) then
-    FallbackGameLogic:OnBallHitsWallHandler(side)
+    FallbackGameLogic.OnBallHitsWallHandler(self, side)
     return
   end
 
@@ -119,7 +119,7 @@ end
 -- PlayerSide side
 function ScriptedGameLogic:OnBallHitsNetHandler(side)
   if "function" ~= type(self.sandbox.OnBallHitsNet) then
-    FallbackGameLogic:OnBallHitsNetHandler(side)
+    FallbackGameLogic.OnBallHitsNetHandler(self, side)
     return
   end
 
@@ -129,7 +129,7 @@ end
 -- MatchState state
 function ScriptedGameLogic:OnGameHandler(state)
   if "function" ~= type(self.sandbox.OnGame) then
-    FallbackGameLogic:OnGameHandler(state)
+    FallbackGameLogic.OnGameHandler(self, state)
     return
   end
 

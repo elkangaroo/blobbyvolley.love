@@ -129,7 +129,7 @@ function ScriptedInputSource:getNextInput()
   __WANT_JUMP = false
 
   if nil == self.match then
-  return PlayerInput()
+    return PlayerInput()
   end
 
   self.sandbox.__OnStep()
@@ -141,7 +141,7 @@ function ScriptedInputSource:getNextInput()
   end
 
   if self.match:isGameRunning() and self.side == servingPlayer then
-  serving = true
+    serving = true
   end
 
   local wantleft = self.sandbox.__WANT_LEFT
@@ -149,17 +149,17 @@ function ScriptedInputSource:getNextInput()
   local wantjump = self.sandbox.__WANT_JUMP
 
   if serving and self.startTime + WAITING_TIME > love.timer.getTime() then
-  return PlayerInput()
+    return PlayerInput()
   end
 
   -- random jump delay depending on difficulty
   if wantjump and not self.lastJump then
-  self.jumpDelay = self.jumpDelay - 1
-  if self.jumpDelay > 0 then
-  wantjump = false
-  else
-  self.jumpDelay = math.max(0.0, math.min(love.math.randomNormal(self.difficulty / 3, self.difficulty / 2), self.difficulty))
-  end
+    self.jumpDelay = self.jumpDelay - 1
+    if self.jumpDelay > 0 then
+      wantjump = false
+    else
+      self.jumpDelay = math.max(0.0, math.min(love.math.randomNormal(self.difficulty / 3, self.difficulty / 2), self.difficulty))
+    end
   end
 
   self.lastJump = wantjump
