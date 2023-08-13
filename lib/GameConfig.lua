@@ -12,6 +12,8 @@ function GameConfig.load(filename)
   for i, p in pairs(handler.root.userconfig.var) do
     GameConfig.values[p._attr.name] = p._attr.value
   end
+
+  print("loaded config " .. filename)
 end
 
 -- string name

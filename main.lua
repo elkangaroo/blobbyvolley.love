@@ -112,7 +112,10 @@ app._MIN_GAME_FPS = 5
 app.state = nil
 app.accumulator = 0.0
 app.tickPeriod = 1 / 75 -- seconds per tick
-app.options = {}
+app.options = {
+  headless = false,
+  config = "config.xml",
+}
 
 function app.timer(dt, func)
   dt = math.min(app.tickPeriod, dt)
@@ -126,9 +129,15 @@ function app.timer(dt, func)
 end
 
 function love.load(arg, unfilteredArg)
+  -- process cli options
   for _, a in pairs(arg) do
+    print(a) -- debug
+
     if a == "--headless" then
       app.options.headless = true
+
+      -- unbuffered output
+      io.stdout:setvbuf('no')
 
       love.errorhandler = function(msg)
         print("--- (T_T) ---")
@@ -138,27 +147,36 @@ function love.load(arg, unfilteredArg)
         love.event.quit(1)
       end
     end
+
+    if a:match('^--config=(.+)$') then
+      app.options.config = a:match('^--config=(.+)$')
+    end
   end
 
-  GameConfig.load("conf/config.xml")
+  GameConfig.load("conf/" .. app.options.config)
+
+  if app.options.headless then
+    SoundManager.isMuted = true
+
+    app.state = LocalGameState()
+
+    return
+  end
+
+  love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
 
   GuiManager:init()
+  RenderManager:init()
+  RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
+  RenderManager.uiElements.showfps = GameConfig.getBoolean("showfps")
 
-  if not app.options.headless then
-    love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
+  local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
+  if love.filesystem.getInfo(bg) then
+    RenderManager:setBackground(bg)
+  end
 
-    RenderManager:init()
-    RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
-    RenderManager.uiElements.showfps = GameConfig.getBoolean("showfps")
-
-    local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
-    if love.filesystem.getInfo(bg) then
-      RenderManager:setBackground(bg)
-    end
-
-    if love.mouse.isCursorSupported() then
-      love.mouse.setCursor(RenderManager.uiCursor)
-    end
+  if love.mouse.isCursorSupported() then
+    love.mouse.setCursor(RenderManager.uiCursor)
   end
 
   SoundManager.isMuted = GameConfig.getBoolean("mute")
@@ -173,10 +191,6 @@ end
 
 function love.update(dt)
   app.state:update(dt)
-
-  if app.options.headless then
-    love.event.quit()
-  end
 end
 
 function love.draw()
@@ -189,7 +203,7 @@ function love.focus(focused)
 end
 
 function love.quit()
-
+  print("good bye.")
 end
 
 function love.keypressed(key, scancode, isrepeat)

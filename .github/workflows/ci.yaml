@@ -54,4 +54,4 @@ jobs:
 
     # Runs application in headless mode
     - name: Run app in headless mode
-      run: love . --headless
+      run: love . --headless --config=config_headless.xml

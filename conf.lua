@@ -10,7 +10,7 @@ function love.conf(t)
   for _, a in pairs(arg) do
     -- headless mode for automated testing
     if a == "--headless" then
-      t.modules.window, t.modules.graphics = false, false
+      t.modules.window, t.modules.graphics, t.modules.audio = false, false, false
     end
   end
 end

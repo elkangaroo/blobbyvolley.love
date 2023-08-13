@@ -15,7 +15,7 @@ function LocalGameState:__construct()
   local rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
 
   local leftInput = InputSource.createInputSource(LEFT_PLAYER)
-	local rightInput = InputSource.createInputSource(RIGHT_PLAYER)
+  local rightInput = InputSource.createInputSource(RIGHT_PLAYER)
 
   local match = Match(false, GameConfig.get("rules"))
   match:setPlayers(leftPlayer, rightPlayer)
@@ -65,6 +65,13 @@ function LocalGameState:update(dt)
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
       self.winner = true
+
+      print("match winner: player " .. self.match:getWinningPlayer())
+      print("match score: " .. self.match:getScore(LEFT_PLAYER) .. ":" .. self.match:getScore(RIGHT_PLAYER))
+
+      if app.options.headless then
+        love.event.quit()
+      end
     end
 
     self:presentGame()
