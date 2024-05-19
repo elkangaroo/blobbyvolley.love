@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <userconfig>
+	<var name="device" value=""/>
 	<var name="fullscreen" value="false"/>
 	<var name="left_blobby_color_r" value="0"/>
 	<var name="left_blobby_color_g" value="0"/>
@@ -31,6 +32,5 @@
 	<var name="right_script_strength" value="13"/>
 	<var name="additional_network_server" value="0.0.0.0"/>
 	<var name="rules" value="headless.lua"/>
-	<var name="bot_debug" value="true"/>
 </userconfig>
 
