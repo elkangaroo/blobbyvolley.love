@@ -303,6 +303,11 @@ function PhysicWorld:getBlobPosition(player)
 end
 
 -- PlayerSide player
+function PhysicWorld:getBlobVelocity(player)
+  return self.blobVelocity[player]
+end
+
+-- PlayerSide player
 function PhysicWorld:getBlobState(player)
   return self.blobState[player]
 end
