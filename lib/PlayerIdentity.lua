@@ -34,10 +34,10 @@ function PlayerIdentity.createFromConfig(side, forceHuman)
     GameConfig.getNumber(prefix .. "_blobby_color_b") / 255,
   }
 
-	isOscillating = GameConfig.getBoolean(prefix .. "_blobby_oscillate")
-	-- preferredSide = GameConfig.get("network_side")
+	local isOscillating = GameConfig.getBoolean(prefix .. "_blobby_oscillate")
+	local preferredSide = GameConfig.getNumber("network_side")
 
-	return PlayerIdentity(name, color, isOscillating)
+	return PlayerIdentity(name, color, isOscillating, preferredSide)
 end
 
 return PlayerIdentity
