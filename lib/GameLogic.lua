@@ -178,7 +178,6 @@ function GameLogic:isGroundCollisionValid()
 	return self.squishGround <= 0 and self.isBallValid
 end
 
--- PlayerSide side
 function GameLogic:isWallCollisionValid()
 	return self.squishWall <= 0 and self.isBallValid
 end

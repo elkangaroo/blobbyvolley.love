@@ -1,3 +1,5 @@
+-- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/ScriptedInputSource.cpp
+-- and https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/IScriptableComponent.cpp
 local ScriptedInputSource = {}
 ScriptedInputSource.__index = ScriptedInputSource
 
@@ -10,21 +12,19 @@ setmetatable(ScriptedInputSource, {
   end
 })
 
--- string filename, PlayerSide side, number difficulty
-function ScriptedInputSource:__construct(filename, side, difficulty)
+-- string filename, PlayerSide side, number difficulty, Match match
+function ScriptedInputSource:__construct(filename, side, difficulty, match)
   InputSource:__construct()
 
   self.sourceFile = filename
   self.dummyWorld = PhysicWorld()
   self.startTime = love.timer.getTime()
-  self.difficulty = difficulty
   self.side = side
-  self.lastJump = false
-  self.jumpDelay = 0
+  self.difficulty = difficulty
+  self.match = match
 
   self.sandbox = {
     __DIFFICULTY = difficulty / 25.0,
-    __DEBUG = GameConfig.getBoolean("bot_debug"),
     __SIDE = side,
 
     get_ball_pos = function()
@@ -122,15 +122,20 @@ function ScriptedInputSource:__construct(filename, side, difficulty)
 end
 
 function ScriptedInputSource:getNextInput()
-  local serving = false
-  -- reset input
-  __WANT_LEFT = false
-  __WANT_RIGHT = false
-  __WANT_JUMP = false
+  -- DuelMatchState state
+  -- local state = self.match:getState()
+  -- if self.side == RIGHT_PLAYER then
+  --   state:swapSides()
+  -- end
 
-  if nil == self.match then
-    return PlayerInput()
-  end
+  -- self:setMatchState(state)
+
+  local serving = false
+
+  -- reset input
+  self.sandbox.__WANT_LEFT = false
+  self.sandbox.__WANT_RIGHT = false
+  self.sandbox.__WANT_JUMP = false
 
   self.sandbox.__OnStep()
 
@@ -152,19 +157,13 @@ function ScriptedInputSource:getNextInput()
     return PlayerInput()
   end
 
-  -- random jump delay depending on difficulty
-  if wantjump and not self.lastJump then
-    self.jumpDelay = self.jumpDelay - 1
-    if self.jumpDelay > 0 then
-      wantjump = false
-    else
-      self.jumpDelay = math.max(0.0, math.min(love.math.randomNormal(self.difficulty / 3, self.difficulty / 2), self.difficulty))
-    end
-  end
-
-  self.lastJump = wantjump
-
   return PlayerInput(wantleft, wantright, wantjump)
+  -- local input = PlayerInput(wantleft, wantright, wantjump)
+  -- if self.side == RIGHT_PLAYER then
+  --   input:swapSides()
+  -- end
+
+  -- return input
 end
 
 return ScriptedInputSource
