@@ -1,5 +1,5 @@
--- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/ScriptedInputSource.cpp
--- and https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/IScriptableComponent.cpp
+-- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.1.1/src/ScriptedInputSource.cpp
+-- and https://github.com/danielknobe/blobbyvolley2/blob/v1.1.1/src/IScriptableComponent.cpp
 local ScriptedInputSource = {}
 ScriptedInputSource.__index = ScriptedInputSource
 
@@ -22,45 +22,46 @@ function ScriptedInputSource:__construct(filename, side, difficulty, match)
   self.side = side
   self.difficulty = difficulty
   self.match = match
+  self.matchState = match:getState()
 
   self.sandbox = {
     __DIFFICULTY = difficulty / 25.0,
     __SIDE = side,
 
     get_ball_pos = function()
-      local vector = self.match:getBallPosition()
+      local vector = self.matchState:getBallPosition()
       return vector.x, 600 - vector.y
     end,
     get_ball_vel = function()
-      local vector = self.match:getBallVelocity()
+      local vector = self.matchState:getBallVelocity()
       return vector.x, -vector.y
     end,
     get_blob_pos = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      local vector = self.match:getBlobPosition(side)
+      local vector = self.matchState:getBlobPosition(side)
       return vector.x, 600 - vector.y
     end,
     get_blob_vel = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      local vector = self.match:getBlobVelocity(side)
+      local vector = self.matchState:getBlobVelocity(side)
       return vector.x, -vector.y
     end,
     get_score = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      return self.match:getScore(side)
+      return self.matchState:getScore(side)
     end,
     get_touches = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      return self.match:getTouches(side)
+      return self.matchState:getTouches(side)
     end,
     is_ball_valid = function()
-      return self.match:isBallValid()
+      return self.matchState:isBallValid()
     end,
     is_game_running = function()
-      return self.match:isGameRunning()
+      return self.matchState:isGameRunning()
     end,
     get_serving_player = function()
-      return self.match:getServingPlayer()
+      return self.matchState:getServingPlayer()
     end,
 
     simulate = function(steps, x, y, vx, vy)
@@ -119,16 +120,20 @@ function ScriptedInputSource:__construct(filename, side, difficulty, match)
   if "function" ~= type(self.sandbox.__OnStep) then
     error("Lua Api Error: Missing bot function __OnStep, check bot_api.lua!")
   end
+
+  -- enable legacy functions to fix crashing of some bots
+  if filename == "axji-0-2" or filename == "com_11" then
+    self.sandbox.enable_legacy_functions()
+  end
 end
 
 function ScriptedInputSource:getNextInput()
-  -- DuelMatchState state
-  -- local state = self.match:getState()
-  -- if self.side == RIGHT_PLAYER then
-  --   state:swapSides()
-  -- end
+  local state = self.match:getState()
+  if self.side == RIGHT_PLAYER then
+    state:swapSides()
+  end
 
-  -- self:setMatchState(state)
+  self.matchState = state
 
   local serving = false
 
@@ -157,13 +162,12 @@ function ScriptedInputSource:getNextInput()
     return PlayerInput()
   end
 
-  return PlayerInput(wantleft, wantright, wantjump)
-  -- local input = PlayerInput(wantleft, wantright, wantjump)
-  -- if self.side == RIGHT_PLAYER then
-  --   input:swapSides()
-  -- end
+  local input = PlayerInput(wantleft, wantright, wantjump)
+  if self.side == RIGHT_PLAYER then
+    input:swapSides()
+  end
 
-  -- return input
+  return input
 end
 
 return ScriptedInputSource

@@ -28,6 +28,10 @@ function Match:__construct(isRemote, rules, scoreToWin)
   end
 end
 
+function Match:getState()
+  return MatchState(self.physicWorld:getState(), self.logic:getState())
+end
+
 -- PlayerIdentity lplayer, PlayerIdentity rplayer
 function Match:setPlayers(lplayer, rplayer)
   self.players[LEFT_PLAYER] = lplayer
@@ -36,10 +40,10 @@ end
 
 -- InputSource linput, InputSource rinput
 function Match:setInputSources(linput, rinput)
-	self.inputSources[LEFT_PLAYER] = linput
+  self.inputSources[LEFT_PLAYER] = linput
   self.inputSources[LEFT_PLAYER].match = self
-	self.inputSources[RIGHT_PLAYER] = rinput
-	self.inputSources[RIGHT_PLAYER].match = self
+  self.inputSources[RIGHT_PLAYER] = rinput
+  self.inputSources[RIGHT_PLAYER].match = self
 end
 
 -- string rules, number scoreToWin

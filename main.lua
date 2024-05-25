@@ -25,14 +25,17 @@ GameState = require("lib.GameState")
 LocalGameState = require("lib.LocalGameState")
 
 Match = require("lib.Match")
+MatchState = require("lib.states.MatchState")
 MatchEvent = require("lib.MatchEvent")
 
 PlayerIdentity = require("lib.PlayerIdentity")
 PlayerInput = require("lib.PlayerInput")
 
 PhysicWorld = require("lib.PhysicWorld")
+PhysicWorldState = require("lib.states.PhysicWorldState")
 
 GameLogic = require("lib.GameLogic")
+GameLogicState = require("lib.states.GameLogicState")
 FallbackGameLogic = require("lib.FallbackGameLogic")
 ScriptedGameLogic = require("lib.ScriptedGameLogic")
 
@@ -135,9 +138,6 @@ function love.load(arg, unfilteredArg)
 
     if a == "--headless" then
       app.options.headless = true
-
-      -- unbuffered output
-      io.stdout:setvbuf('no')
 
       love.errorhandler = function(msg)
         print("--- (T_T) ---")
