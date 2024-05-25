@@ -20,22 +20,21 @@ SoundManager = require("lib.SoundManager")
 
 LuaApiSandbox = require("lib.LuaApiSandbox")
 
-State = require("lib.State")
-GameState = require("lib.GameState")
-LocalGameState = require("lib.LocalGameState")
+State = require("lib.states.State")
+MainMenuState = require("lib.states.MainMenuState")
+GameState = require("lib.states.GameState")
+LocalGameState = require("lib.states.LocalGameState")
 
 Match = require("lib.Match")
-MatchState = require("lib.states.MatchState")
 MatchEvent = require("lib.MatchEvent")
+MatchState = require("lib.MatchState")
 
 PlayerIdentity = require("lib.PlayerIdentity")
 PlayerInput = require("lib.PlayerInput")
 
 PhysicWorld = require("lib.PhysicWorld")
-PhysicWorldState = require("lib.states.PhysicWorldState")
 
 GameLogic = require("lib.GameLogic")
-GameLogicState = require("lib.states.GameLogicState")
 FallbackGameLogic = require("lib.FallbackGameLogic")
 ScriptedGameLogic = require("lib.ScriptedGameLogic")
 
@@ -194,8 +193,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  RenderManager:draw()
-  RenderManager:drawUi()
+  app.state:draw()
 end
 
 function love.focus(focused)

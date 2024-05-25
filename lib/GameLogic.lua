@@ -37,17 +37,6 @@ function GameLogic:__construct(scoreToWin)
   }
 end
 
-function GameLogic:getState()
-  return GameLogicState(
-    self.servingPlayer,
-    self.winningPlayer,
-    self.isBallValid,
-    self.isGameRunning,
-    { [LEFT_PLAYER] = self.scores[LEFT_PLAYER], [RIGHT_PLAYER] = self.scores[RIGHT_PLAYER] },
-    { [LEFT_PLAYER] = self.touches[LEFT_PLAYER], [RIGHT_PLAYER] = self.touches[RIGHT_PLAYER] }
-  )
-end
-
 -- MatchState state
 function GameLogic:update(state)
   GameClock:update()

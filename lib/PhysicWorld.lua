@@ -39,26 +39,6 @@ function PhysicWorld:__construct()
   }
 end
 
-function PhysicWorld:getState()
-  return PhysicWorldState(
-    self.ballPosition:clone(),
-    self.ballVelocity:clone(),
-    self.ballRotation,
-    {
-      [LEFT_PLAYER] = self.blobState[LEFT_PLAYER],
-      [RIGHT_PLAYER] = self.blobState[RIGHT_PLAYER],
-    },
-    {
-      [LEFT_PLAYER] = self.blobPosition[LEFT_PLAYER]:clone(),
-      [RIGHT_PLAYER] = self.blobPosition[RIGHT_PLAYER]:clone(),
-    },
-    {
-      [LEFT_PLAYER] = self.blobVelocity[LEFT_PLAYER]:clone(),
-      [RIGHT_PLAYER] = self.blobVelocity[RIGHT_PLAYER]:clone(),
-    }
-  )
-end
-
 -- table<PlayerInput> inputs, bool isBallValid, bool isGameRunning
 -- Important: This assumes a fixed framerate of 60 FPS!
 function PhysicWorld:update(inputs, isBallValid, isGameRunning)

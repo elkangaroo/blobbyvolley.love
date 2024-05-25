@@ -28,10 +28,6 @@ function Match:__construct(isRemote, rules, scoreToWin)
   end
 end
 
-function Match:getState()
-  return MatchState(self.physicWorld:getState(), self.logic:getState())
-end
-
 -- PlayerIdentity lplayer, PlayerIdentity rplayer
 function Match:setPlayers(lplayer, rplayer)
   self.players[LEFT_PLAYER] = lplayer

@@ -79,7 +79,7 @@ function RenderManager:init()
   self.uiElements.playerNames[RIGHT_PLAYER] = ""
 end
 
-function RenderManager:draw()
+function RenderManager:drawGame()
   love.graphics.setColor(1, 1, 1, 1)
 
   if self.backgroundImage then
@@ -108,7 +108,7 @@ function RenderManager:draw()
   love.graphics.pop()
 end
 
-function RenderManager:drawUi()
+function RenderManager:drawGameUi()
   self.uiCanvas:renderTo(function()
     love.graphics.clear()
     love.graphics.setColor(1, 1, 1, 1)
@@ -140,8 +140,6 @@ function RenderManager:drawUi()
         love.graphics.print(string.format('FPS:%s', love.timer.getFPS()), 48, 12)
       love.graphics.pop()
     end
-
-    GuiManager:draw()
   end)
 
   love.graphics.draw(self.uiCanvas)
@@ -150,6 +148,7 @@ end
 -- string filename, Vector2d position
 function RenderManager:drawImage(filename, position)
   local image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
+  love.graphics.setColor(1, 1, 1, 1)
   love.graphics.draw(image, position.x, position.y)
 end
 
@@ -169,6 +168,9 @@ end
 -- string text, Vector2d position, number flags
 function RenderManager:drawText(text, position, flags)
   love.graphics.push("all")
+
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.setFont(RenderManager.uiFont)
 
   local fontSize = FONT_WIDTH_NORMAL
   if bit.band(flags, TF_SMALL_FONT) ~= 0 then
