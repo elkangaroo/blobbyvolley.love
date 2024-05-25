@@ -66,7 +66,9 @@ function RenderManager:init()
   for i = 1, 5 do
     local filename = string.format("res/gfx/blobbym%d.bmp", i)
     table.insert(self.blobImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
+  end
 
+  for i = 1, 5 do
     local filename = string.format("res/gfx/sch1%d.bmp", i)
     table.insert(self.blobShadowImages, love.graphics.newImage(newImageDataWithBlackColorKey(filename)))
   end
@@ -89,43 +91,19 @@ function RenderManager:draw()
 
     love.graphics.setBlendMode("alpha", "alphamultiply")
 
-		-- draw ball shadow
-    local position = self:getShadowPosition(self.ballPosition);
-    love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(self.ballShadowImage, position.x - 64, position.y - 16)
-
-    -- draw left blob shadow
-		local position = self:getShadowPosition(self.leftBlobPosition);
-    love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(self.blobShadowImages[(self.leftBlobAnimationState % 5) + 1], position.x - 64, position.y - 16)
-
-    -- draw right blob shadow
-    local position = self:getShadowPosition(self.rightBlobPosition);
-    love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(self.blobShadowImages[(self.rightBlobAnimationState % 5) + 1], position.x - 64, position.y - 16)
+    self:drawBallShadow(self.ballPosition)
+    self:drawBlobShadow(self.leftBlobPosition, self.leftBlobAnimationState)
+    self:drawBlobShadow(self.rightBlobPosition, self.rightBlobAnimationState)
 
     love.graphics.pop()
 	end
 
   love.graphics.push("all")
 
-  -- draw ball
-  local ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.draw(self.ballImages[(ballAnimationState % 16) + 1], self.ballPosition.x - BALL_WIDTH / 2, self.ballPosition.y - BALL_HEIGHT / 2)
-
-  -- draw left blob
-  love.graphics.setColor(self.leftBlobColor)
-  love.graphics.draw(self.blobImages[(self.leftBlobAnimationState % 5) + 1], self.leftBlobPosition.x - BLOBBY_WIDTH / 2, self.leftBlobPosition.y - BLOBBY_HEIGHT / 2)
-
-  -- draw right blob
-  love.graphics.setColor(self.rightBlobColor)
-  love.graphics.draw(self.blobImages[(self.rightBlobAnimationState % 5) + 1], self.rightBlobPosition.x - BLOBBY_WIDTH / 2, self.rightBlobPosition.y - BLOBBY_HEIGHT / 2)
-
-  -- draw ball marker
-  local ballMarkerColor = love.timer.getTime() * 1000 % 1000 >= 500 and 1 or 0
-  love.graphics.setColor(ballMarkerColor, ballMarkerColor, ballMarkerColor)
-  love.graphics.rectangle("fill", self.ballPosition.x, 7.5, 5.0, 5.0)
+  self:drawBall(self.ballPosition)
+  self:drawBallMarker(self.ballPosition)
+  self:drawBlob(self.leftBlobPosition, self.leftBlobAnimationState, self.leftBlobColor)
+  self:drawBlob(self.rightBlobPosition, self.rightBlobAnimationState, self.rightBlobColor)
 
   love.graphics.pop()
 end
@@ -173,7 +151,7 @@ end
 function RenderManager:drawImage(filename, position)
   local image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
   love.graphics.draw(image, position.x, position.y)
-end 
+end
 
 -- Vector2d pos1, Vector2d pos2, table<Color> color
 function RenderManager:drawOverlay(pos1, pos2, color)
@@ -212,6 +190,41 @@ function RenderManager:drawText(text, position, flags)
   end
 
   love.graphics.pop()
+end
+
+-- Vector2d ballPosition
+function RenderManager:drawBall(ballPosition)
+  local ballAnimationState = math.floor(self.ballRotation / math.pi / 2 * 16)
+  local ballImage = self.ballImages[(ballAnimationState % 16) + 1]
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.draw(ballImage, ballPosition.x - BALL_WIDTH / 2, ballPosition.y - BALL_HEIGHT / 2)
+end
+
+function RenderManager:drawBallMarker(ballPosition)
+  local ballMarkerColor = love.timer.getTime() * 1000 % 1000 >= 500 and 1 or 0
+  love.graphics.setColor(ballMarkerColor, ballMarkerColor, ballMarkerColor)
+  love.graphics.rectangle("fill", ballPosition.x, 7.5, 5.0, 5.0)
+end
+
+-- Vector2d blobPosition, number blobAnimationState, table<Color> blobColor
+function RenderManager:drawBlob(blobPosition, blobAnimationState, blobColor)
+  love.graphics.setColor(blobColor)
+  love.graphics.draw(self.blobImages[(blobAnimationState % 5) + 1], blobPosition.x - BLOBBY_WIDTH / 2, blobPosition.y - BLOBBY_HEIGHT / 2)
+end
+
+-- Vector2d ballPosition
+function RenderManager:drawBallShadow(ballPosition)
+    local shadowPosition = self:getShadowPosition(ballPosition);
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(self.ballShadowImage, shadowPosition.x - 64, shadowPosition.y - 16)
+end
+
+-- Vector2d blobPosition, number blobAnimationState
+function RenderManager:drawBlobShadow(blobPosition, blobAnimationState)
+    local shadowImage = self.blobShadowImages[(self.leftBlobAnimationState % 5) + 1]
+    local shadowPosition = self:getShadowPosition(blobPosition);
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(shadowImage, shadowPosition.x - 64, shadowPosition.y - 16)
 end
 
 -- string filename
