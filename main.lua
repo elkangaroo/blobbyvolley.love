@@ -21,6 +21,7 @@ SoundManager = require("lib.SoundManager")
 LuaApiSandbox = require("lib.LuaApiSandbox")
 
 State = require("lib.states.State")
+MainMenuState = require("lib.states.MainMenuState")
 GameState = require("lib.states.GameState")
 LocalGameState = require("lib.states.LocalGameState")
 
@@ -192,8 +193,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  RenderManager:draw()
-  RenderManager:drawUi()
+  app.state:draw()
 end
 
 function love.focus(focused)

@@ -74,6 +74,12 @@ end
 function GameState:update(dt)
 end
 
+function GameState:draw()
+  RenderManager:drawGame()
+  RenderManager:drawGameUi()
+  GuiManager:draw()
+end
+
 function GameState:getStateName()
   return "GameState"
 end

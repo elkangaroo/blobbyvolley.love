@@ -10,7 +10,7 @@ setmetatable(State, {
 })
 
 function State:__construct()
-  self.currentState = LocalGameState()
+  self.currentState = MainMenuState()
   self.stateToSwitchTo = nil
 end
 
@@ -28,6 +28,10 @@ function State:update(dt)
   end
 
   self.currentState:update(dt)
+end
+
+function State:draw()
+  self.currentState:draw()
 end
 
 -- KeyConstant key

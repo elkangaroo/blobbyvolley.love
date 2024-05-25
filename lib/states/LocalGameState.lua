@@ -47,10 +47,7 @@ function LocalGameState:update(dt)
       200,
       "really quit?",
       { "yes", function()
-        -- app.state:switchState(MainMenuState())
-
-        -- just exit game until we have MainMenuState :)
-        love.event.quit()
+        app.state:switchState(MainMenuState())
       end },
       { "no", function()
         self.match:unpause()
@@ -65,10 +62,7 @@ function LocalGameState:update(dt)
     GuiManager:addText(Vector2d(274, 240), winnerName)
     GuiManager:addText(Vector2d(274, 300), "has won the game!")
     if GuiManager:addButton(Vector2d(290, 350), "ok") then
-      -- app.state:switchState(MainMenuState())
-
-      -- just exit game until we have MainMenuState :)
-      love.event.quit()
+      app.state:switchState(MainMenuState())
     end
     if GuiManager:addButton(Vector2d(400, 350), "try again") then
       app.state:switchState(LocalGameState())
