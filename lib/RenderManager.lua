@@ -214,17 +214,16 @@ end
 
 -- Vector2d ballPosition
 function RenderManager:drawBallShadow(ballPosition)
-    local shadowPosition = self:getShadowPosition(ballPosition);
+    local shadowPosition = self:getShadowPosition(ballPosition)
     love.graphics.setColor(1, 1, 1, 0.5)
     love.graphics.draw(self.ballShadowImage, shadowPosition.x - 64, shadowPosition.y - 16)
 end
 
 -- Vector2d blobPosition, number blobAnimationState
 function RenderManager:drawBlobShadow(blobPosition, blobAnimationState)
-    local shadowImage = self.blobShadowImages[(self.leftBlobAnimationState % 5) + 1]
-    local shadowPosition = self:getShadowPosition(blobPosition);
+    local shadowPosition = self:getShadowPosition(blobPosition)
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(shadowImage, shadowPosition.x - 64, shadowPosition.y - 16)
+    love.graphics.draw(self.blobShadowImages[(blobAnimationState % 5) + 1], shadowPosition.x - 64, shadowPosition.y - 16)
 end
 
 -- string filename
