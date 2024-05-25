@@ -1,3 +1,4 @@
+-- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.1.1/src/PhysicWorld.cpp
 local PhysicWorld = {}
 PhysicWorld.__index = PhysicWorld
 
@@ -15,7 +16,6 @@ function PhysicWorld:__construct()
   self.ballRotation = 0
   self.ballAngularVelocity = STANDARD_BALL_ANGULAR_VELOCITY
 
-  self.lastHitIntensity = 0
   self.eventCallback = function() end
 
   self.blobAnimationSpeed = {
@@ -39,6 +39,17 @@ function PhysicWorld:__construct()
   }
 end
 
+function PhysicWorld:getState()
+  return PhysicWorldState(
+    self.ballPosition:clone(),
+    self.ballVelocity:clone(),
+    self.ballRotation,
+    { [LEFT_PLAYER] = self.blobState[LEFT_PLAYER], [RIGHT_PLAYER] = self.blobState[RIGHT_PLAYER] },
+    { [LEFT_PLAYER] = self.blobPosition[LEFT_PLAYER]:clone(), [RIGHT_PLAYER] = self.blobPosition[RIGHT_PLAYER]:clone() },
+    { [LEFT_PLAYER] = self.blobVelocity[LEFT_PLAYER]:clone(), [RIGHT_PLAYER] = self.blobVelocity[RIGHT_PLAYER]:clone() }
+  )
+end
+
 -- table<PlayerInput> inputs, bool isBallValid, bool isGameRunning
 -- Important: This assumes a fixed framerate of 60 FPS!
 function PhysicWorld:update(inputs, isBallValid, isGameRunning)
@@ -56,12 +67,8 @@ function PhysicWorld:update(inputs, isBallValid, isGameRunning)
 
   -- Collision detection
   if isBallValid then
-    if self:handleBlobbyBallCollision(LEFT_PLAYER) then
-      self.eventCallback(MatchEvent.BALL_HIT_BLOB, LEFT_PLAYER, self.lastHitIntensity)
-    end
-    if self:handleBlobbyBallCollision(RIGHT_PLAYER) then
-      self.eventCallback(MatchEvent.BALL_HIT_BLOB, RIGHT_PLAYER, self.lastHitIntensity)
-    end
+    self:handleBlobbyBallCollision(LEFT_PLAYER)
+    self:handleBlobbyBallCollision(RIGHT_PLAYER)
   end
 
   self:handleBallWorldCollision()
@@ -124,13 +131,13 @@ end
 
 -- PlayerSide player
 function PhysicWorld:handleBlobbyBallCollision(player)
-  local circlepos = self.blobPosition[player]
+  local collisionCenter = self.blobPosition[player]
 
   -- check for impact
   if self:isBlobbyBallCollisionBottom(player) then
-    circlepos.y = circlepos.y + BLOBBY_LOWER_SPHERE
+    collisionCenter.y = collisionCenter.y + BLOBBY_LOWER_SPHERE
   elseif self:isBlobbyBallCollisionTop(player) then
-    circlepos.y = circlepos.y - BLOBBY_UPPER_SPHERE
+    collisionCenter.y = collisionCenter.y - BLOBBY_UPPER_SPHERE
   else
     return false -- no impact
   end
@@ -138,15 +145,15 @@ function PhysicWorld:handleBlobbyBallCollision(player)
   -- print("ball collided with blobby #" .. player .. " at " .. tostring(self.ballPosition))
 
   -- calculate hit intensity
-  self.lastHitIntensity = (self.blobVelocity[player] - self.ballVelocity):length() / 25.0
-  if self.lastHitIntensity > 1.0 then
-    self.lastHitIntensity = 1.0
-  end
+  local intensity = math.min(1.0, (self.blobVelocity[player] - self.ballVelocity):length() / 25.0)
 
   -- set ball velocity
-  self.ballVelocity = -(circlepos - self.ballPosition)
+  self.ballVelocity = -(collisionCenter - self.ballPosition)
   self.ballVelocity = self.ballVelocity:normalise() * BALL_COLLISION_VELOCITY
   self.ballPosition = self.ballPosition + self.ballVelocity
+
+  self.eventCallback(MatchEvent.BALL_HIT_BLOB, player, intensity)
+
   return true
 end
 
@@ -230,18 +237,18 @@ function PhysicWorld:handleBallWorldCollision()
     local normal = (Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - self.ballPosition):normalise()
 
     -- normal component of kinetic energy
-    local perp_ekin = normal:dot(self.ballVelocity) ^ 2
+    local perpEkin = normal:dot(self.ballVelocity) ^ 2
     -- parallel component of kinetic energy
-    local para_ekin = self.ballVelocity:length() * self.ballVelocity:length() - perp_ekin
+    local paraEkin = self.ballVelocity:lengthSq() - perpEkin
 
     -- the normal component is damped stronger than the parallel component
     -- the values are ~ 0.85 and ca. 0.95, because speed is sqrt(ekin)
-    perp_ekin = perp_ekin * 0.7
-    para_ekin = para_ekin * 0.9
+    perpEkin = perpEkin * 0.7
+    paraEkin = paraEkin * 0.9
 
-    local nspeed = math.sqrt(perp_ekin + para_ekin)
+    local newSpeed = math.sqrt(perpEkin + paraEkin)
 
-    self.ballVelocity = self.ballVelocity:reflect(normal):normalise() * nspeed
+    self.ballVelocity = self.ballVelocity:reflect(normal):normalise() * newSpeed
     -- pushes the ball out of the net
     self.ballPosition = Vector2d(NET_POSITION_X, NET_SPHERE_POSITION) - normal * (NET_RADIUS + BALL_RADIUS)
 
@@ -251,19 +258,19 @@ end
 
 -- PlayerSide player
 function PhysicWorld:isBlobbyBallCollisionTop(player)
-  local blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y - BLOBBY_UPPER_SPHERE)
-  return self:circleCircleCollision(self.ballPosition, BALL_RADIUS, blobpos, BLOBBY_UPPER_RADIUS)
+  local blobbyPosition = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y - BLOBBY_UPPER_SPHERE)
+  return self:isCircleCircleCollision(self.ballPosition, BALL_RADIUS, blobbyPosition, BLOBBY_UPPER_RADIUS)
 end
 
 -- PlayerSide player
 function PhysicWorld:isBlobbyBallCollisionBottom(player)
-  local blobpos = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y + BLOBBY_LOWER_SPHERE)
-  return self:circleCircleCollision(self.ballPosition, BALL_RADIUS, blobpos, BLOBBY_LOWER_RADIUS)
+  local blobbyPosition = Vector2d(self.blobPosition[player].x, self.blobPosition[player].y + BLOBBY_LOWER_SPHERE)
+  return self:isCircleCircleCollision(self.ballPosition, BALL_RADIUS, blobbyPosition, BLOBBY_LOWER_RADIUS)
 end
 
 -- calculates whether two circles overlap
 -- Vector2d pos1, number rad1, const Vector2d pos2, number rad2
-function PhysicWorld:circleCircleCollision(pos1, rad1, pos2, rad2)
+function PhysicWorld:isCircleCircleCollision(pos1, rad1, pos2, rad2)
   return (pos1 - pos2):lengthSq() < (rad1 + rad2) ^ 2
 end
 
@@ -300,6 +307,11 @@ end
 -- PlayerSide player
 function PhysicWorld:getBlobPosition(player)
   return self.blobPosition[player]
+end
+
+-- PlayerSide player
+function PhysicWorld:getBlobVelocity(player)
+  return self.blobVelocity[player]
 end
 
 -- PlayerSide player

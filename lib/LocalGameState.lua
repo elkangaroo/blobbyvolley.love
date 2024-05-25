@@ -11,19 +11,31 @@ setmetatable(LocalGameState, {
 })
 
 function LocalGameState:__construct()
+  -- reset match
+  local match = Match(false, GameConfig.get("rules"))
+
   local leftPlayer = PlayerIdentity.createFromConfig(LEFT_PLAYER, false)
   local rightPlayer = PlayerIdentity.createFromConfig(RIGHT_PLAYER, false)
+  local leftInput = self:createInputSource(LEFT_PLAYER, match)
+  local rightInput = self:createInputSource(RIGHT_PLAYER, match)
 
-  local leftInput = InputSource.createInputSource(LEFT_PLAYER)
-	local rightInput = InputSource.createInputSource(RIGHT_PLAYER)
-
-  local match = Match(false, GameConfig.get("rules"))
   match:setPlayers(leftPlayer, rightPlayer)
   match:setInputSources(leftInput, rightInput)
   match:addEvent(MatchEvent.ROUND_START, NO_PLAYER)
 
   GameState.__construct(self, match)
   self.winner = false
+end
+
+-- PlayerSide side, Match match
+function LocalGameState:createInputSource(side, match)
+  local prefix = (side == LEFT_PLAYER) and "left" or "right"
+
+  if GameConfig.getBoolean(prefix .. "_player_human") then
+    return LocalInputSource()
+  else
+    return ScriptedInputSource(GameConfig.get(prefix .. "_script_name"), side, GameConfig.getNumber(prefix .. "_script_strength"), match)
+  end
 end
 
 function LocalGameState:update(dt)
@@ -65,6 +77,13 @@ function LocalGameState:update(dt)
 
     if self.match:getWinningPlayer() ~= NO_PLAYER then
       self.winner = true
+
+      print("match winner: player " .. self.match:getWinningPlayer())
+      print("match score: " .. self.match:getScore(LEFT_PLAYER) .. ":" .. self.match:getScore(RIGHT_PLAYER))
+
+      if app.options.headless then
+        love.event.quit()
+      end
     end
 
     self:presentGame()

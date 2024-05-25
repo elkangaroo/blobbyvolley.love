@@ -37,18 +37,29 @@ function GameLogic:__construct(scoreToWin)
   }
 end
 
+function GameLogic:getState()
+  return GameLogicState(
+    self.servingPlayer,
+    self.winningPlayer,
+    self.isBallValid,
+    self.isGameRunning,
+    { [LEFT_PLAYER] = self.scores[LEFT_PLAYER], [RIGHT_PLAYER] = self.scores[RIGHT_PLAYER] },
+    { [LEFT_PLAYER] = self.touches[LEFT_PLAYER], [RIGHT_PLAYER] = self.touches[RIGHT_PLAYER] }
+  )
+end
+
 -- MatchState state
 function GameLogic:update(state)
-	GameClock:update()
+  GameClock:update()
 
-	if GameClock.isRunning then
-		self.squish[LEFT_PLAYER] = self.squish[LEFT_PLAYER] - 1
+  if GameClock.isRunning then
+    self.squish[LEFT_PLAYER] = self.squish[LEFT_PLAYER] - 1
     self.squish[RIGHT_PLAYER] = self.squish[RIGHT_PLAYER] - 1
     self.squishWall = self.squishWall - 1
     self.squishGround = self.squishGround - 1
 
-		self:OnGameHandler(state)
-	end
+    self:OnGameHandler(state)
+  end
 end
 
 function GameLogic:checkWin()
@@ -67,17 +78,17 @@ end
 
 -- PlayerSide side, number amount
 function GameLogic:score(side, amount)
-	self.scores[side] = self.scores[side] + amount
-	if self.scores[side] < 0 then
-		self.scores[side] = 0
+  self.scores[side] = self.scores[side] + amount
+  if self.scores[side] < 0 then
+    self.scores[side] = 0
   end
 
-	self.winningPlayer = self:checkWin()
+  self.winningPlayer = self:checkWin()
 end
 
 -- PlayerInput ip, PlayerSide player
 function GameLogic:transformInput(ip, player)
-	return self:handleInput(ip, player)
+  return self:handleInput(ip, player)
 end
 
 -- PlayerInput ip, PlayerSide player
@@ -86,53 +97,53 @@ function GameLogic:handleInput(ip, player)
 end
 
 function GameLogic:onPause()
-	-- pausing for now only means stopping the clock
-	GameClock:stop()
+  -- pausing for now only means stopping the clock
+  GameClock:stop()
 end
 
 function GameLogic:onUnPause()
-	GameClock:start()
+  GameClock:start()
 end
 
 function GameLogic:onServe()
-	self.isBallValid = true
-	self.isGameRunning = false
+  self.isBallValid = true
+  self.isGameRunning = false
 end
 
 -- PlayerSide side
 function GameLogic:onBallHitsGround(side)
-	if not self:isGroundCollisionValid() then
-		return
+  if not self:isGroundCollisionValid() then
+    return
   end
 
-	self.squishGround = SQUISH_TOLERANCE
-	self.touches[self:getOtherSide(side)] = 0
+  self.squishGround = SQUISH_TOLERANCE
+  self.touches[self:getOtherSide(side)] = 0
 
-	self:OnBallHitsGroundHandler(side)
+  self:OnBallHitsGroundHandler(side)
 end
 
 -- PlayerSide side
 function GameLogic:onBallHitsPlayer(side)
-	if not self:isCollisionValid(side) then
-		return
+  if not self:isCollisionValid(side) then
+    return
   end
 
-	-- otherwise, set the squish value
-	self.squish[side] = SQUISH_TOLERANCE
-	-- now, the other blobby has to accept the new hit!
-	self.squish[self:getOtherSide(side)] = 0
+  -- otherwise, set the squish value
+  self.squish[side] = SQUISH_TOLERANCE
+  -- now, the other blobby has to accept the new hit!
+  self.squish[self:getOtherSide(side)] = 0
 
-	-- set the ball activity
-	self.isGameRunning = true
+  -- set the ball activity
+  self.isGameRunning = true
 
-	-- count the touches
-	self.touches[side] = self.touches[side] + 1
+  -- count the touches
+  self.touches[side] = self.touches[side] + 1
 
-	self:OnBallHitsPlayerHandler(side)
+  self:OnBallHitsPlayerHandler(side)
 
-	-- reset other players touches after OnBallHitsPlayerHandler is called, so
-	-- we have still access to its old value inside the handler function
-	self.touches[self:getOtherSide(side)] = 0
+  -- reset other players touches after OnBallHitsPlayerHandler is called, so
+  -- we have still access to its old value inside the handler function
+  self.touches[self:getOtherSide(side)] = 0
 end
 
 -- PlayerSide side
@@ -141,51 +152,50 @@ function GameLogic:onBallHitsWall(side)
     return
   end
 
-	-- otherwise, set the squish value
-	self.squishWall = SQUISH_TOLERANCE
+  -- otherwise, set the squish value
+  self.squishWall = SQUISH_TOLERANCE
 
-	self:OnBallHitsWallHandler(side)
+  self:OnBallHitsWallHandler(side)
 end
 
 -- PlayerSide side
 function GameLogic:onBallHitsNet(side)
-	if not self:isWallCollisionValid() then
-		return
+  if not self:isWallCollisionValid() then
+    return
   end
 
-	-- otherwise, set the squish value
-	self.squishWall = SQUISH_TOLERANCE
+  -- otherwise, set the squish value
+  self.squishWall = SQUISH_TOLERANCE
 
-	self:OnBallHitsNetHandler(side)
+  self:OnBallHitsNetHandler(side)
 end
 
 -- PlayerSide errorSide, PlayerSide servingSide
 function GameLogic:onError(errorSide, servingSide)
-	self.lastError = errorSide
-	self.isBallValid = false
+  self.lastError = errorSide
+  self.isBallValid = false
 
-	self.touches[LEFT_PLAYER] = 0
-	self.touches[RIGHT_PLAYER] = 0
-	self.squish[LEFT_PLAYER] = 0
-	self.squish[RIGHT_PLAYER] = 0
-	self.squishWall = 0
-	self.squishGround = 0
+  self.touches[LEFT_PLAYER] = 0
+  self.touches[RIGHT_PLAYER] = 0
+  self.squish[LEFT_PLAYER] = 0
+  self.squish[RIGHT_PLAYER] = 0
+  self.squishWall = 0
+  self.squishGround = 0
 
-	self.servingPlayer = servingSide
+  self.servingPlayer = servingSide
 end
 
 function GameLogic:isGroundCollisionValid()
-	return self.squishGround <= 0 and self.isBallValid
+  return self.squishGround <= 0 and self.isBallValid
 end
 
--- PlayerSide side
 function GameLogic:isWallCollisionValid()
-	return self.squishWall <= 0 and self.isBallValid
+  return self.squishWall <= 0 and self.isBallValid
 end
 
 -- PlayerSide side
 function GameLogic:isCollisionValid(side)
-	return self.squish[side] <= 0
+  return self.squish[side] <= 0
 end
 
 function GameLogic:getLastErrorSide()
@@ -212,9 +222,9 @@ end
 -- PlayerSide side
 function GameLogic:getOtherSide(side)
   if side == LEFT_PLAYER then
-      return RIGHT_PLAYER
+    return RIGHT_PLAYER
   elseif side == RIGHT_PLAYER then
-      return LEFT_PLAYER
+    return LEFT_PLAYER
   end
 end
 

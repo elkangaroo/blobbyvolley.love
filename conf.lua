@@ -1,5 +1,5 @@
 function love.conf(t)
-  t.version = "11.3"
+  t.version = "11.5"
   t.identity = "blobby_volley_love" -- name of the save directory
   t.console = false
   t.window.title = "Blobby Volley: LÖVE Edition"
@@ -10,7 +10,10 @@ function love.conf(t)
   for _, a in pairs(arg) do
     -- headless mode for automated testing
     if a == "--headless" then
-      t.modules.window, t.modules.graphics = false, false
+      t.modules.window, t.modules.graphics, t.modules.audio = false, false, false
     end
   end
+
+  -- unbuffered console output
+  io.stdout:setvbuf('no')
 end

@@ -28,6 +28,10 @@ function Match:__construct(isRemote, rules, scoreToWin)
   end
 end
 
+function Match:getState()
+  return MatchState(self.physicWorld:getState(), self.logic:getState())
+end
+
 -- PlayerIdentity lplayer, PlayerIdentity rplayer
 function Match:setPlayers(lplayer, rplayer)
   self.players[LEFT_PLAYER] = lplayer
@@ -36,10 +40,10 @@ end
 
 -- InputSource linput, InputSource rinput
 function Match:setInputSources(linput, rinput)
-	self.inputSources[LEFT_PLAYER] = linput
+  self.inputSources[LEFT_PLAYER] = linput
   self.inputSources[LEFT_PLAYER].match = self
-	self.inputSources[RIGHT_PLAYER] = rinput
-	self.inputSources[RIGHT_PLAYER].match = self
+  self.inputSources[RIGHT_PLAYER] = rinput
+  self.inputSources[RIGHT_PLAYER].match = self
 end
 
 -- string rules, number scoreToWin
@@ -63,10 +67,8 @@ function Match:update(dt)
   end
 
   app.timer(dt, function()
-    self.logic:update()
-    -- self.logic:update(self:getState())
-
     self.physicWorld:update(transformedInputs, self.logic.isBallValid, self.logic.isGameRunning)
+    self.logic:update()
   end)
 
   for i, e in ipairs(self.events) do
@@ -88,7 +90,7 @@ function Match:update(dt)
 
   local errorside = self.logic:getLastErrorSide()
   if errorside ~= NO_PLAYER then
-    -- print("error by player " .. errorside)
+    print("error by player " .. errorside)
     self:addEvent(MatchEvent.PLAYER_ERROR, errorside)
     self.physicWorld.ballVelocity = self.physicWorld.ballVelocity * 0.6
   end
@@ -161,6 +163,15 @@ function Match:getBlobPosition(player)
 end
 
 -- PlayerSide player
+function Match:getBlobVelocity(player)
+  if player == LEFT_PLAYER or player == RIGHT_PLAYER then
+    return self.physicWorld:getBlobVelocity(player)
+  else
+    return Vector2d(0.0, 0.0)
+  end
+end
+
+-- PlayerSide player
 function Match:getBlobState(player)
   if player == LEFT_PLAYER or player == RIGHT_PLAYER then
     return self.physicWorld:getBlobState(player)
@@ -195,8 +206,8 @@ function Match:getTouches(side)
   return self.logic:getTouches(side)
 end
 
-function Match:getClock()
-  return self.logic:getClock()
+function Match:getGameTime()
+  return self.logic:getGameTime()
 end
 
 -- PlayerSide player

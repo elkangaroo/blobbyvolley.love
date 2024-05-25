@@ -47,7 +47,7 @@ function GuiManager:draw()
     if case then
       case(obj)
     else -- default case
-      print("Unknown GuiManager.queue ObjectType " .. obj.type)
+      print("Warning: Unknown GuiManager.queue ObjectType " .. obj.type)
     end
   end
 end

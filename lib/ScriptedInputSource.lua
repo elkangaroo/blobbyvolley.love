@@ -1,3 +1,5 @@
+-- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.1.1/src/ScriptedInputSource.cpp
+-- and https://github.com/danielknobe/blobbyvolley2/blob/v1.1.1/src/IScriptableComponent.cpp
 local ScriptedInputSource = {}
 ScriptedInputSource.__index = ScriptedInputSource
 
@@ -10,57 +12,56 @@ setmetatable(ScriptedInputSource, {
   end
 })
 
--- string filename, PlayerSide side, number difficulty
-function ScriptedInputSource:__construct(filename, side, difficulty)
+-- string filename, PlayerSide side, number difficulty, Match match
+function ScriptedInputSource:__construct(filename, side, difficulty, match)
   InputSource:__construct()
 
   self.sourceFile = filename
   self.dummyWorld = PhysicWorld()
   self.startTime = love.timer.getTime()
-  self.difficulty = difficulty
   self.side = side
-  self.lastJump = false
-  self.jumpDelay = 0
+  self.difficulty = difficulty
+  self.match = match
+  self.matchState = match:getState()
 
   self.sandbox = {
     __DIFFICULTY = difficulty / 25.0,
-    __DEBUG = GameConfig.getBoolean("bot_debug"),
     __SIDE = side,
 
     get_ball_pos = function()
-      local vector = self.match:getBallPosition()
+      local vector = self.matchState:getBallPosition()
       return vector.x, 600 - vector.y
     end,
     get_ball_vel = function()
-      local vector = self.match:getBallVelocity()
+      local vector = self.matchState:getBallVelocity()
       return vector.x, -vector.y
     end,
     get_blob_pos = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      local vector = self.match:getBlobPosition(side)
+      local vector = self.matchState:getBlobPosition(side)
       return vector.x, 600 - vector.y
     end,
     get_blob_vel = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      local vector = self.match:getBlobVelocity(side)
+      local vector = self.matchState:getBlobVelocity(side)
       return vector.x, -vector.y
     end,
     get_score = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      return self.match:getScore(side)
+      return self.matchState:getScore(side)
     end,
     get_touches = function(side)
       assert(side == LEFT_PLAYER or side == RIGHT_PLAYER)
-      return self.match:getTouches(side)
+      return self.matchState:getTouches(side)
     end,
     is_ball_valid = function()
-      return self.match:isBallValid()
+      return self.matchState:isBallValid()
     end,
     is_game_running = function()
-      return self.match:isGameRunning()
+      return self.matchState:isGameRunning()
     end,
     get_serving_player = function()
-      return self.match:getServingPlayer()
+      return self.matchState:getServingPlayer()
     end,
 
     simulate = function(steps, x, y, vx, vy)
@@ -119,18 +120,27 @@ function ScriptedInputSource:__construct(filename, side, difficulty)
   if "function" ~= type(self.sandbox.__OnStep) then
     error("Lua Api Error: Missing bot function __OnStep, check bot_api.lua!")
   end
+
+  -- enable legacy functions to fix crashing of some bots
+  if filename == "axji-0-2" or filename == "com_11" then
+    self.sandbox.enable_legacy_functions()
+  end
 end
 
 function ScriptedInputSource:getNextInput()
-  local serving = false
-  -- reset input
-  __WANT_LEFT = false
-  __WANT_RIGHT = false
-  __WANT_JUMP = false
-
-  if nil == self.match then
-    return PlayerInput()
+  local state = self.match:getState()
+  if self.side == RIGHT_PLAYER then
+    state:swapSides()
   end
+
+  self.matchState = state
+
+  local serving = false
+
+  -- reset input
+  self.sandbox.__WANT_LEFT = false
+  self.sandbox.__WANT_RIGHT = false
+  self.sandbox.__WANT_JUMP = false
 
   self.sandbox.__OnStep()
 
@@ -152,19 +162,12 @@ function ScriptedInputSource:getNextInput()
     return PlayerInput()
   end
 
-  -- random jump delay depending on difficulty
-  if wantjump and not self.lastJump then
-    self.jumpDelay = self.jumpDelay - 1
-    if self.jumpDelay > 0 then
-      wantjump = false
-    else
-      self.jumpDelay = math.max(0.0, math.min(love.math.randomNormal(self.difficulty / 3, self.difficulty / 2), self.difficulty))
-    end
+  local input = PlayerInput(wantleft, wantright, wantjump)
+  if self.side == RIGHT_PLAYER then
+    input:swapSides()
   end
 
-  self.lastJump = wantjump
-
-  return PlayerInput(wantleft, wantright, wantjump)
+  return input
 end
 
 return ScriptedInputSource

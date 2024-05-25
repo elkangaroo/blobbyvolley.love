@@ -90,6 +90,10 @@ do
     return Vector2d(self.x, - self.y)
   end
 
+  function meta:clone()
+    return Vector2d(self.x, self.y)
+  end
+
   setmetatable(Vector2d, {
     __call = function(V, x, y)
       return setmetatable({x = x or 0, y = y or 0}, meta)

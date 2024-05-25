@@ -16,4 +16,8 @@ function PlayerInput:__construct(left, right, up)
   self.up = up or false
 end
 
+function PlayerInput:swapSides()
+  self.left, self.right = self.right, self.left
+end
+
 return PlayerInput

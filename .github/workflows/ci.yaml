@@ -17,19 +17,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lua_version: ['5.4', '5.3', '5.2', '5.1', 'luajit', 'luajit-2.0.5']
-        # love_version: ['11.4', '11.3', '11.2', '0.10.2', '0.9.2', '0.8.0']
-        love_version: ['11.4', '11.3']
+        lua_version: ['5.4', '5.3', '5.2', '5.1', 'luajit-openresty ', 'luajit-2.1.0-beta3', 'luajit-2.0.5']
+        love_version: ['11.5', '11.4']
 
     env:
       LOVE_PKG: "https://github.com/love2d/love/releases/download/${{ matrix.love_version }}/love-${{ matrix.love_version }}-x86_64.AppImage"
 
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+
+    # Installs libfuse2 (required for LÖVE AppImage)
+    - name: Install libfuse2
+      run: |
+        sudo apt-get update
+        sudo apt-get install libfuse2
 
     # Builds and installs Lua into the .lua/ directory in the working directory
-    - uses: leafo/gh-actions-lua@v9
+    - uses: leafo/gh-actions-lua@v10
       with:
         luaVersion: ${{ matrix.lua_version }}
 
@@ -54,4 +59,4 @@ jobs:
 
     # Runs application in headless mode
     - name: Run app in headless mode
-      run: love . --headless
+      run: love . --headless --config=config_headless.xml
