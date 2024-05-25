@@ -20,9 +20,9 @@ SoundManager = require("lib.SoundManager")
 
 LuaApiSandbox = require("lib.LuaApiSandbox")
 
-State = require("lib.State")
-GameState = require("lib.GameState")
-LocalGameState = require("lib.LocalGameState")
+State = require("lib.states.State")
+GameState = require("lib.states.GameState")
+LocalGameState = require("lib.states.LocalGameState")
 
 Match = require("lib.Match")
 MatchEvent = require("lib.MatchEvent")
