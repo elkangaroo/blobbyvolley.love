@@ -25,17 +25,15 @@ GameState = require("lib.GameState")
 LocalGameState = require("lib.LocalGameState")
 
 Match = require("lib.Match")
-MatchState = require("lib.states.MatchState")
 MatchEvent = require("lib.MatchEvent")
+MatchState = require("lib.MatchState")
 
 PlayerIdentity = require("lib.PlayerIdentity")
 PlayerInput = require("lib.PlayerInput")
 
 PhysicWorld = require("lib.PhysicWorld")
-PhysicWorldState = require("lib.states.PhysicWorldState")
 
 GameLogic = require("lib.GameLogic")
-GameLogicState = require("lib.states.GameLogicState")
 FallbackGameLogic = require("lib.FallbackGameLogic")
 ScriptedGameLogic = require("lib.ScriptedGameLogic")
 

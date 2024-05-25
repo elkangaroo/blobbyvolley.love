@@ -22,7 +22,7 @@ function ScriptedInputSource:__construct(filename, side, difficulty, match)
   self.side = side
   self.difficulty = difficulty
   self.match = match
-  self.matchState = match:getState()
+  self.matchState = MatchState(match)
 
   self.sandbox = {
     __DIFFICULTY = difficulty / 25.0,
@@ -128,7 +128,7 @@ function ScriptedInputSource:__construct(filename, side, difficulty, match)
 end
 
 function ScriptedInputSource:getNextInput()
-  local state = self.match:getState()
+  local state = MatchState(self.match)
   if self.side == RIGHT_PLAYER then
     state:swapSides()
   end
