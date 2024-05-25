@@ -34,7 +34,9 @@ function LocalGameState:createInputSource(side, match)
   if GameConfig.getBoolean(prefix .. "_player_human") then
     return LocalInputSource()
   else
-    return ScriptedInputSource(GameConfig.get(prefix .. "_script_name"), side, GameConfig.getNumber(prefix .. "_script_strength"), match)
+    local scriptName = GameConfig.get(prefix .. "_script_name")
+    local scriptStrength = GameConfig.getNumber(prefix .. "_script_strength")
+    return ScriptedInputSource(scriptName, side, scriptStrength, match)
   end
 end
 

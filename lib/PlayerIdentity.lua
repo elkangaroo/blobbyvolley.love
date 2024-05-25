@@ -21,7 +21,7 @@ end
 function PlayerIdentity.createFromConfig(side, forceHuman)
   local prefix = (side == LEFT_PLAYER) and "left" or "right"
 
-  local name = ""
+  local name
 	if forceHuman or GameConfig.getBoolean(prefix .. "_player_human") then
 		name = GameConfig.get(prefix .. "_player_name")
 	else

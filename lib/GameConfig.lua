@@ -8,7 +8,7 @@ function GameConfig.load(filename)
   local parser = xml2lua.parser(handler)
   parser:parse(xml2lua.loadFile(filename))
   -- xml2lua.printable(handler.root) -- debug
-  
+
   for i, p in pairs(handler.root.userconfig.var) do
     GameConfig.values[p._attr.name] = p._attr.value
   end

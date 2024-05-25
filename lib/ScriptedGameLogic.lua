@@ -58,7 +58,7 @@ function ScriptedGameLogic:checkWin()
   if "function" ~= type(self.sandbox.IsWinning) then
     return FallbackGameLogic.checkWin(self)
   end
-  
+
   local lscore = self:getScore(LEFT_PLAYER)
   local rscore = self:getScore(RIGHT_PLAYER)
   local won = self.sandbox.IsWinning(lscore, rscore)

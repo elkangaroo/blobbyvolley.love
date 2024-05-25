@@ -126,7 +126,7 @@ function app.timer(dt, func)
   app.accumulator = app.accumulator + dt
   while app.accumulator >= app.tickPeriod do
     app.accumulator = app.accumulator - app.tickPeriod
-    
+
     func()
   end
 end

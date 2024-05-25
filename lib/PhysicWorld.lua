@@ -44,9 +44,18 @@ function PhysicWorld:getState()
     self.ballPosition:clone(),
     self.ballVelocity:clone(),
     self.ballRotation,
-    { [LEFT_PLAYER] = self.blobState[LEFT_PLAYER], [RIGHT_PLAYER] = self.blobState[RIGHT_PLAYER] },
-    { [LEFT_PLAYER] = self.blobPosition[LEFT_PLAYER]:clone(), [RIGHT_PLAYER] = self.blobPosition[RIGHT_PLAYER]:clone() },
-    { [LEFT_PLAYER] = self.blobVelocity[LEFT_PLAYER]:clone(), [RIGHT_PLAYER] = self.blobVelocity[RIGHT_PLAYER]:clone() }
+    {
+      [LEFT_PLAYER] = self.blobState[LEFT_PLAYER],
+      [RIGHT_PLAYER] = self.blobState[RIGHT_PLAYER],
+    },
+    {
+      [LEFT_PLAYER] = self.blobPosition[LEFT_PLAYER]:clone(),
+      [RIGHT_PLAYER] = self.blobPosition[RIGHT_PLAYER]:clone(),
+    },
+    {
+      [LEFT_PLAYER] = self.blobVelocity[LEFT_PLAYER]:clone(),
+      [RIGHT_PLAYER] = self.blobVelocity[RIGHT_PLAYER]:clone(),
+    }
   )
 end
 
