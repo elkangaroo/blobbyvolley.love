@@ -39,6 +39,38 @@ function GuiManager:draw()
     [ObjectType.BUTTON] = function(obj)
       RenderManager:drawText(obj.text, obj.pos1, obj.flags)
     end,
+    [ObjectType.SCROLLBAR] = function(obj)
+      RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(210, 25), { 0, 0, 0, 0.5 })
+      RenderManager:drawImage("res/gfx/scrollbar.bmp", obj.pos1 + Vector2d(obj.pos2.x * 200, 0))
+    end,
+    [ObjectType.EDITBOX] = function(obj)
+      local fontSize = FONT_WIDTH_NORMAL
+      if bit.band(obj.flags, TF_SMALL_FONT) ~= 0 then
+        fontSize = FONT_WIDTH_SMALL
+      end
+
+      RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(10 + obj.length * fontSize, 10 + fontSize), { 0, 0, 0, 0.5 })
+      RenderManager:drawText(obj.text, obj.pos1 + Vector2d(5, 5), obj.flags)
+    end,
+    [ObjectType.SELECTBOX] = function(obj)
+      local fontSize = FONT_WIDTH_NORMAL + LINE_SPACER_NORMAL
+      if bit.band(obj.flags, TF_SMALL_FONT) ~= 0 then
+        fontSize = FONT_WIDTH_SMALL + LINE_SPACER_SMALL
+      end
+
+      RenderManager:drawOverlay(obj.pos1, obj.pos2, { 0, 0, 0, 0.5 })
+
+      for i, entry in ipairs(obj.entries) do
+        if i == obj.selected then
+          RenderManager:drawText(entry, Vector2d(5 + obj.pos1.x, 5 + obj.pos1.y + ((i - 1) * fontSize)), bit.bor(obj.flags, TF_HIGHLIGHT))
+        else
+          RenderManager:drawText(entry, Vector2d(5 + obj.pos1.x, 5 + obj.pos1.y + ((i - 1) * fontSize)), obj.flags)
+        end
+      end
+
+      RenderManager:drawImage("res/gfx/pfeil_oben.bmp", Vector2d(obj.pos2.x - 27, obj.pos1.y + 3))
+      RenderManager:drawImage("res/gfx/pfeil_unten.bmp", Vector2d(obj.pos2.x - 27, obj.pos2.y - 27))
+    end,
   }
 
   while not Queue.isEmpty(self.queue) do
@@ -83,6 +115,7 @@ function GuiManager:addButton(position, text, flags)
   if bit.band(flags, TF_SMALL_FONT) ~= 0 then
     fontSize = FONT_WIDTH_SMALL
   end
+
   local tolerance = 0
 
   -- React to mouse input.
@@ -103,6 +136,27 @@ function GuiManager:addButton(position, text, flags)
   Queue.push(self.queue, { type = ObjectType.BUTTON, pos1 = position, text = text, flags = flags })
 
   return clicked
+end
+
+-- Vector2d position, number value
+function GuiManager:addScrollbar(position, value)
+  local scrollpos = Vector2d(value, 0)
+  -- value = value > 0.f ? (value < 1.f ? value : 1.f) : 0.f;
+  Queue.push(self.queue, { type = ObjectType.SCROLLBAR, pos1 = position, pos2 = scrollpos })
+end
+
+-- Vector2d position, number length, string text, number cursorPosition, number flags
+function GuiManager:addEditbox(position, length, text, cursorPosition, flags)
+  flags = flags or TF_NORMAL
+
+  Queue.push(self.queue, { type = ObjectType.EDITBOX, pos1 = position, pos2 = cursorPosition, length = length, text = text, flags = flags })
+end
+
+-- Vector2d pos1, Vector2d pos2, table<string> entries, number selected, number flags
+function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
+  flags = flags or TF_NORMAL
+
+  Queue.push(self.queue, { type = ObjectType.SELECTBOX, pos1 = pos1, pos2 = pos2, entries = entries, selected = selected, flags = flags })
 end
 
 -- Vector2d position, string text, number flags

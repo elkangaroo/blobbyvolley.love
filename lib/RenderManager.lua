@@ -147,9 +147,13 @@ end
 
 -- string filename, Vector2d position
 function RenderManager:drawImage(filename, position)
+  love.graphics.push("all")
+
   local image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.draw(image, position.x, position.y)
+
+  love.graphics.pop()
 end
 
 -- Vector2d pos1, Vector2d pos2, table<Color> color

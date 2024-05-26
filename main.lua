@@ -22,6 +22,7 @@ LuaApiSandbox = require("lib.LuaApiSandbox")
 
 State = require("lib.states.State")
 MainMenuState = require("lib.states.MainMenuState")
+OptionsMenuState = require("lib.states.OptionsMenuState")
 GameState = require("lib.states.GameState")
 LocalGameState = require("lib.states.LocalGameState")
 
@@ -95,6 +96,8 @@ TEMP_RULES_NAME = "server_rules.lua"
 -- RenderManager.h
 FONT_WIDTH_NORMAL =	24
 FONT_WIDTH_SMALL = 12
+LINE_SPACER_NORMAL = 6 -- Extra space between 2 lines in a normal SelectBox.
+LINE_SPACER_SMALL = 3 -- Extra space between 2 lines in a small SelectBox.
 
 -- RenderManager.h Text Flags (usable for the RenderManager:drawText() flag parameter)
 TF_NORMAL       = 0x00 -- 0 == false (backward compatibility for state modules)
@@ -107,6 +110,9 @@ TF_ALIGN_RIGHT  = 0x10 -- Text aligned right
 
 -- ScriptedInputSource.h
 WAITING_TIME = 1500 -- The time the bot waits after game start
+
+-- OptionsState.cpp
+MAX_BOT_DELAY = 25 -- 25 frames = 0.33s (gamespeed: normal)
 
 app = {}
 app._VERSION = "0.1.0"
@@ -155,8 +161,6 @@ function love.load(arg, unfilteredArg)
   GameConfig.load("conf/" .. app.options.config)
 
   if app.options.headless then
-    SoundManager.isMuted = true
-
     app.state = LocalGameState()
 
     return
