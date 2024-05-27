@@ -3,6 +3,13 @@ name: Compile & Release
 on:
   # Trigger the workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      release:
+        description: Release-Version (leave empty to skip Release)
+        default: ""
+      release_name:
+        description: Release-Name
+        default: ""
 
 jobs:
   compile_and_release:
@@ -22,3 +29,11 @@ jobs:
         path: "game.love"
         name: "game.love" # Default is 'artifact'
         retention-days: 30
+
+    - name: Release
+      if: ${{ github.event.inputs.release != '' }}
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ github.event.inputs.release }}
+        name: "Version ${{ github.event.inputs.release }}: ${{ github.event.inputs.release_name }}"
+        files: "*.love"
