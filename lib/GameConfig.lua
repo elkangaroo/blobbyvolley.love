@@ -4,9 +4,14 @@ local GameConfig = {
 
 -- string filename
 function GameConfig.load(filename)
+  local contents, errormsg = love.filesystem.read(filename)
+  if nil == contents then
+    error("Game Config Error: " .. errormsg)
+  end
+
   local handler = XmlTreeHandler:new()
   local parser = xml2lua.parser(handler)
-  parser:parse(xml2lua.loadFile(filename))
+  parser:parse(contents)
   -- xml2lua.printable(handler.root) -- debug
 
   for i, p in pairs(handler.root.userconfig.var) do

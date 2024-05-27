@@ -14,7 +14,7 @@ jobs:
 
     - name: Create .love distribution file
       run: |
-        7z a -tzip game.love ./*
+        7z a -tzip game.love ./*  -x!releases/
 
     - name: Save .love distribution file as artifact
       uses: actions/upload-artifact@v4
