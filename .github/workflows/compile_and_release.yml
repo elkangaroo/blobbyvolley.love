@@ -1,0 +1,24 @@
+name: Compile & Release
+
+on:
+  # Trigger the workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  compile_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE
+    - uses: actions/checkout@v4
+
+    - name: Create .love distribution file
+      run: |
+        7z a -tzip game.love ./*
+
+    - name: Save .love distribution file as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: "game.love"
+        name: "game.love" # Default is 'artifact'
+        retention-days: 30
