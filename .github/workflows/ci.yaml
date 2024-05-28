@@ -50,7 +50,7 @@ jobs:
       run: luacheck . --exclude-files .lua .luarocks || [ $? -eq 1 ]
 
     # Downloads LÖVE
-    - name: Download LÖVE
+    - name: Download LÖVE AppImage
       run: |
         mkdir -p .love/bin/
         wget -O .love/bin/love $LOVE_PKG

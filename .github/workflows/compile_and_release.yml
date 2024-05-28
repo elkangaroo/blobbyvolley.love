@@ -19,23 +19,50 @@ jobs:
       contents: write
 
     env:
-      LOVE_FILE: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}.love"
-      WIN64_FILE: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}-win64.zip"
+      LOVE_VERSION: '11.5'
+      LOVE_PKG_WIN64: "https://github.com/love2d/love/releases/download/${{ env.LOVE_VERSION }}/love-${{ env.LOVE_VERSION }}-win64.zip"
+
+      RELEASE_FILE_LOVE: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}.love"
+      RELEASE_FILE_WIN64: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}-win64.zip"
 
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE
     - uses: actions/checkout@v4
 
-    - name: Create .love distribution file
+    - name: Create directories
       run: |
+        mkdir -p .build/win64/
         mkdir -p .release/
-        7z a -tzip .release/$LOVE_FILE ./*
 
-    - name: Save .love distribution file as artifact
+    - name: Create .love release file
+      run: |
+        7z a -tzip .release/$RELEASE_FILE_LOVE ./*
+
+    - name: Download LÖVE for Windows
+      env:
+        TEMP_PATH: .build/win64/tmp.zip
+      run: |
+        wget -O ${{ env.TEMP_PATH }} $LOVE_PKG_WIN64
+        7z x ${{ env.TEMP_PATH }} -o .release/win64/
+        rm ${{ env.TEMP_PATH }}
+
+    - name: Create win64 release file
+      run: |
+        cat .build/win64/love.exe .release/$RELEASE_FILE_LOVE > .build/win64/blobbyvolley.exe
+        7z a -tzip .release/$RELEASE_FILE_WIN64 .build/win64/* -x!love.exe
+
+    - name: Save .love release file as artifact
       uses: actions/upload-artifact@v4
       with:
-        path: .release/${{ env.LOVE_FILE }}
-        name: ${{ env.LOVE_FILE }} # Default is 'artifact'
+        path: .release/${{ env.RELEASE_FILE_LOVE }}
+        name: ${{ env.RELEASE_FILE_LOVE }} # Default is 'artifact'
+        retention-days: 30
+
+    - name: Save win64 release file as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: .release/${{ env.RELEASE_FILE_WIN64 }}
+        name: ${{ env.RELEASE_FILE_WIN64 }} # Default is 'artifact'
         retention-days: 30
 
     - name: Release
