@@ -39,12 +39,10 @@ jobs:
         7z a -tzip .release/$RELEASE_FILE_LOVE ./*
 
     - name: Download LÖVE for Windows
-      env:
-        TEMP_PATH: .build/win64/tmp.zip
       run: |
-        wget -O ${{ env.TEMP_PATH }} $LOVE_PKG_WIN64
-        7z x ${{ env.TEMP_PATH }} -o .release/win64/
-        rm ${{ env.TEMP_PATH }}
+        wget -O win64.zip $LOVE_PKG_WIN64
+        7z x win64.zip -o .build/win64/
+        rm win64.zip
 
     - name: Create win64 release file
       run: |
