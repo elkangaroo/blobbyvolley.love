@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lua_version: ['5.4', '5.3', '5.2', '5.1', 'luajit-openresty ', 'luajit-2.1.0-beta3', 'luajit-2.0.5']
+        lua_version: ['5.4', '5.3', 'luajit-2.1.0-beta3', 'luajit-2.0.5']
         love_version: ['11.5', '11.4']
 
     env:
