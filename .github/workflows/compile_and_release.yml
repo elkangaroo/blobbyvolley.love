@@ -19,8 +19,8 @@ jobs:
       contents: write
 
     env:
-      LOVE_FILE: "blobbyvolley-${{ github.event.inputs.release || latest }}.love"
-      WIN64_FILE: "blobbyvolley-${{ github.event.inputs.release || latest }}-win64.zip"
+      LOVE_FILE: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}.love"
+      WIN64_FILE: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}-win64.zip"
 
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE
