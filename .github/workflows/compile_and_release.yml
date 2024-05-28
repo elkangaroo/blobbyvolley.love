@@ -15,6 +15,9 @@ jobs:
   compile_and_release:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE
     - uses: actions/checkout@v4
