@@ -3,22 +3,83 @@ name: Compile & Release
 on:
   # Trigger the workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      release:
+        description: Release-Version (leave empty to skip Release)
+        default: ""
+      release_name:
+        description: Release-Name
+        default: ""
 
 jobs:
   compile_and_release:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
+    env:
+      LOVE_VERSION: '11.5'
+      RELEASE_FILE_LOVE: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}.love"
+      RELEASE_FILE_WIN64: "blobbyvolley-${{ github.event.inputs.release || 'latest' }}-win64.zip"
+
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE
     - uses: actions/checkout@v4
 
-    - name: Create .love distribution file
+    - name: Create directories
       run: |
-        7z a -tzip game.love ./*
+        mkdir -p .build/win64/
+        mkdir -p .release/
 
-    - name: Save .love distribution file as artifact
+    - name: Create .love release file
+      run: |
+        7z a -tzip .release/$RELEASE_FILE_LOVE ./*
+
+    - name: Download LÖVE for Windows
+      env:
+        LOVE_PKG_WIN64: "https://github.com/love2d/love/releases/download/${{ env.LOVE_VERSION }}/love-${{ env.LOVE_VERSION }}-win64.zip"
+        TEMP_PATH: .build/win64/love.zip
+      run: |
+        wget -O $TEMP_PATH $LOVE_PKG_WIN64
+        7z e $TEMP_PATH -o'.build/win64/'
+        rm $TEMP_PATH
+
+        ls -l .build/win64/
+
+    - name: Create win64 release file
+      run: |
+        cat .build/win64/love.exe .release/$RELEASE_FILE_LOVE > .build/win64/blobbyvolley.exe
+
+        # Delete unneeded files
+        rm .build/win64/love.exe
+        rm .build/win64/lovec.exe || true
+        rm .build/win64/love.ico || true
+        rm .build/win64/game.ico || true
+        rm .build/win64/changes.txt || true
+        rm .build/win64/readme.txt || true
+
+        7z a -tzip .release/$RELEASE_FILE_WIN64 ./.build/win64/*
+
+    - name: Save .love release file as artifact
       uses: actions/upload-artifact@v4
       with:
-        path: "game.love"
-        name: "game.love" # Default is 'artifact'
+        path: .release/${{ env.RELEASE_FILE_LOVE }}
+        name: ${{ env.RELEASE_FILE_LOVE }} # Default is 'artifact'
         retention-days: 30
+
+    - name: Save win64 release file as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: .release/${{ env.RELEASE_FILE_WIN64 }}
+        name: ${{ env.RELEASE_FILE_WIN64 }} # Default is 'artifact'
+        retention-days: 30
+
+    - name: Release
+      if: ${{ github.event.inputs.release != '' }}
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ github.event.inputs.release }}
+        name: "Version ${{ github.event.inputs.release }}: ${{ github.event.inputs.release_name }}"
+        generate_release_notes: true
+        files: .release/*

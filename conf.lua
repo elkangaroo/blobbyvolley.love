@@ -1,6 +1,6 @@
 function love.conf(t)
   t.version = "11.5"
-  t.identity = "blobby_volley_love" -- name of the save directory
+  t.identity = "blobby_volley_love" -- name of the save directory (see https://www.love2d.org/wiki/love.filesystem)
   t.console = false
   t.window.title = "Blobby Volley: LÖVE Edition"
   t.window.width = 800
