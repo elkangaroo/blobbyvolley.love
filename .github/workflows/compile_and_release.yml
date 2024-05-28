@@ -41,14 +41,25 @@ jobs:
         LOVE_PKG_WIN64: "https://github.com/love2d/love/releases/download/${{ env.LOVE_VERSION }}/love-${{ env.LOVE_VERSION }}-win64.zip"
         TEMP_PATH: .build/win64/love.zip
       run: |
-        wget -O ${{ env.TEMP_PATH }} $LOVE_PKG_WIN64
-        7z x ${{ env.TEMP_PATH }} -o'.build/win64/'
-        rm ${{ env.TEMP_PATH }}
+        wget -O $TEMP_PATH $LOVE_PKG_WIN64
+        7z e $TEMP_PATH -o'.build/win64/'
+        rm $TEMP_PATH
+
+        ls -l .build/win64/
 
     - name: Create win64 release file
       run: |
         cat .build/win64/love.exe .release/$RELEASE_FILE_LOVE > .build/win64/blobbyvolley.exe
-        7z a -tzip .release/$RELEASE_FILE_WIN64 .build/win64/* -x!love.exe
+
+        # Delete unneeded files
+        rm .build/win64/love.exe
+        rm .build/win64/lovec.exe || true
+        rm .build/win64/love.ico || true
+        rm .build/win64/game.ico || true
+        rm .build/win64/changes.txt || true
+        rm .build/win64/readme.txt || true
+
+        7z a -tzip .release/$RELEASE_FILE_WIN64 .build/win64/*
 
     - name: Save .love release file as artifact
       uses: actions/upload-artifact@v4
