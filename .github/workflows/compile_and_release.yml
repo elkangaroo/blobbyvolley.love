@@ -59,7 +59,7 @@ jobs:
         rm .build/win64/changes.txt || true
         rm .build/win64/readme.txt || true
 
-        7z a -tzip .release/$RELEASE_FILE_WIN64 .build/win64/*
+        7z a -tzip .release/$RELEASE_FILE_WIN64 ./.build/win64/*
 
     - name: Save .love release file as artifact
       uses: actions/upload-artifact@v4
