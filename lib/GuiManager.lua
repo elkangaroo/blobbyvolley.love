@@ -3,6 +3,7 @@ local bit = require("bit")
 -- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/IMGUI.cpp
 local GuiManager = {
   queue = nil,
+  lastMouseDown = false,
 }
 
 local ObjectType = {
@@ -128,9 +129,10 @@ function GuiManager:addButton(position, text, flags)
   ) then
     flags = bit.bor(flags, TF_HIGHLIGHT)
 
-    if love.mouse.isDown(1) then
+    if love.mouse.isDown(1) and not self.lastMouseDown then
       clicked = true
     end
+    self.lastMouseDown = love.mouse.isDown(1)
   end
 
   Queue.push(self.queue, { type = ObjectType.BUTTON, pos1 = position, text = text, flags = flags })

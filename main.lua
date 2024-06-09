@@ -117,7 +117,7 @@ MAX_BOT_DELAY = 25 -- 25 frames = 0.33s (gamespeed: normal)
 app = {}
 app._VERSION = "0.1.0"
 app._MIN_GAME_FPS = 5
-app.state = nil
+app.state = State()
 app.accumulator = 0.0
 app.tickPeriod = 1 / 75 -- seconds per tick
 app.options = {
@@ -161,7 +161,7 @@ function love.load(arg, unfilteredArg)
   GameConfig.load("conf/" .. app.options.config)
 
   if app.options.headless then
-    app.state = LocalGameState()
+    app.state:switchState(LocalGameState())
 
     return
   end
@@ -188,8 +188,6 @@ function love.load(arg, unfilteredArg)
   SoundManager.loadSound("res/sfx/pfiff.wav")
 
   app.tickPeriod = 1 / math.max(app._MIN_GAME_FPS, GameConfig.getNumber("gamefps"))
-
-  app.state = State()
 end
 
 function love.update(dt)
