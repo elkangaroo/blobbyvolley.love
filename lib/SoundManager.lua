@@ -1,5 +1,5 @@
 local SoundManager = {
-  isMuted = false,
+  isMuted = true,
   sources = {},
 }
 

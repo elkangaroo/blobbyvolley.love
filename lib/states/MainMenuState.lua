@@ -30,9 +30,9 @@ function MainMenuState:update(dt)
     app.state:switchState(LocalGameState())
   end
 
-  -- if GuiManager:addButton(Vector2d(34, 420), "options") then
-  --   app.state:switchState(OptionState())
-  -- end
+  if GuiManager:addButton(Vector2d(34, 420), "options") then
+    app.state:switchState(OptionsMenuState())
+  end
 
   -- if GuiManager:addButton(Vector2d(34, 460), "watch replay") then
   --   app.state:switchState(ReplaySelectionState())
