@@ -108,15 +108,13 @@ function GuiManager:addButton(position, text, flags)
 
   local fontSize = self:__getFontSize(flags)
 
-  local tolerance = 0
-
   -- React to mouse input.
   local mousepos = Vector2d(love.mouse.getPosition())
   if (
-    mousepos.x + tolerance >= position.x and
-    mousepos.y + tolerance * 2 >= position.y and
-    mousepos.x - tolerance <= position.x + text:len() * fontSize and
-    mousepos.y - tolerance * 2 <= position.y + fontSize
+    mousepos.x >= position.x and
+    mousepos.y >= position.y and
+    mousepos.x <= position.x + text:len() * fontSize and
+    mousepos.y <= position.y + fontSize
   ) then
     flags = bit.bor(flags, TF_HIGHLIGHT)
 
@@ -133,9 +131,22 @@ end
 
 -- Vector2d position, number value
 function GuiManager:addScrollbar(position, value)
-  local scrollpos = Vector2d(value, 0)
-  -- value = value > 0.f ? (value < 1.f ? value : 1.f) : 0.f;
-  Queue.push(self.queue, { type = ObjectType.SCROLLBAR, pos1 = position, pos2 = scrollpos })
+  -- React to mouse input.
+  local mousepos = Vector2d(love.mouse.getPosition())
+  if (
+    mousepos.x + 5 > position.x and
+    mousepos.y > position.y and
+    mousepos.x < position.x + 205 and
+    mousepos.y < position.y + 24
+  ) then
+    if love.mouse.isDown(1) then
+      value = (mousepos.x - position.x) / 200
+    end
+  end
+
+  Queue.push(self.queue, { type = ObjectType.SCROLLBAR, pos1 = position, pos2 = Vector2d(value, 0) })
+
+  return value
 end
 
 -- Vector2d position, number length, string text, number cursorPosition, number flags
@@ -158,7 +169,7 @@ function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
     mousepos.x > pos1.x and
     mousepos.y > pos1.y + 5 and
     mousepos.x < pos2.x - 35 and
-    mousepos.y < pos2.y -5
+    mousepos.y < pos2.y - 5
   ) then
     if love.mouse.isDown(1) and not self.lastMouseDown then
       local tmp = math.floor((mousepos.y - pos1.y - 5) / fontSize)

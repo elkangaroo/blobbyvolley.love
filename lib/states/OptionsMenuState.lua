@@ -20,8 +20,8 @@ function OptionsMenuState:__construct()
   }
 
   self.playerName = {
-    [LEFT_PLAYER] = GameConfig.get("left_player_name"),
-    [RIGHT_PLAYER] = GameConfig.get("right_player_name"),
+    [LEFT_PLAYER] = "",
+    [RIGHT_PLAYER] = "",
   }
 
   self.playerNameCursorPosition = {
@@ -30,8 +30,8 @@ function OptionsMenuState:__construct()
   }
 
   self.botStrength = {
-    [LEFT_PLAYER] = GameConfig.getNumber("left_script_strength"),
-    [RIGHT_PLAYER] = GameConfig.getNumber("right_script_strength"),
+    [LEFT_PLAYER] = 1,
+    [RIGHT_PLAYER] = 1,
   }
 
   self:load()
@@ -50,15 +50,15 @@ function OptionsMenuState:update(dt)
   GuiManager:addText(Vector2d(400, 310), "bot strength", TF_ALIGN_CENTER)
 
   local f = 1 - self.botStrength[LEFT_PLAYER] / MAX_BOT_DELAY
-  GuiManager:addScrollbar(Vector2d(15, 350), f)
-  -- mBotStrength[0] = static_cast<unsigned int> ((1.f-f) * MAX_BOT_DELAY + 0.5f);
   local botStrengthLeftText = self:__getBotStrengthText(f)
+  f = GuiManager:addScrollbar(Vector2d(15, 350), f)
+  self.botStrength[LEFT_PLAYER] = math.floor((1 - f) * MAX_BOT_DELAY + 0.5)
   GuiManager:addText(Vector2d(235, 350), botStrengthLeftText)
 
   local f = 1 - self.botStrength[RIGHT_PLAYER] / MAX_BOT_DELAY
-  GuiManager:addScrollbar(Vector2d(440, 350), f)
-  -- mBotStrength[1] = static_cast<unsigned int> ((1.f - f) * MAX_BOT_DELAY + 0.5f);
   local botStrengthRightText = self:__getBotStrengthText(f)
+  f = GuiManager:addScrollbar(Vector2d(440, 350), f)
+  self.botStrength[RIGHT_PLAYER] = math.floor((1 - f) * MAX_BOT_DELAY + 0.5)
   GuiManager:addText(Vector2d(660, 350), botStrengthRightText)
 
   -- if GuiManager:addButton(Vector2d(40, 390), "input options") then
@@ -90,22 +90,31 @@ end
 function OptionsMenuState:load()
   GameConfig.load()
 
-  for i, name in ipairs(self.scriptNames) do
-    if name == GameConfig.get("left_script_name") then
-      self.playerSelection[LEFT_PLAYER] = i
-    end
-    if name == GameConfig.get("right_script_name") then
-      self.playerSelection[RIGHT_PLAYER] = i
-    end
-  end
-
   if GameConfig.getBoolean("left_player_human") then
     self.playerSelection[LEFT_PLAYER] = 1
+  else
+    for i, name in ipairs(self.scriptNames) do
+      if name == GameConfig.get("left_script_name") then
+        self.playerSelection[LEFT_PLAYER] = i
+      end
+    end
   end
 
   if GameConfig.getBoolean("right_player_human") then
     self.playerSelection[RIGHT_PLAYER] = 1
+  else
+    for i, name in ipairs(self.scriptNames) do
+      if name == GameConfig.get("right_script_name") then
+        self.playerSelection[RIGHT_PLAYER] = i
+      end
+    end
   end
+
+  self.playerName[LEFT_PLAYER] = GameConfig.get("left_player_name")
+  self.playerName[RIGHT_PLAYER] = GameConfig.get("right_player_name")
+
+  self.botStrength[LEFT_PLAYER] = GameConfig.getNumber("left_script_strength")
+  self.botStrength[RIGHT_PLAYER] = GameConfig.getNumber("right_script_strength")
 end
 
 function OptionsMenuState:save()
@@ -122,6 +131,12 @@ function OptionsMenuState:save()
     GameConfig.set("right_player_human", "false")
     GameConfig.set("right_script_name", self.scriptNames[self.playerSelection[RIGHT_PLAYER]])
   end
+
+  GameConfig.set("left_player_name", self.playerName[LEFT_PLAYER])
+  GameConfig.set("right_player_name", self.playerName[RIGHT_PLAYER])
+
+  GameConfig.set("left_script_strength", self.botStrength[LEFT_PLAYER])
+  GameConfig.set("right_script_strength", self.botStrength[RIGHT_PLAYER])
 
   GameConfig.save()
 end
