@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lua_version: ['5.4', '5.3', 'luajit-2.1.0-beta3', 'luajit-2.0.5']
+        lua_version: ['5.4', '5.3', 'luajit-2.1', 'luajit-2.0', 'luajit-openresty']
         love_version: ['11.5', '11.4']
 
     env:
@@ -34,7 +34,7 @@ jobs:
         sudo apt-get install libfuse2
 
     # Builds and installs Lua into the .lua/ directory in the working directory
-    - uses: leafo/gh-actions-lua@v10
+    - uses: leafo/gh-actions-lua@v11
       with:
         luaVersion: ${{ matrix.lua_version }}
 
