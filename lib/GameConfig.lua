@@ -1,12 +1,12 @@
 local GameConfig = {
+  file = "config.xml", -- file relative to save directory (see https://love2d.org/wiki/love.filesystem)
   values = {}, -- for available values see conf/config.xml
 }
 
--- string filename
-function GameConfig.load(filename)
-  local contents, errormsg = love.filesystem.read(filename)
+function GameConfig.load()
+  local contents, errormsg = love.filesystem.read("conf/" .. GameConfig.file)
   if nil == contents then
-    error("Game Config Error: " .. errormsg)
+    error("Game Config Load Error: " .. errormsg)
   end
 
   local handler = XmlTreeHandler:new()
@@ -18,12 +18,38 @@ function GameConfig.load(filename)
     GameConfig.values[p._attr.name] = p._attr.value
   end
 
-  print("loaded config " .. filename)
+  print("loaded config " .. GameConfig.file)
+end
+
+function GameConfig.save()
+  local root = {
+    userconfig = {
+      var = {}
+    }
+  }
+
+  for i, p in pairs(GameConfig.values) do
+    table.insert(root.userconfig.var, { _attr = { name = i, value = p } })
+  end
+
+  local contents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" .. xml2lua.toXml(root)
+  local success, errormsg = love.filesystem.write("conf/" .. GameConfig.file, contents)
+  if not success then
+    error("Game Config Save Error: " .. errormsg)
+  end
+
+  print("saved config " .. GameConfig.file)
+  -- print(contents) -- debug
 end
 
 -- string name
 function GameConfig.get(name)
   return GameConfig.values[name]
+end
+
+-- string name
+function GameConfig.set(name, value)
+  GameConfig.values[name] = value
 end
 
 -- string name

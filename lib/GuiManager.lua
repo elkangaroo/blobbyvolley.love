@@ -45,19 +45,13 @@ function GuiManager:draw()
       RenderManager:drawImage("res/gfx/scrollbar.bmp", obj.pos1 + Vector2d(obj.pos2.x * 200, 0))
     end,
     [ObjectType.EDITBOX] = function(obj)
-      local fontSize = FONT_WIDTH_NORMAL
-      if bit.band(obj.flags, TF_SMALL_FONT) ~= 0 then
-        fontSize = FONT_WIDTH_SMALL
-      end
+      local fontSize = self:__getFontSize(obj.flags)
 
       RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(10 + obj.length * fontSize, 10 + fontSize), { 0, 0, 0, 0.5 })
       RenderManager:drawText(obj.text, obj.pos1 + Vector2d(5, 5), obj.flags)
     end,
     [ObjectType.SELECTBOX] = function(obj)
-      local fontSize = FONT_WIDTH_NORMAL + LINE_SPACER_NORMAL
-      if bit.band(obj.flags, TF_SMALL_FONT) ~= 0 then
-        fontSize = FONT_WIDTH_SMALL + LINE_SPACER_SMALL
-      end
+      local fontSize = self:__getFontSize(obj.flags) + self:__getLineSpacerSize(obj.flags)
 
       RenderManager:drawOverlay(obj.pos1, obj.pos2, { 0, 0, 0, 0.5 })
 
@@ -112,10 +106,7 @@ function GuiManager:addButton(position, text, flags)
 
   local clicked = false
 
-  local fontSize = FONT_WIDTH_NORMAL
-  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
-    fontSize = FONT_WIDTH_SMALL
-  end
+  local fontSize = self:__getFontSize(flags)
 
   local tolerance = 0
 
@@ -158,15 +149,52 @@ end
 function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
   flags = flags or TF_NORMAL
 
+  local fontSize = self:__getFontSize(flags) + self:__getLineSpacerSize(flags)
+  local itemsPerPage = math.floor(pos2.y - pos1.y - 10) / fontSize
+
+  -- React to mouse input.
+  local mousepos = Vector2d(love.mouse.getPosition())
+  if (
+    mousepos.x > pos1.x and
+    mousepos.y > pos1.y + 5 and
+    mousepos.x < pos2.x - 35 and
+    mousepos.y < pos2.y -5
+  ) then
+    if love.mouse.isDown(1) and not self.lastMouseDown then
+      local tmp = math.floor((mousepos.y - pos1.y - 5) / fontSize)
+      if (tmp >= 0 and tmp < #entries) then
+        selected = 1 + tmp
+      end
+    end
+    self.lastMouseDown = love.mouse.isDown(1)
+  end
+
   Queue.push(self.queue, { type = ObjectType.SELECTBOX, pos1 = pos1, pos2 = pos2, entries = entries, selected = selected, flags = flags })
+
+  return selected
+end
+
+-- number flags
+function GuiManager:__getFontSize(flags)
+  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
+    return FONT_WIDTH_SMALL
+  end
+
+  return FONT_WIDTH_NORMAL
+end
+
+-- number flags
+function GuiManager:__getLineSpacerSize(flags)
+  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
+    return LINE_SPACER_SMALL
+  end
+
+  return LINE_SPACER_NORMAL
 end
 
 -- Vector2d position, string text, number flags
 function GuiManager:__getTextPosition(position, text, flags)
-  local fontSize = FONT_WIDTH_NORMAL
-  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
-    fontSize = FONT_WIDTH_SMALL
-  end
+  local fontSize = self:__getFontSize(flags)
 
   if bit.band(flags, TF_ALIGN_CENTER) ~= 0 then
     position.x = position.x - text:len() * fontSize / 2

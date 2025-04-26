@@ -12,41 +12,19 @@ setmetatable(OptionsMenuState, {
 function OptionsMenuState:__construct()
   love.mouse.setVisible(true)
 
-  GameConfig.load("conf/" .. app.options.config)
-
-  local scriptNameLeft = GameConfig.get("left_script_name")
-  local scriptNameRight = GameConfig.get("right_script_name")
-
   self.scriptNames = { "human", "axji-0-2", "com_11", "gintonicV9", "hyp014", "reduced", "Union" }
 
-  self.playerOptions = {
+  self.playerSelection = {
     [LEFT_PLAYER] = 1,
     [RIGHT_PLAYER] = 1,
   }
-
-  for i, name in ipairs(self.scriptNames) do
-    if name == scriptNameLeft then
-      self.playerOptions[LEFT_PLAYER] = i
-    end
-    if name == scriptNameRight then
-      self.playerOptions[RIGHT_PLAYER] = i
-    end
-  end
-
-  if GameConfig.getBoolean("left_player_human") then
-    self.playerOptions[LEFT_PLAYER] = 1
-  end
-
-  if GameConfig.getBoolean("right_player_human") then
-    self.playerOptions[RIGHT_PLAYER] = 1
-  end
 
   self.playerName = {
     [LEFT_PLAYER] = GameConfig.get("left_player_name"),
     [RIGHT_PLAYER] = GameConfig.get("right_player_name"),
   }
 
-  self.playerPosition = {
+  self.playerNameCursorPosition = {
     [LEFT_PLAYER] = 0,
     [RIGHT_PLAYER] = 0,
   }
@@ -55,17 +33,19 @@ function OptionsMenuState:__construct()
     [LEFT_PLAYER] = GameConfig.getNumber("left_script_strength"),
     [RIGHT_PLAYER] = GameConfig.getNumber("right_script_strength"),
   }
+
+  self:load()
 end
 
 function OptionsMenuState:update(dt)
   GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/strand2.bmp")
   GuiManager:addOverlay(Vector2d(0, 0), Vector2d(800, 600))
 
-  GuiManager:addEditbox(Vector2d(5, 10), 15, self.playerName[LEFT_PLAYER], self.playerPosition[LEFT_PLAYER])
-  GuiManager:addEditbox(Vector2d(425, 10), 15, self.playerName[RIGHT_PLAYER], self.playerPosition[RIGHT_PLAYER])
+  GuiManager:addEditbox(Vector2d(5, 10), 15, self.playerName[LEFT_PLAYER], self.playerNameCursorPosition[LEFT_PLAYER])
+  GuiManager:addEditbox(Vector2d(425, 10), 15, self.playerName[RIGHT_PLAYER], self.playerNameCursorPosition[RIGHT_PLAYER])
 
-  GuiManager:addSelectbox(Vector2d(5, 50), Vector2d(375, 300), self.scriptNames, self.playerOptions[LEFT_PLAYER])
-  GuiManager:addSelectbox(Vector2d(425, 50), Vector2d(795, 300), self.scriptNames, self.playerOptions[RIGHT_PLAYER])
+  self.playerSelection[LEFT_PLAYER] = GuiManager:addSelectbox(Vector2d(5, 50), Vector2d(375, 300), self.scriptNames, self.playerSelection[LEFT_PLAYER])
+  self.playerSelection[RIGHT_PLAYER] = GuiManager:addSelectbox(Vector2d(425, 50), Vector2d(795, 300), self.scriptNames, self.playerSelection[RIGHT_PLAYER])
 
   GuiManager:addText(Vector2d(400, 310), "bot strength", TF_ALIGN_CENTER)
 
@@ -102,12 +82,48 @@ function OptionsMenuState:update(dt)
   end
 
   if GuiManager:addButton(Vector2d(424, 530), "cancel") then
+    self:load()
     app.state:switchState(MainMenuState())
   end
 end
 
+function OptionsMenuState:load()
+  GameConfig.load()
+
+  for i, name in ipairs(self.scriptNames) do
+    if name == GameConfig.get("left_script_name") then
+      self.playerSelection[LEFT_PLAYER] = i
+    end
+    if name == GameConfig.get("right_script_name") then
+      self.playerSelection[RIGHT_PLAYER] = i
+    end
+  end
+
+  if GameConfig.getBoolean("left_player_human") then
+    self.playerSelection[LEFT_PLAYER] = 1
+  end
+
+  if GameConfig.getBoolean("right_player_human") then
+    self.playerSelection[RIGHT_PLAYER] = 1
+  end
+end
+
 function OptionsMenuState:save()
-  print("saving options")
+  if self.playerSelection[LEFT_PLAYER] == 1 then
+    GameConfig.set("left_player_human", "true")
+  else
+    GameConfig.set("left_player_human", "false")
+    GameConfig.set("left_script_name", self.scriptNames[self.playerSelection[LEFT_PLAYER]])
+  end
+
+  if self.playerSelection[RIGHT_PLAYER] == 1 then
+    GameConfig.set("right_player_human", "true")
+  else
+    GameConfig.set("right_player_human", "false")
+    GameConfig.set("right_script_name", self.scriptNames[self.playerSelection[RIGHT_PLAYER]])
+  end
+
+  GameConfig.save()
 end
 
 function OptionsMenuState:draw()

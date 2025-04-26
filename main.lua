@@ -122,7 +122,6 @@ app.accumulator = 0.0
 app.tickPeriod = 1 / 75 -- seconds per tick
 app.options = {
   headless = false,
-  config = "config.xml",
 }
 
 function app.timer(dt, func)
@@ -154,11 +153,11 @@ function love.load(arg, unfilteredArg)
     end
 
     if a:match('^--config=(.+)$') then
-      app.options.config = a:match('^--config=(.+)$')
+      GameConfig.file = a:match('^--config=(.+)$')
     end
   end
 
-  GameConfig.load("conf/" .. app.options.config)
+  GameConfig.load()
 
   if app.options.headless then
     app.state:switchState(LocalGameState())
