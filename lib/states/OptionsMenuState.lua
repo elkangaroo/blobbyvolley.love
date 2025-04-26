@@ -1,3 +1,5 @@
+local utf8 = require("lib.utf8")
+
 local OptionsMenuState = {}
 OptionsMenuState.__index = OptionsMenuState
 
@@ -24,9 +26,9 @@ function OptionsMenuState:__construct()
     [RIGHT_PLAYER] = "",
   }
 
-  self.playerNameCursorPosition = {
-    [LEFT_PLAYER] = 0,
-    [RIGHT_PLAYER] = 0,
+  self.playerNameActive = {
+    [LEFT_PLAYER] = false,
+    [RIGHT_PLAYER] = false,
   }
 
   self.botStrength = {
@@ -41,8 +43,8 @@ function OptionsMenuState:update(dt)
   GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/strand2.bmp")
   GuiManager:addOverlay(Vector2d(0, 0), Vector2d(800, 600))
 
-  GuiManager:addEditbox(Vector2d(5, 10), 15, self.playerName[LEFT_PLAYER], self.playerNameCursorPosition[LEFT_PLAYER])
-  GuiManager:addEditbox(Vector2d(425, 10), 15, self.playerName[RIGHT_PLAYER], self.playerNameCursorPosition[RIGHT_PLAYER])
+  self.playerNameActive[LEFT_PLAYER] = GuiManager:addEditbox(Vector2d(5, 10), 15, self.playerName[LEFT_PLAYER])
+  self.playerNameActive[RIGHT_PLAYER] = GuiManager:addEditbox(Vector2d(425, 10), 15, self.playerName[RIGHT_PLAYER])
 
   self.playerSelection[LEFT_PLAYER] = GuiManager:addSelectbox(Vector2d(5, 50), Vector2d(375, 300), self.scriptNames, self.playerSelection[LEFT_PLAYER])
   self.playerSelection[RIGHT_PLAYER] = GuiManager:addSelectbox(Vector2d(425, 50), Vector2d(795, 300), self.scriptNames, self.playerSelection[RIGHT_PLAYER])
@@ -147,10 +149,40 @@ end
 
 -- KeyConstant key
 function OptionsMenuState:keypressed(key)
+  if self.playerNameActive[LEFT_PLAYER] and key == "backspace" then
+    -- get the byte offset to the last UTF-8 character in the string
+    local byteoffset = utf8.offset(self.playerName[LEFT_PLAYER], -1)
+
+    if byteoffset then
+      -- remove the last UTF-8 character
+      self.playerName[LEFT_PLAYER] = string.sub(self.playerName[LEFT_PLAYER], 1, byteoffset - 1)
+    end
+  end
+
+  if self.playerNameActive[RIGHT_PLAYER] and key == "backspace" then
+    -- get the byte offset to the last UTF-8 character in the string
+    local byteoffset = utf8.offset(self.playerName[RIGHT_PLAYER], -1)
+
+    if byteoffset then
+      -- remove the last UTF-8 character
+      self.playerName[RIGHT_PLAYER] = string.sub(self.playerName[RIGHT_PLAYER], 1, byteoffset - 1)
+    end
+  end
 end
 
 -- KeyConstant key
 function OptionsMenuState:keyreleased(key)
+end
+
+-- String text
+function OptionsMenuState:textinput(text)
+  if self.playerNameActive[LEFT_PLAYER] then
+    self.playerName[LEFT_PLAYER] = self.playerName[LEFT_PLAYER] .. text
+  end
+
+  if self.playerNameActive[RIGHT_PLAYER] then
+    self.playerName[RIGHT_PLAYER] = self.playerName[RIGHT_PLAYER] .. text
+  end
 end
 
 function OptionsMenuState:getStateName()

@@ -127,6 +127,10 @@ function LocalGameState:keyreleased(key)
   end
 end
 
+-- String text
+function LocalGameState:textinput(text)
+end
+
 function LocalGameState:getStateName()
   return "LocalGameState"
 end

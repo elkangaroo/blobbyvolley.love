@@ -59,6 +59,10 @@ end
 function MainMenuState:keyreleased(key)
 end
 
+-- String text
+function MainMenuState:textinput(text)
+end
+
 function MainMenuState:getStateName()
   return "MainMenuState"
 end

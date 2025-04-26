@@ -165,6 +165,8 @@ function love.load(arg, unfilteredArg)
     return
   end
 
+  love.keyboard.setKeyRepeat(true)
+
   love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
 
   GuiManager:init()
@@ -211,4 +213,8 @@ end
 
 function love.keyreleased(key, scancode)
   app.state:keyreleased(key)
+end
+
+function love.textinput(text)
+  app.state:textinput(text)
 end
