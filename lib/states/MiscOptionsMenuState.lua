@@ -90,7 +90,8 @@ function MiscOptionsMenuState:update(dt)
   --
   local f = (self.mGameFPS - 30) / 90
   GuiManager:addText(Vector2d(484, 290), "gamespeed:")
-  GuiManager:addScrollbar(Vector2d(440, 330), f)
+  f = GuiManager:addScrollbar(Vector2d(440, 330), f)
+  self.mGameFPS = math.floor(f * 90 + 30)
 
   -- float gamefps = (mGameFPS - 30) / 90.0;
   -- if (gamefps < 0.0)
