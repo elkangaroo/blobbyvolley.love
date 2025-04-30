@@ -49,7 +49,11 @@ end
 
 -- string name
 function GameConfig.set(name, value)
-  GameConfig.values[name] = value
+  if "boolean" == type(value) then
+    GameConfig.values[name] = value and "true" or "false"
+  else
+    GameConfig.values[name] = value
+  end
 end
 
 -- string name

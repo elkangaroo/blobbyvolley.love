@@ -14,7 +14,7 @@ function MainMenuState:__construct()
 end
 
 function MainMenuState:update(dt)
-  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/strand2.bmp")
+  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/" .. GameConfig.get("background"))
   GuiManager:addOverlay(Vector2d(0, 0), Vector2d(800, 600))
   GuiManager:addImage(Vector2d(187, 52), "res/gfx/titel2.bmp")
 

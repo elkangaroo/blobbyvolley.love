@@ -133,6 +133,8 @@ function GuiManager:addButton(position, text, flags)
   flags = flags or TF_NORMAL
   position = self:__getTextPosition(position, text, flags)
 
+  local obj = { type = ObjectType.BUTTON, pos1 = position, text = text, flags = flags }
+
   local clicked = false
 
   local fontSize = self:__getFontSize(flags)
@@ -145,7 +147,7 @@ function GuiManager:addButton(position, text, flags)
     mousepos.x <= position.x + utf8.len(text) * fontSize and
     mousepos.y <= position.y + fontSize
   ) then
-    flags = bit.bor(flags, TF_HIGHLIGHT)
+    obj.flags = bit.bor(flags, TF_HIGHLIGHT)
 
     if love.mouse.isDown(1) and not self.lastMouseDown then
       clicked = true
@@ -153,14 +155,14 @@ function GuiManager:addButton(position, text, flags)
     self.lastMouseDown = love.mouse.isDown(1)
   end
 
-  Queue.push(self.queue, { type = ObjectType.BUTTON, pos1 = position, text = text, flags = flags })
+  Queue.push(self.queue, obj)
 
   return clicked
 end
 
 -- Vector2d position, number value
 function GuiManager:addScrollbar(position, value)
-  local type = ObjectType.SCROLLBAR
+  local obj = { type = ObjectType.SCROLLBAR, pos1 = position, pos2 = Vector2d(value, 0) }
 
   -- React to mouse input.
   local mousepos = Vector2d(love.mouse.getPosition())
@@ -170,14 +172,14 @@ function GuiManager:addScrollbar(position, value)
     mousepos.x < position.x + 205 and
     mousepos.y < position.y + 24
   ) then
-    type = ObjectType.ACTIVESCROLLBAR
+    obj.type = ObjectType.ACTIVESCROLLBAR
 
     if love.mouse.isDown(1) then
       value = (mousepos.x - position.x) / 200
     end
   end
 
-  Queue.push(self.queue, { type = type, pos1 = position, pos2 = Vector2d(value, 0) })
+  Queue.push(self.queue, obj)
 
   return value
 end
@@ -186,7 +188,7 @@ end
 function GuiManager:addEditbox(position, length, text, flags)
   flags = flags or TF_NORMAL
 
-  local type = ObjectType.EDITBOX
+  local obj = { type = ObjectType.EDITBOX, pos1 = position, length = length, text = text, flags = flags }
 
   local active = false
 
@@ -200,12 +202,12 @@ function GuiManager:addEditbox(position, length, text, flags)
     mousepos.x < position.x + length * fontSize + 10 and
     mousepos.y < position.y + fontSize + 10
   ) then
-    flags = bit.bor(flags, TF_HIGHLIGHT)
-    type = ObjectType.ACTIVEEDITBOX
+    obj.flags = bit.bor(flags, TF_HIGHLIGHT)
+    obj.type = ObjectType.ACTIVEEDITBOX
     active = true
   end
 
-  Queue.push(self.queue, { type = type, pos1 = position, length = length, text = text, flags = flags })
+  Queue.push(self.queue, obj)
 
   return active
 end
@@ -214,10 +216,14 @@ end
 function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
   flags = flags or TF_NORMAL
 
-  local type = ObjectType.SELECTBOX
+  local obj = { type = ObjectType.SELECTBOX, pos1 = pos1, pos2 = pos2, entries = entries, selected = selected, flags = flags }
 
   local fontSize = self:__getFontSize(flags) + self:__getLineSpacerSize(flags)
-  local itemsPerPage = math.floor(pos2.y - pos1.y - 10) / fontSize
+  local itemsPerPage = math.floor((pos2.y - pos1.y - 10) / fontSize)
+  local firstItem = math.floor((selected - 1) / itemsPerPage ) * itemsPerPage
+
+  obj.entries = { table.unpack(entries, 1 + firstItem, itemsPerPage + firstItem ) }
+  obj.selected = selected - firstItem
 
   -- React to mouse input.
   local mousepos = Vector2d(love.mouse.getPosition())
@@ -227,18 +233,43 @@ function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
     mousepos.x < pos2.x - 35 and
     mousepos.y < pos2.y - 5
   ) then
-    type = ObjectType.ACTIVESELECTBOX
+    obj.type = ObjectType.ACTIVESELECTBOX
 
     if love.mouse.isDown(1) and not self.lastMouseDown then
-      local tmp = math.floor((mousepos.y - pos1.y - 5) / fontSize)
+      local tmp = math.floor((mousepos.y - pos1.y - 5) / fontSize) + firstItem
       if (tmp >= 0 and tmp < #entries) then
-        selected = 1 + tmp
+        selected = tmp + 1
+      end
+    end
+    self.lastMouseDown = love.mouse.isDown(1)
+
+    -- if ((InputManager::getSingleton()->mouseWheelUp()) && (selected > 0)) {
+    --   selected--;
+    -- }
+    -- if ((InputManager::getSingleton()->mouseWheelDown()) && (selected + 1 < entries.size())) {
+    --   selected++;
+    -- }
+  end
+
+  if (
+    mousepos.x > pos2.x - 30 and
+    mousepos.x < pos2.x - 30 + 24 and
+    mousepos.y > pos1.y and
+    mousepos.y < pos2.y
+  ) then
+    if love.mouse.isDown(1) and not self.lastMouseDown then
+      if (mousepos.y > pos1.y + 3 and mousepos.y < pos1.y + 3 + 24 and selected > 1) then
+        selected = selected - 1
+      end
+
+      if (mousepos.y > pos2.y - 3 - 24 and mousepos.y < pos2.y - 3 and selected < #entries) then
+        selected = selected + 1
       end
     end
     self.lastMouseDown = love.mouse.isDown(1)
   end
 
-  Queue.push(self.queue, { type = type, pos1 = pos1, pos2 = pos2, entries = entries, selected = selected, flags = flags })
+  Queue.push(self.queue, obj)
 
   return selected
 end

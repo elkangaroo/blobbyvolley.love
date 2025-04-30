@@ -40,7 +40,7 @@ function OptionsMenuState:__construct()
 end
 
 function OptionsMenuState:update(dt)
-  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/strand2.bmp")
+  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/" .. GameConfig.get("background"))
   GuiManager:addOverlay(Vector2d(0, 0), Vector2d(800, 600))
 
   self.playerNameActive[LEFT_PLAYER] = GuiManager:addEditbox(Vector2d(5, 10), 15, self.playerName[LEFT_PLAYER])
@@ -49,6 +49,7 @@ function OptionsMenuState:update(dt)
   self.playerSelection[LEFT_PLAYER] = GuiManager:addSelectbox(Vector2d(5, 50), Vector2d(375, 300), self.scriptNames, self.playerSelection[LEFT_PLAYER])
   self.playerSelection[RIGHT_PLAYER] = GuiManager:addSelectbox(Vector2d(425, 50), Vector2d(795, 300), self.scriptNames, self.playerSelection[RIGHT_PLAYER])
 
+  --
   GuiManager:addText(Vector2d(400, 310), "bot strength", TF_ALIGN_CENTER)
 
   local f = 1 - self.botStrength[LEFT_PLAYER] / MAX_BOT_DELAY
@@ -63,20 +64,20 @@ function OptionsMenuState:update(dt)
   self.botStrength[RIGHT_PLAYER] = math.floor((1 - f) * MAX_BOT_DELAY + 0.5)
   GuiManager:addText(Vector2d(660, 350), botStrengthRightText)
 
-  -- if GuiManager:addButton(Vector2d(40, 390), "input options") then
-  --   self:save()
-  --   app.state:switchState(InputOptionsState())
-  -- end
+  if GuiManager:addButton(Vector2d(40, 390), "input options") then
+    self:save()
+  --   app.state:switchState(InputOptionsMenuState())
+  end
 
-  -- if GuiManager:addButton(Vector2d(40, 430), "graphic options") then
-  --   self:save()
-  --   app.state:switchState(GraphicOptionsState())
-  -- end
+  if GuiManager:addButton(Vector2d(40, 430), "graphic options") then
+    self:save()
+  --   app.state:switchState(GraphicOptionsMenuState())
+  end
 
-  -- if GuiManager:addButton(Vector2d(40, 470), "misc options") then
-  --   self:save()
-  --   app.state:switchState(MiscOptionsState())
-  -- end
+  if GuiManager:addButton(Vector2d(40, 470), "misc options") then
+    self:save()
+    app.state:switchState(MiscOptionsMenuState())
+  end
 
   if GuiManager:addButton(Vector2d(224, 530), "ok") then
     self:save()
@@ -121,16 +122,16 @@ end
 
 function OptionsMenuState:save()
   if self.playerSelection[LEFT_PLAYER] == 1 then
-    GameConfig.set("left_player_human", "true")
+    GameConfig.set("left_player_human", true)
   else
-    GameConfig.set("left_player_human", "false")
+    GameConfig.set("left_player_human", false)
     GameConfig.set("left_script_name", self.scriptNames[self.playerSelection[LEFT_PLAYER]])
   end
 
   if self.playerSelection[RIGHT_PLAYER] == 1 then
-    GameConfig.set("right_player_human", "true")
+    GameConfig.set("right_player_human", true)
   else
-    GameConfig.set("right_player_human", "false")
+    GameConfig.set("right_player_human", false)
     GameConfig.set("right_script_name", self.scriptNames[self.playerSelection[RIGHT_PLAYER]])
   end
 

@@ -36,11 +36,11 @@ function GameState:presentGame()
 
   for i, e in ipairs(self.match.events) do
     if e.type == MatchEvent.BALL_HIT_BLOB then
-      SoundManager.playSound("res/sfx/bums.wav", e.intensity + BALL_HIT_PLAYER_SOUND_VOLUME)
+      SoundManager:playSound("res/sfx/bums.wav", e.intensity + BALL_HIT_PLAYER_SOUND_VOLUME)
     end
 
     if e.type == MatchEvent.PLAYER_ERROR or e.type == MatchEvent.ROUND_START then
-      SoundManager.playSound("res/sfx/pfiff.wav", ROUND_START_SOUND_VOLUME)
+      SoundManager:playSound("res/sfx/pfiff.wav", ROUND_START_SOUND_VOLUME)
     end
   end
 end

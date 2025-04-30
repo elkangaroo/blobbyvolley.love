@@ -1,3 +1,8 @@
+-- lua 5.1 compatibility
+if not table.unpack then
+    table.unpack = unpack
+end
+
 -- add external modules to require path
 love.filesystem.setRequirePath(
   love.filesystem.getRequirePath()
@@ -23,6 +28,7 @@ LuaApiSandbox = require("lib.LuaApiSandbox")
 State = require("lib.states.State")
 MainMenuState = require("lib.states.MainMenuState")
 OptionsMenuState = require("lib.states.OptionsMenuState")
+MiscOptionsMenuState = require("lib.states.MiscOptionsMenuState")
 GameState = require("lib.states.GameState")
 LocalGameState = require("lib.states.LocalGameState")
 
@@ -135,6 +141,21 @@ function app.timer(dt, func)
   end
 end
 
+function app.initConfig()
+  RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
+  RenderManager.uiElements.showfps = GameConfig.getBoolean("showfps")
+
+  local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
+  if love.filesystem.getInfo(bg) then
+    RenderManager:setBackground(bg)
+  end
+
+  SoundManager.isMuted = GameConfig.getBoolean("mute")
+  SoundManager:setGlobalVolume(GameConfig.getNumber("global_volume"))
+
+  app.tickPeriod = 1 / math.max(app._MIN_GAME_FPS, GameConfig.getNumber("gamefps"))
+end
+
 function love.load(arg, unfilteredArg)
   -- process cli options
   for _, a in pairs(arg) do
@@ -165,30 +186,18 @@ function love.load(arg, unfilteredArg)
     return
   end
 
-  love.keyboard.setKeyRepeat(true)
-
   love.window.setTitle(love.window.getTitle() .. " v" .. app._VERSION)
+  love.keyboard.setKeyRepeat(true)
 
   GuiManager:init()
   RenderManager:init()
-  RenderManager.showShadow = GameConfig.getBoolean("show_shadow")
-  RenderManager.uiElements.showfps = GameConfig.getBoolean("showfps")
-
-  local bg = "res/gfx/backgrounds/" .. GameConfig.get("background")
-  if love.filesystem.getInfo(bg) then
-    RenderManager:setBackground(bg)
-  end
+  SoundManager:init()
 
   if love.mouse.isCursorSupported() then
     love.mouse.setCursor(RenderManager.uiCursor)
   end
 
-  SoundManager.isMuted = GameConfig.getBoolean("mute")
-  SoundManager.setGlobalVolume(GameConfig.getNumber("global_volume"))
-  SoundManager.loadSound("res/sfx/bums.wav")
-  SoundManager.loadSound("res/sfx/pfiff.wav")
-
-  app.tickPeriod = 1 / math.max(app._MIN_GAME_FPS, GameConfig.getNumber("gamefps"))
+  app.initConfig()
 end
 
 function love.update(dt)
