@@ -196,6 +196,12 @@ function RenderManager:drawText(text, position, flags)
     love.graphics.printf(utf8.upper(text), position.x, position.y, utf8.len(text) * fontSize, align)
   end
 
+  if bit.band(flags, TF_CONCEAL) ~= 0 then
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.setBlendMode("subtract", "alphamultiply")
+    love.graphics.printf(utf8.upper(text), position.x, position.y, utf8.len(text) * fontSize, align)
+  end
+
   love.graphics.pop()
 end
 

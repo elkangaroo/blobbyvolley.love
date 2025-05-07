@@ -34,10 +34,12 @@ function MainMenuState:update(dt)
     app.state:switchState(OptionsMenuState())
   end
 
+  GuiManager:addText(Vector2d(34, 460), "watch replay", TF_CONCEAL)
   -- if GuiManager:addButton(Vector2d(34, 460), "watch replay") then
   --   app.state:switchState(ReplaySelectionState())
   -- end
 
+  GuiManager:addText(Vector2d(34, 500), "credits", TF_CONCEAL)
   -- if GuiManager:addButton(Vector2d(34, 500), "credits") then
   --   app.state:switchState(CreditsState())
   -- end

@@ -64,14 +64,15 @@ function OptionsMenuState:update(dt)
   self.botStrength[RIGHT_PLAYER] = math.floor((1 - f) * MAX_BOT_DELAY + 0.5)
   GuiManager:addText(Vector2d(660, 350), botStrengthRightText)
 
-  if GuiManager:addButton(Vector2d(40, 390), "input options") then
-    self:save()
+  GuiManager:addText(Vector2d(40, 390), "input options", TF_CONCEAL)
+  -- if GuiManager:addButton(Vector2d(40, 390), "input options") then
+  --   self:save()
   --   app.state:switchState(InputOptionsMenuState())
-  end
+  -- end
 
   if GuiManager:addButton(Vector2d(40, 430), "graphic options") then
     self:save()
-  --   app.state:switchState(GraphicOptionsMenuState())
+    app.state:switchState(GraphicOptionsMenuState())
   end
 
   if GuiManager:addButton(Vector2d(40, 470), "misc options") then

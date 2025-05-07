@@ -24,6 +24,7 @@ State = require("lib.states.State")
 MainMenuState = require("lib.states.MainMenuState")
 OptionsMenuState = require("lib.states.OptionsMenuState")
 MiscOptionsMenuState = require("lib.states.MiscOptionsMenuState")
+GraphicOptionsMenuState = require("lib.states.GraphicOptionsMenuState")
 GameState = require("lib.states.GameState")
 LocalGameState = require("lib.states.LocalGameState")
 

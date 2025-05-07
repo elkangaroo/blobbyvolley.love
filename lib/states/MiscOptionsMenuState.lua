@@ -43,7 +43,6 @@ function MiscOptionsMenuState:update(dt)
       SoundManager:playSound("res/sfx/bums.wav", 1.0)
     end
   end
-
   if self.mMute then
     GuiManager:addImage(Vector2d(531 - 29, 80), "res/gfx/pfeil_rechts.bmp")
   end
@@ -54,7 +53,6 @@ function MiscOptionsMenuState:update(dt)
     -- @todo persist/undo on save/cancel
     -- RenderManager.uiElements.showfps = self.mShowFPS
   end
-
   if self.mShowFPS then
     GuiManager:addImage(Vector2d(484 - 29, 120), "res/gfx/pfeil_rechts.bmp")
   end
@@ -93,11 +91,6 @@ function MiscOptionsMenuState:update(dt)
   f = GuiManager:addScrollbar(Vector2d(440, 330), f)
   self.mGameFPS = math.floor(f * 90 + 30)
 
-  -- float gamefps = (mGameFPS - 30) / 90.0;
-  -- if (gamefps < 0.0)
-  --   gamefps = 0.0;
-  -- imgui.doScrollbar(GEN_ID, Vector2(440.0, 330.0), gamefps);
-  --   mGameFPS = (int)(gamefps*90.0+30);
   -- if (imgui.doButton(GEN_ID, Vector2(155.0, 380.0), TextManager::OP_VSLOW))
   --   mGameFPS = 30;
   -- if (imgui.doButton(GEN_ID, Vector2(450.0, 380.0), TextManager::OP_SLOW))

@@ -62,6 +62,18 @@ TF_OBFUSCATE    = 0x04 -- Obfuscate the text with asterisks. (for password Editb
 TF_ALIGN_LEFT   = 0x00 -- Text aligned left (default)
 TF_ALIGN_CENTER = 0x08 -- Text centered
 TF_ALIGN_RIGHT  = 0x10 -- Text aligned right
+TF_CONCEAL      = 0x20 -- Make the text appear disabled.
+
+-- Binary    Hex
+-- 00000000  0x00
+-- 00000001  0x01
+-- 00000010  0x02
+-- 00000100  0x04
+-- 00001000  0x08
+-- 00010000  0x10
+-- 00100000  0x20
+-- 01000000  0x40
+-- 10000000  0x80
 
 -- ScriptedInputSource.h
 WAITING_TIME = 1500 -- The time the bot waits after game start

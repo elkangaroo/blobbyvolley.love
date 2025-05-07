@@ -95,6 +95,9 @@ function GuiManager:draw()
       RenderManager:drawImage("res/gfx/pfeil_oben.bmp", Vector2d(obj.pos2.x - 27, obj.pos1.y + 3))
       RenderManager:drawImage("res/gfx/pfeil_unten.bmp", Vector2d(obj.pos2.x - 27, obj.pos2.y - 27))
     end,
+    [ObjectType.BLOB] = function(obj)
+      RenderManager:drawBlob(obj.pos1, 0, obj.color)
+    end,
   }
 
   while not Queue.isEmpty(self.queue) do
@@ -272,6 +275,11 @@ function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
   Queue.push(self.queue, obj)
 
   return selected
+end
+
+-- Vector2d position, table<Color> color
+function GuiManager:addBlob(position, color)
+  Queue.push(self.queue, { type = ObjectType.BLOB, pos1 = position, color = color })
 end
 
 -- number flags
