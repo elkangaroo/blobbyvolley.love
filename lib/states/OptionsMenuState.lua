@@ -14,7 +14,7 @@ setmetatable(OptionsMenuState, {
 function OptionsMenuState:__construct()
   love.mouse.setVisible(true)
 
-  self.scriptNames = { "human", "axji-0-2", "com_11", "gintonicV9", "hyp014", "reduced", "Union" }
+  self.BOT_NAMES = { "human", "axji-0-2", "com_11", "gintonicV9", "hyp014", "reduced", "Union" }
 
   self.playerSelection = {
     [LEFT_PLAYER] = 1,
@@ -46,8 +46,8 @@ function OptionsMenuState:update(dt)
   self.playerNameActive[LEFT_PLAYER] = GuiManager:addEditbox(Vector2d(5, 10), 15, self.playerName[LEFT_PLAYER])
   self.playerNameActive[RIGHT_PLAYER] = GuiManager:addEditbox(Vector2d(425, 10), 15, self.playerName[RIGHT_PLAYER])
 
-  self.playerSelection[LEFT_PLAYER] = GuiManager:addSelectbox(Vector2d(5, 50), Vector2d(375, 300), self.scriptNames, self.playerSelection[LEFT_PLAYER])
-  self.playerSelection[RIGHT_PLAYER] = GuiManager:addSelectbox(Vector2d(425, 50), Vector2d(795, 300), self.scriptNames, self.playerSelection[RIGHT_PLAYER])
+  self.playerSelection[LEFT_PLAYER] = GuiManager:addSelectbox(Vector2d(5, 50), Vector2d(375, 300), self.BOT_NAMES, self.playerSelection[LEFT_PLAYER])
+  self.playerSelection[RIGHT_PLAYER] = GuiManager:addSelectbox(Vector2d(425, 50), Vector2d(795, 300), self.BOT_NAMES, self.playerSelection[RIGHT_PLAYER])
 
   --
   GuiManager:addText(Vector2d(400, 310), "bot strength", TF_ALIGN_CENTER)
@@ -97,7 +97,7 @@ function OptionsMenuState:load()
   if GameConfig.getBoolean("left_player_human") then
     self.playerSelection[LEFT_PLAYER] = 1
   else
-    for i, name in ipairs(self.scriptNames) do
+    for i, name in ipairs(self.BOT_NAMES) do
       if name == GameConfig.get("left_script_name") then
         self.playerSelection[LEFT_PLAYER] = i
       end
@@ -107,7 +107,7 @@ function OptionsMenuState:load()
   if GameConfig.getBoolean("right_player_human") then
     self.playerSelection[RIGHT_PLAYER] = 1
   else
-    for i, name in ipairs(self.scriptNames) do
+    for i, name in ipairs(self.BOT_NAMES) do
       if name == GameConfig.get("right_script_name") then
         self.playerSelection[RIGHT_PLAYER] = i
       end
@@ -126,14 +126,14 @@ function OptionsMenuState:save()
     GameConfig.set("left_player_human", true)
   else
     GameConfig.set("left_player_human", false)
-    GameConfig.set("left_script_name", self.scriptNames[self.playerSelection[LEFT_PLAYER]])
+    GameConfig.set("left_script_name", self.BOT_NAMES[self.playerSelection[LEFT_PLAYER]])
   end
 
   if self.playerSelection[RIGHT_PLAYER] == 1 then
     GameConfig.set("right_player_human", true)
   else
     GameConfig.set("right_player_human", false)
-    GameConfig.set("right_script_name", self.scriptNames[self.playerSelection[RIGHT_PLAYER]])
+    GameConfig.set("right_script_name", self.BOT_NAMES[self.playerSelection[RIGHT_PLAYER]])
   end
 
   GameConfig.set("left_player_name", self.playerName[LEFT_PLAYER])

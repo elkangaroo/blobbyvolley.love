@@ -12,84 +12,69 @@ setmetatable(MiscOptionsMenuState, {
 function MiscOptionsMenuState:__construct()
   love.mouse.setVisible(true)
 
-  self.backgrounds = { "strand1.bmp", "strand2.bmp" }
-  self.rules = { "back_defence", "blitz", "classic", "default", "firewall", "headless", "jumping_jack", "one_hit_wonder", "sticky_mode", "tennis", "the_double" }
+  self.BACKGROUND_NAMES = { "strand1.bmp", "strand2.bmp" }
+  self.RULE_NAMES = { "back_defence", "blitz", "classic", "default", "firewall", "headless", "jumping_jack", "one_hit_wonder", "sticky_mode", "tennis", "the_double" }
 
   self:load()
 end
 
 function MiscOptionsMenuState:update(dt)
-  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/" .. self.backgrounds[self.mBackground])
+  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/" .. self.BACKGROUND_NAMES[self.background])
   GuiManager:addOverlay(Vector2d(0, 0), Vector2d(800, 600))
 
   GuiManager:addText(Vector2d(34, 10), "background:")
-  self.mBackground = GuiManager:addSelectbox(Vector2d(34, 40), Vector2d(400, 175), self.backgrounds, self.mBackground)
+  self.background = GuiManager:addSelectbox(Vector2d(34, 40), Vector2d(400, 175), self.BACKGROUND_NAMES, self.background)
 
   GuiManager:addText(Vector2d(34, 190), "rules:")
-  self.mRule = GuiManager:addSelectbox(Vector2d(34, 220), Vector2d(400, 354), self.rules, self.mRule)
+  self.rule = GuiManager:addSelectbox(Vector2d(34, 220), Vector2d(400, 354), self.RULE_NAMES, self.rule)
 
   GuiManager:addText(Vector2d(484, 10), "volume:")
-  self.mVolume = GuiManager:addScrollbar(Vector2d(484, 50), self.mVolume)
-  -- @todo persist/undo on save/cancel
-  --   SoundManager::getSingleton().setVolume(mVolume);
-  --   SoundManager::getSingleton().playSound("sounds/bums.wav", 1.0);
+  self.volume = GuiManager:addScrollbar(Vector2d(484, 50), self.volume)
 
   --
   if GuiManager:addButton(Vector2d(531, 80), "mute") then
-    self.mMute = not self.mMute
-    -- @todo persist/undo on save/cancel
-    -- SoundManager.isMuted = self.mMute
-    if not self.mMute then
-      SoundManager:playSound("res/sfx/bums.wav", 1.0)
-    end
+    self.isMuted = not self.isMuted
   end
-  if self.mMute then
+  if self.isMuted then
     GuiManager:addImage(Vector2d(531 - 29, 80), "res/gfx/pfeil_rechts.bmp")
   end
 
   --
   if GuiManager:addButton(Vector2d(484, 120), "show fps") then
-    self.mShowFPS = not self.mShowFPS
-    -- @todo persist/undo on save/cancel
-    -- RenderManager.uiElements.showfps = self.mShowFPS
+    self.showFPS = not self.showFPS
   end
-  if self.mShowFPS then
+  if self.showFPS then
     GuiManager:addImage(Vector2d(484 - 29, 120), "res/gfx/pfeil_rechts.bmp")
   end
 
   --
   if GuiManager:addButton(Vector2d(484, 160), "show blood") then
-    self.mShowBlood = not self.mShowBlood
-    -- @todo persist/undo on save/cancel
-    --   BloodManager::getSingleton().enable(mShowBlood);
-    --   BloodManager::getSingleton().spillBlood(Vector2(484.0, 160.0), 1.5, 2);
+    self.showBlood = not self.showBlood
   end
-
-  if self.mShowBlood then
+  if self.showBlood then
     GuiManager:addImage(Vector2d(484 - 29, 160), "res/gfx/pfeil_rechts.bmp")
   end
 
   --
   GuiManager:addText(Vector2d(434, 200), "network side:")
   if GuiManager:addButton(Vector2d(450, 240), "left") then
-    self.mNetworkSide = 0
+    self.networkSide = 0
   end
   if GuiManager:addButton(Vector2d(630, 240), "right") then
-    self.mNetworkSide = 1
+    self.networkSide = 1
   end
 
-  if self.mNetworkSide == 0 then
+  if self.networkSide == 0 then
     GuiManager:addImage(Vector2d(450 - 29, 240), "res/gfx/pfeil_rechts.bmp")
-  end
-  if self.mNetworkSide == 1 then
+  else
     GuiManager:addImage(Vector2d(630 - 29, 240), "res/gfx/pfeil_rechts.bmp")
   end
 
   --
-  local f = (self.mGameFPS - 30) / 90
+  local f = (self.gameFPS - 30) / 90
   GuiManager:addText(Vector2d(484, 290), "gamespeed:")
   f = GuiManager:addScrollbar(Vector2d(440, 330), f)
-  self.mGameFPS = math.floor(f * 90 + 30)
+  self.gameFPS = math.floor(f * 90 + 30)
 
   -- if (imgui.doButton(GEN_ID, Vector2(155.0, 380.0), TextManager::OP_VSLOW))
   --   mGameFPS = 30;
@@ -102,7 +87,7 @@ function MiscOptionsMenuState:update(dt)
   -- if (imgui.doButton(GEN_ID, Vector2(410.0, 450.0), TextManager::OP_VFAST))
   --   mGameFPS = 120;
 
-  local gameFPSText = math.floor(self.mGameFPS / 75 * 100) .. "%"
+  local gameFPSText = math.floor(self.gameFPS / 75 * 100) .. "%"
   GuiManager:addText(Vector2d(660, 330), gameFPSText)
 
   -- //! \todo this must be reworked
@@ -130,41 +115,41 @@ end
 function MiscOptionsMenuState:load()
   GameConfig.load()
 
-  for i, name in ipairs(self.backgrounds) do
+  for i, name in ipairs(self.BACKGROUND_NAMES) do
     if name == GameConfig.get("background") then
-      self.mBackground = i
+      self.background = i
     end
   end
 
-  for i, name in ipairs(self.rules) do
+  for i, name in ipairs(self.RULE_NAMES) do
     if name .. ".lua" == GameConfig.get("rules") then
-      self.mRule = i
+      self.rule = i
     end
   end
 
-  self.mShowFPS = GameConfig.getBoolean("showfps")
-  self.mShowBlood = GameConfig.getBoolean("blood")
-  self.mVolume = GameConfig.getNumber("global_volume")
-  self.mMute = GameConfig.getBoolean("mute")
-  self.mGameFPS = GameConfig.getNumber("gamefps")
-  self.mNetworkSide = GameConfig.getNumber("network_side")
-  self.mLanguage = GameConfig.get("language")
+  self.showFPS = GameConfig.getBoolean("showfps")
+  self.showBlood = GameConfig.getBoolean("blood")
+  self.volume = GameConfig.getNumber("global_volume")
+  self.isMuted = GameConfig.getBoolean("mute")
+  self.gameFPS = GameConfig.getNumber("gamefps")
+  self.networkSide = GameConfig.getNumber("network_side")
+  self.language = GameConfig.get("language")
 
   --
   app.initConfig()
 end
 
 function MiscOptionsMenuState:save()
-  GameConfig.set("background", self.backgrounds[self.mBackground])
-  GameConfig.set("rules", self.rules[self.mRule] .. ".lua")
+  GameConfig.set("background", self.BACKGROUND_NAMES[self.background])
+  GameConfig.set("rules", self.RULE_NAMES[self.rule] .. ".lua")
 
-  GameConfig.set("showfps", self.mShowFPS)
-  GameConfig.set("blood", self.mShowBlood)
-  GameConfig.set("global_volume", self.mVolume)
-  GameConfig.set("mute", self.mMute)
-  GameConfig.set("gamefps", self.mGameFPS)
-  GameConfig.set("network_side", self.mNetworkSide)
-  GameConfig.set("language", self.mLanguage)
+  GameConfig.set("showfps", self.showFPS)
+  GameConfig.set("blood", self.showBlood)
+  GameConfig.set("global_volume", self.volume)
+  GameConfig.set("mute", self.isMuted)
+  GameConfig.set("gamefps", self.gameFPS)
+  GameConfig.set("network_side", self.networkSide)
+  GameConfig.set("language", self.language)
 
   GameConfig.save()
 
