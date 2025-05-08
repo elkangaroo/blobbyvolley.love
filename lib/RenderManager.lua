@@ -1,4 +1,5 @@
 local bit = require("bit")
+local utf8 = require("lib.utf8")
 
 -- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/RenderManagerGL2D.cpp
 local RenderManager = {
@@ -116,21 +117,21 @@ function RenderManager:drawGameUi()
 
     -- draw player scores
     local text = self.uiElements.playerScores[LEFT_PLAYER]
-    love.graphics.printf(text, 24, 24, text:len() * FONT_WIDTH_NORMAL, "left")
+    love.graphics.printf(text, 24, 24, utf8.len(text) * FONT_WIDTH_NORMAL, "left")
 
     local text = self.uiElements.playerScores[RIGHT_PLAYER]
-    love.graphics.printf(text, 800 - 24 - text:len() * FONT_WIDTH_NORMAL, 24, text:len() * FONT_WIDTH_NORMAL, "right")
+    love.graphics.printf(text, 800 - 24 - utf8.len(text) * FONT_WIDTH_NORMAL, 24, utf8.len(text) * FONT_WIDTH_NORMAL, "right")
 
     -- draw player names
     local text = self.uiElements.playerNames[LEFT_PLAYER]
-    love.graphics.printf(text:upper(), 12, 550, text:len() * FONT_WIDTH_NORMAL, "left")
+    love.graphics.printf(utf8.upper(text), 12, 550, utf8.len(text) * FONT_WIDTH_NORMAL, "left")
 
     local text = self.uiElements.playerNames[RIGHT_PLAYER]
-    love.graphics.printf(text:upper(), 800 - 12 - text:len() * FONT_WIDTH_NORMAL, 550, text:len() * FONT_WIDTH_NORMAL, "right")
+    love.graphics.printf(utf8.upper(text), 800 - 12 - utf8.len(text) * FONT_WIDTH_NORMAL, 550, utf8.len(text) * FONT_WIDTH_NORMAL, "right")
 
     -- draw game clock
     local text = self.uiElements.gameTime
-    love.graphics.printf(text, 400 - text:len() * FONT_WIDTH_NORMAL / 2, 24, text:len() * FONT_WIDTH_NORMAL, "center")
+    love.graphics.printf(text, 400 - utf8.len(text) * FONT_WIDTH_NORMAL / 2, 24, utf8.len(text) * FONT_WIDTH_NORMAL, "center")
 
     -- draw fps
     if self.uiElements.showfps then
@@ -147,9 +148,13 @@ end
 
 -- string filename, Vector2d position
 function RenderManager:drawImage(filename, position)
+  love.graphics.push("all")
+
   local image = love.graphics.newImage(newImageDataWithBlackColorKey(filename))
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.draw(image, position.x, position.y)
+
+  love.graphics.pop()
 end
 
 -- Vector2d pos1, Vector2d pos2, table<Color> color
@@ -184,11 +189,17 @@ function RenderManager:drawText(text, position, flags)
     align = "right"
   end
 
-  love.graphics.printf(text:upper(), position.x, position.y, text:len() * fontSize, align)
+  love.graphics.printf(utf8.upper(text), position.x, position.y, utf8.len(text) * fontSize, align)
 
   if bit.band(flags, TF_HIGHLIGHT) ~= 0 then
     love.graphics.setBlendMode("add", "premultiplied")
-    love.graphics.printf(text:upper(), position.x, position.y, text:len() * fontSize, align)
+    love.graphics.printf(utf8.upper(text), position.x, position.y, utf8.len(text) * fontSize, align)
+  end
+
+  if bit.band(flags, TF_CONCEAL) ~= 0 then
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.setBlendMode("subtract", "alphamultiply")
+    love.graphics.printf(utf8.upper(text), position.x, position.y, utf8.len(text) * fontSize, align)
   end
 
   love.graphics.pop()

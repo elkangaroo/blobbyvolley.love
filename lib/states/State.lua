@@ -44,6 +44,11 @@ function State:keyreleased(key)
   self.currentState:keyreleased(key)
 end
 
+-- String text
+function State:textinput(text)
+  self.currentState:textinput(text)
+end
+
 -- State newState
 function State:switchState(newState)
   self.stateToSwitchTo = newState

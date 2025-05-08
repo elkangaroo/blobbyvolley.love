@@ -1,8 +1,10 @@
 local bit = require("bit")
+local utf8 = require("lib.utf8")
 
 -- based on https://github.com/danielknobe/blobbyvolley2/blob/v1.0/src/IMGUI.cpp
 local GuiManager = {
   queue = nil,
+  lastMouseDown = false,
 }
 
 local ObjectType = {
@@ -38,6 +40,63 @@ function GuiManager:draw()
     end,
     [ObjectType.BUTTON] = function(obj)
       RenderManager:drawText(obj.text, obj.pos1, obj.flags)
+    end,
+    [ObjectType.SCROLLBAR] = function(obj)
+      RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(210, 25), { 0, 0, 0, 0.5 })
+      RenderManager:drawImage("res/gfx/scrollbar.bmp", obj.pos1 + Vector2d(obj.pos2.x * 200, 0))
+    end,
+    [ObjectType.ACTIVESCROLLBAR] = function(obj)
+      RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(210, 25), { 0, 0, 0, 0.4 })
+      RenderManager:drawImage("res/gfx/scrollbar.bmp", obj.pos1 + Vector2d(obj.pos2.x * 200, 0))
+    end,
+    [ObjectType.EDITBOX] = function(obj)
+      local fontSize = self:__getFontSize(obj.flags)
+
+      RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(10 + obj.length * fontSize, 10 + fontSize), { 0, 0, 0, 0.5 })
+      RenderManager:drawText(obj.text, obj.pos1 + Vector2d(5, 5), obj.flags)
+    end,
+    [ObjectType.ACTIVEEDITBOX] = function(obj)
+      local fontSize = self:__getFontSize(obj.flags)
+
+      RenderManager:drawOverlay(obj.pos1, obj.pos1 + Vector2d(10 + obj.length * fontSize, 10 + fontSize), { 0, 0, 0, 0.3 })
+      RenderManager:drawText(obj.text, obj.pos1 + Vector2d(5, 5), obj.flags)
+      
+      RenderManager:drawOverlay(Vector2d(utf8.len(obj.text) * fontSize + obj.pos1.x + 5, obj.pos1.y + 5), Vector2d(utf8.len(obj.text) * fontSize + obj.pos1.x + 5 + 3, obj.pos1.y + 5 + fontSize), { 255,255,255, 1.0 })
+    end,
+    [ObjectType.SELECTBOX] = function(obj)
+      local fontSize = self:__getFontSize(obj.flags) + self:__getLineSpacerSize(obj.flags)
+
+      RenderManager:drawOverlay(obj.pos1, obj.pos2, { 0, 0, 0, 0.5 })
+
+      for i, entry in ipairs(obj.entries) do
+        if i == obj.selected then
+          RenderManager:drawText(entry, Vector2d(5 + obj.pos1.x, 5 + obj.pos1.y + ((i - 1) * fontSize)), bit.bor(obj.flags, TF_HIGHLIGHT))
+        else
+          RenderManager:drawText(entry, Vector2d(5 + obj.pos1.x, 5 + obj.pos1.y + ((i - 1) * fontSize)), obj.flags)
+        end
+      end
+
+      RenderManager:drawImage("res/gfx/pfeil_oben.bmp", Vector2d(obj.pos2.x - 27, obj.pos1.y + 3))
+      RenderManager:drawImage("res/gfx/pfeil_unten.bmp", Vector2d(obj.pos2.x - 27, obj.pos2.y - 27))
+    end,
+    [ObjectType.ACTIVESELECTBOX] = function(obj)
+      local fontSize = self:__getFontSize(obj.flags) + self:__getLineSpacerSize(obj.flags)
+
+      RenderManager:drawOverlay(obj.pos1, obj.pos2, { 0, 0, 0, 0.3 })
+
+      for i, entry in ipairs(obj.entries) do
+        if i == obj.selected then
+          RenderManager:drawText(entry, Vector2d(5 + obj.pos1.x, 5 + obj.pos1.y + ((i - 1) * fontSize)), bit.bor(obj.flags, TF_HIGHLIGHT))
+        else
+          RenderManager:drawText(entry, Vector2d(5 + obj.pos1.x, 5 + obj.pos1.y + ((i - 1) * fontSize)), obj.flags)
+        end
+      end
+
+      RenderManager:drawImage("res/gfx/pfeil_oben.bmp", Vector2d(obj.pos2.x - 27, obj.pos1.y + 3))
+      RenderManager:drawImage("res/gfx/pfeil_unten.bmp", Vector2d(obj.pos2.x - 27, obj.pos2.y - 27))
+    end,
+    [ObjectType.BLOB] = function(obj)
+      RenderManager:drawBlob(obj.pos1, 0, obj.color)
     end,
   }
 
@@ -77,45 +136,178 @@ function GuiManager:addButton(position, text, flags)
   flags = flags or TF_NORMAL
   position = self:__getTextPosition(position, text, flags)
 
+  local obj = { type = ObjectType.BUTTON, pos1 = position, text = text, flags = flags }
+
   local clicked = false
 
-  local fontSize = FONT_WIDTH_NORMAL
-  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
-    fontSize = FONT_WIDTH_SMALL
-  end
-  local tolerance = 0
+  local fontSize = self:__getFontSize(flags)
 
   -- React to mouse input.
   local mousepos = Vector2d(love.mouse.getPosition())
   if (
-    mousepos.x + tolerance >= position.x and
-    mousepos.y + tolerance * 2 >= position.y and
-    mousepos.x - tolerance <= position.x + text:len() * fontSize and
-    mousepos.y - tolerance * 2 <= position.y + fontSize
+    mousepos.x >= position.x and
+    mousepos.y >= position.y and
+    mousepos.x <= position.x + utf8.len(text) * fontSize and
+    mousepos.y <= position.y + fontSize
   ) then
-    flags = bit.bor(flags, TF_HIGHLIGHT)
+    obj.flags = bit.bor(flags, TF_HIGHLIGHT)
 
-    if love.mouse.isDown(1) then
+    if love.mouse.isDown(1) and not self.lastMouseDown then
       clicked = true
     end
+    self.lastMouseDown = love.mouse.isDown(1)
   end
 
-  Queue.push(self.queue, { type = ObjectType.BUTTON, pos1 = position, text = text, flags = flags })
+  Queue.push(self.queue, obj)
 
   return clicked
 end
 
--- Vector2d position, string text, number flags
-function GuiManager:__getTextPosition(position, text, flags)
-  local fontSize = FONT_WIDTH_NORMAL
-  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
-    fontSize = FONT_WIDTH_SMALL
+-- Vector2d position, number value
+function GuiManager:addScrollbar(position, value)
+  local obj = { type = ObjectType.SCROLLBAR, pos1 = position, pos2 = Vector2d(value, 0) }
+
+  -- React to mouse input.
+  local mousepos = Vector2d(love.mouse.getPosition())
+  if (
+    mousepos.x + 5 > position.x and
+    mousepos.y > position.y and
+    mousepos.x < position.x + 205 and
+    mousepos.y < position.y + 24
+  ) then
+    obj.type = ObjectType.ACTIVESCROLLBAR
+
+    if love.mouse.isDown(1) then
+      value = (mousepos.x - position.x) / 200
+    end
   end
 
+  Queue.push(self.queue, obj)
+
+  return value
+end
+
+-- Vector2d position, number length, string text, number flags
+function GuiManager:addEditbox(position, length, text, flags)
+  flags = flags or TF_NORMAL
+
+  local obj = { type = ObjectType.EDITBOX, pos1 = position, length = length, text = text, flags = flags }
+
+  local active = false
+
+  local fontSize = self:__getFontSize(flags)
+
+  -- React to mouse input.
+  local mousepos = Vector2d(love.mouse.getPosition())
+  if (
+    mousepos.x > position.x and
+    mousepos.y > position.y and
+    mousepos.x < position.x + length * fontSize + 10 and
+    mousepos.y < position.y + fontSize + 10
+  ) then
+    obj.flags = bit.bor(flags, TF_HIGHLIGHT)
+    obj.type = ObjectType.ACTIVEEDITBOX
+    active = true
+  end
+
+  Queue.push(self.queue, obj)
+
+  return active
+end
+
+-- Vector2d pos1, Vector2d pos2, table<string> entries, number selected, number flags
+function GuiManager:addSelectbox(pos1, pos2, entries, selected, flags)
+  flags = flags or TF_NORMAL
+
+  local obj = { type = ObjectType.SELECTBOX, pos1 = pos1, pos2 = pos2, entries = entries, selected = selected, flags = flags }
+
+  local fontSize = self:__getFontSize(flags) + self:__getLineSpacerSize(flags)
+  local itemsPerPage = math.floor((pos2.y - pos1.y - 10) / fontSize)
+  local firstItem = math.floor((selected - 1) / itemsPerPage ) * itemsPerPage
+
+  obj.entries = { table.unpack(entries, 1 + firstItem, itemsPerPage + firstItem ) }
+  obj.selected = selected - firstItem
+
+  -- React to mouse input.
+  local mousepos = Vector2d(love.mouse.getPosition())
+  if (
+    mousepos.x > pos1.x and
+    mousepos.y > pos1.y + 5 and
+    mousepos.x < pos2.x - 35 and
+    mousepos.y < pos2.y - 5
+  ) then
+    obj.type = ObjectType.ACTIVESELECTBOX
+
+    if love.mouse.isDown(1) and not self.lastMouseDown then
+      local tmp = math.floor((mousepos.y - pos1.y - 5) / fontSize) + firstItem
+      if (tmp >= 0 and tmp < #entries) then
+        selected = tmp + 1
+      end
+    end
+    self.lastMouseDown = love.mouse.isDown(1)
+
+    -- if ((InputManager::getSingleton()->mouseWheelUp()) && (selected > 0)) {
+    --   selected--;
+    -- }
+    -- if ((InputManager::getSingleton()->mouseWheelDown()) && (selected + 1 < entries.size())) {
+    --   selected++;
+    -- }
+  end
+
+  if (
+    mousepos.x > pos2.x - 30 and
+    mousepos.x < pos2.x - 30 + 24 and
+    mousepos.y > pos1.y and
+    mousepos.y < pos2.y
+  ) then
+    if love.mouse.isDown(1) and not self.lastMouseDown then
+      if (mousepos.y > pos1.y + 3 and mousepos.y < pos1.y + 3 + 24 and selected > 1) then
+        selected = selected - 1
+      end
+
+      if (mousepos.y > pos2.y - 3 - 24 and mousepos.y < pos2.y - 3 and selected < #entries) then
+        selected = selected + 1
+      end
+    end
+    self.lastMouseDown = love.mouse.isDown(1)
+  end
+
+  Queue.push(self.queue, obj)
+
+  return selected
+end
+
+-- Vector2d position, table<Color> color
+function GuiManager:addBlob(position, color)
+  Queue.push(self.queue, { type = ObjectType.BLOB, pos1 = position, color = color })
+end
+
+-- number flags
+function GuiManager:__getFontSize(flags)
+  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
+    return FONT_WIDTH_SMALL
+  end
+
+  return FONT_WIDTH_NORMAL
+end
+
+-- number flags
+function GuiManager:__getLineSpacerSize(flags)
+  if bit.band(flags, TF_SMALL_FONT) ~= 0 then
+    return LINE_SPACER_SMALL
+  end
+
+  return LINE_SPACER_NORMAL
+end
+
+-- Vector2d position, string text, number flags
+function GuiManager:__getTextPosition(position, text, flags)
+  local fontSize = self:__getFontSize(flags)
+
   if bit.band(flags, TF_ALIGN_CENTER) ~= 0 then
-    position.x = position.x - text:len() * fontSize / 2
+    position.x = position.x - utf8.len(text) * fontSize / 2
   elseif bit.band(flags, TF_ALIGN_RIGHT) ~= 0 then
-    position.x = position.x -text:len() * fontSize
+    position.x = position.x - utf8.len(text) * fontSize
   end
 
   return position

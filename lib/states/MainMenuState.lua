@@ -14,7 +14,7 @@ function MainMenuState:__construct()
 end
 
 function MainMenuState:update(dt)
-  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/strand2.bmp")
+  GuiManager:addImage(Vector2d(0, 0), "res/gfx/backgrounds/" .. GameConfig.get("background"))
   GuiManager:addOverlay(Vector2d(0, 0), Vector2d(800, 600))
   GuiManager:addImage(Vector2d(187, 52), "res/gfx/titel2.bmp")
 
@@ -30,14 +30,16 @@ function MainMenuState:update(dt)
     app.state:switchState(LocalGameState())
   end
 
-  -- if GuiManager:addButton(Vector2d(34, 420), "options") then
-  --   app.state:switchState(OptionState())
-  -- end
+  if GuiManager:addButton(Vector2d(34, 420), "options") then
+    app.state:switchState(OptionsMenuState())
+  end
 
+  GuiManager:addText(Vector2d(34, 460), "watch replay", TF_CONCEAL)
   -- if GuiManager:addButton(Vector2d(34, 460), "watch replay") then
   --   app.state:switchState(ReplaySelectionState())
   -- end
 
+  GuiManager:addText(Vector2d(34, 500), "credits", TF_CONCEAL)
   -- if GuiManager:addButton(Vector2d(34, 500), "credits") then
   --   app.state:switchState(CreditsState())
   -- end
@@ -57,6 +59,10 @@ end
 
 -- KeyConstant key
 function MainMenuState:keyreleased(key)
+end
+
+-- String text
+function MainMenuState:textinput(text)
 end
 
 function MainMenuState:getStateName()
